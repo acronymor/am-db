@@ -5,4 +5,4 @@
 [submodule "third-party/incubator-brpc"]
 	path = third-party/incubator-brpc
 	url = git@github.com:/apache/incubator-brpc.git
-	branch = release-1.2
+	branch = master

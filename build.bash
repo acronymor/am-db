@@ -26,9 +26,15 @@ function run_cmd() {
   fi
 }
 
-function brpc() {
-  local pkg=(libgflags-dev libgtest-dev libprotobuf-dev libprotoc-dev protobuf-compiler libleveldb-dev libssl-dev libgoogle-glog-dev)
-  for item in "${brpc[@]}"; do
+function env() {
+  local pkg=(make cmake flex bison)
+  for item in "${pkg[@]}"; do
+    cmd="sudo apt install ${item} -y"
+    run_cmd "${cmd}"
+  done
+
+  local libs=(libgflags-dev libgtest-dev libprotobuf-dev libprotoc-dev protobuf-compiler libleveldb-dev libssl-dev libgoogle-glog-dev)
+  for item in "${libs[@]}"; do
     cmd="sudo apt install ${item} -y"
     run_cmd "${cmd}"
   done
@@ -41,14 +47,6 @@ function brpc() {
 
   cmd="make"
   run_cmd "${cmd}"
-}
-
-function env() {
-  local pkg=(cmake flex bison)
-  for item in "${pkg[@]}"; do
-    cmd="sudo apt install ${item} -y"
-    run_cmd "${cmd}"
-  done
 }
 
 function clone() {
@@ -65,7 +63,6 @@ function clone() {
 function init() {
   clone
   env
-  brpc
 }
 
 function build() {
