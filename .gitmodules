@@ -1,0 +1,8 @@
+[submodule "third-party/abseil-cpp"]
+	path = third-party/abseil-cpp
+	url = git@github.com:/abseil/abseil-cpp.git
+	branch = lts_2022_06_23
+[submodule "third-party/incubator-brpc"]
+	path = third-party/incubator-brpc
+	url = git@github.com:/apache/incubator-brpc.git
+	branch = release-1.2
