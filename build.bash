@@ -33,7 +33,7 @@ function env() {
     run_cmd "${cmd}"
   done
 
-  local libs=(libgflags-dev libgtest-dev libprotobuf-dev libprotoc-dev protobuf-compiler libleveldb-dev libssl-dev libgoogle-glog-dev)
+  local libs=(libgflags-dev libgtest-dev libprotobuf-dev libprotoc-dev protobuf-compiler libleveldb-dev libssl-dev)
   for item in "${libs[@]}"; do
     cmd="sudo apt install ${item} -y"
     run_cmd "${cmd}"
@@ -69,7 +69,7 @@ function build() {
   local build_dir=${bin}/build
   local parallel=8
 
-  local cmd="cmake -S ${bin} -B ${build_dir}"
+  local cmd="cmake -S ${bin} -B ${build_dir} -DCMAKE_BUILD_TYPE=Release"
   run_cmd "${cmd}"
 
   cmd="cd ${build_dir}"

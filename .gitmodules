@@ -6,3 +6,11 @@
 	path = third-party/incubator-brpc
 	url = git@github.com:/apache/incubator-brpc.git
 	branch = master
+[submodule "third-party/fmt"]
+	path = third-party/fmt
+	url = git@github.com:/fmtlib/fmt.git
+	branch = master
+[submodule "third-party/glog"]
+	path = third-party/glog
+	url = git@github.com:/google/glog.git
+	branch = master
