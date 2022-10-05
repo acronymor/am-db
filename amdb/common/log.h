@@ -1,21 +1,6 @@
-// Copyright (c) 2018-present Baidu, Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #pragma once
 
 #include <gflags/gflags.h>
-#include <stdarg.h>
 #include <sys/stat.h>
 
 #include <iomanip>
@@ -29,7 +14,6 @@
 namespace amdb {
 DECLARE_bool(enable_debug);
 DECLARE_bool(enable_trace);
-DECLARE_bool(servitysinglelog);
 
 #define FMT_FORMAT(format_str, ...) \
   fmt::format(FMT_COMPILE(format_str), ##__VA_ARGS__)
@@ -104,8 +88,8 @@ inline int init_log(const char* bin_name) {
     mkdir(FLAGS_log_dir.c_str(), S_IRWXU);
   }
 
-  google::SetLogFilenameExtension(".log");
-  google::SetLogDestination(google::GLOG_ERROR, "log/task_error");
+  google::SetLogFilenameExtension("log");
+  google::SetLogDestination(google::GLOG_ERROR, "log/task_error.");
 
   return 0;
 }
