@@ -2,6 +2,7 @@
 	path = third-party/abseil-cpp
 	url = git@github.com:/abseil/abseil-cpp.git
 	branch = lts_2022_06_23
+	shallow = true
 [submodule "third-party/incubator-brpc"]
 	path = third-party/incubator-brpc
 	url = git@github.com:/apache/incubator-brpc.git
@@ -9,8 +10,10 @@
 [submodule "third-party/fmt"]
 	path = third-party/fmt
 	url = git@github.com:/fmtlib/fmt.git
-	branch = master
+	branch = a33701196adfad74917046096bf5a2aa0ab0bb50
+	shallow = true
 [submodule "third-party/glog"]
 	path = third-party/glog
 	url = git@github.com:/google/glog.git
-	branch = master
+	branch = b33e3bad4c46c8a6345525fd822af355e5ef9446
+	shallow = true

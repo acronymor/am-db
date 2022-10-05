@@ -57,7 +57,7 @@ function clone() {
   run_cmd "${cmd}"
 
   cmd="git submodule update --remote --recursive"
-  run_cmd "${cmd}"
+  # run_cmd "${cmd}"
 }
 
 function init() {
