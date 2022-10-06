@@ -25,6 +25,11 @@ IF (CMAKE_BUILD_TYPE MATCHES "Rel")
 ENDIF ()
 ADD_DEFINITIONS(-DGIT_COMMIT_ID="${GIT_COMMIT_ID}")
 
+## ctest
+OPTION(AMDB_BUILD_TEST "Build unit tests of AMDB" ON)
+IF (AMDB_BUILD_TEST)
+  ENABLE_TESTING()
+ENDIF ()
 
 ###############################################
 

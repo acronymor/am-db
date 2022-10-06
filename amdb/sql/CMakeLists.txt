@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
 SET(CMAKE_CXX_STANDARD 20)
 
-LIST(APPEND amdb_sql_folder storage)
+LIST(APPEND amdb_sql_folder common storage)
 
 FOREACH (folder ${amdb_sql_folder})
   FILE(GLOB srcs ${folder}/*.cc)
@@ -16,7 +16,18 @@ FOREACH (folder ${amdb_sql_folder})
 ENDFOREACH ()
 
 ADD_LIBRARY(libamdb_sql OBJECT ${amdb_sql_src})
-TARGET_LINK_LIBRARIES(libamdb_sql gflags glog)
+TARGET_LINK_LIBRARIES(libamdb_sql libamdb_common gflags glog)
 
 ADD_EXECUTABLE(amdb main.h main.cc)
-TARGET_LINK_LIBRARIES(amdb libamdb_common libamdb_sql)
+TARGET_LINK_LIBRARIES(amdb libamdb_sql)
+
+IF (AMDB_BUILD_TEST)
+  FOREACH (test_item ${amdb_sql_test_src})
+    GET_FILENAME_COMPONENT(test_target_name ${test_item} NAME_WE)
+    MESSAGE("1-> ${test_target_name}")
+    ADD_EXECUTABLE(${test_target_name} ${test_item})
+    TARGET_LINK_LIBRARIES(${test_target_name} gtest gtest_main libamdb_sql)
+    MESSAGE("2-> ${test_target_name}")
+    ADD_TEST(NAME ${test_target_name} COMMAND ${test_target_name})
+  ENDFOREACH ()
+ENDIF ()

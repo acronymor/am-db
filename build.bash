@@ -65,17 +65,54 @@ function init() {
   env
 }
 
+################################################
+
+cmake_build_type=Dev
+amdb_build_test=OFF
+amdb_build_parallel=8
+amdb_build_dir=${bin}/build
+amdb_release_dir=${bin}/release
+
+################################################
+
 function build() {
-  local build_dir=${bin}/build
-  local parallel=8
-
-  local cmd="cmake -S ${bin} -B ${build_dir} -DCMAKE_BUILD_TYPE=Release"
+  local cmd="cmake -S ${bin} -B ${amdb_build_dir} -DCMAKE_BUILD_TYPE=${cmake_build_type} -DAMDB_BUILD_TEST=${amdb_build_test}"
   run_cmd "${cmd}"
 
-  cmd="cd ${build_dir}"
+  cmd="cd ${amdb_build_dir}"
   run_cmd "${cmd}"
 
-  cmd="make -j ${parallel}"
+  cmd="make -j ${amdb_build_parallel}"
+  run_cmd "${cmd}"
+}
+
+function release() {
+  cmake_build_type=Release
+  amdb_build_test=OFF
+  amdb_build_parallel=16
+
+  local cmd="rm -rf ${amdb_build_dir}"
+  run_cmd "${cmd}"
+
+  build
+
+  cmd="rm -rf ${amdb_release_dir}"
+  run_cmd "${cmd}"
+
+  cmd="mkdir -p ${amdb_release_dir}"
+  run_cmd "${cmd}"
+
+  cmd="cp ${amdb_build_dir}/amdb/sql/amdb ${amdb_release_dir}"
+  run_cmd "${cmd}"
+}
+
+function test() {
+  cmake_build_type=Test
+  amdb_build_test=ON
+
+  build
+
+  cmd="make test"
   run_cmd "${cmd}"
 }
 

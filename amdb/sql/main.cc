@@ -4,6 +4,7 @@
 
 #include "common/log.h"
 #include "common/version.h"
+#include "storage/kv_storage.h"
 
 namespace amdb {
 
@@ -13,12 +14,9 @@ int run(int argc, char* argv[]) {
     return -1;
   }
 
-  std::string test = "Hello world";
-  TRACE("content:->| {} ", test);
-  DEBUG("content:->| {} ", test);
-  INFO("content:->| {} ", test);
-  WARN("content:->| {} ", test);
-  ERROR("content:->| {} ", test);
+  storage::KvStorageAPI api;
+  Status status = api.PutKV("key", "value");
+  INFO("put kv {}", status);
 
   gflags::SetVersionString(GetRcsid());
   gflags::ParseCommandLineFlags(&argc, &argv, true);
