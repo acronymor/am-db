@@ -4,28 +4,46 @@
 
 #include "common/log.h"
 #include "common/version.h"
-#include "sql/storage/leveldb_client.h"
+#include "sql/storage/kv_storage_api.h"
 
 namespace amdb {
 
-int run(int argc, char* argv[]) {
+int init(int argc, char* argv[]) {
+  // init gflags
   gflags::SetVersionString(GetRcsid());
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+  // init log
   if (init_log(argv[0]) != 0) {
-    fprintf(stderr, "log init failed.");
+    FATAL("{}", "log init failed.")
     return -1;
   }
 
+  // init storage
   storage::StorageAPIOptions options;
-  storage::KvStorageAPI* api = storage::LevelDbClient::Create(options);
-  Status status = api->PutKV("key", "value");
+  Status status = storage::KvStorageAPISingleton::Init(options);
+  if (Status::C_OK != status) {
+    FATAL("{}", GetErrorString(status));
+    return -1;
+  }
+}
+
+int run() {
+  storage::KvStorageAPI* storage = storage::KvStorageAPISingleton::GetInstance();
+  Status status = storage->PutKV("key", "Hello world");
+  if (Status::C_OK != status) {
+    ERROR("{}", GetErrorString(status));
+  }
+
   std::string value;
-  api->GetKV("key", &value);
-  INFO("put kv {}", value);
+  storage->GetKV("key", &value);
+  INFO("kv: {}", value);
 
   return 0;
 }
 }  // namespace amdb
 
-int main(int argc, char* argv[]) { amdb::run(argc, argv); }
+int main(int argc, char* argv[]) {
+  amdb::init(argc, argv);
+  amdb::run();
+}
