@@ -4,22 +4,26 @@
 
 #include "common/log.h"
 #include "common/version.h"
-#include "storage/kv_storage.h"
+#include "sql/storage/leveldb_client.h"
 
 namespace amdb {
 
 int run(int argc, char* argv[]) {
+  gflags::SetVersionString(GetRcsid());
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+
   if (init_log(argv[0]) != 0) {
     fprintf(stderr, "log init failed.");
     return -1;
   }
 
-  storage::KvStorageAPI api;
-  Status status = api.PutKV("key", "value");
-  INFO("put kv {}", status);
+  storage::StorageAPIOptions options;
+  storage::KvStorageAPI* api = storage::LevelDbClient::Create(options);
+  Status status = api->PutKV("key", "value");
+  std::string value;
+  api->GetKV("key", &value);
+  INFO("put kv {}", value);
 
-  gflags::SetVersionString(GetRcsid());
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
   return 0;
 }
 }  // namespace amdb

@@ -59,7 +59,7 @@ DECLARE_bool(enable_trace);
     LOG(FATAL) << "FATAL " << LOG_FORMAT(_fmt_, ##args); \
   } while (0);
 
-void CustomPrefix(std::ostream& s, const google::LogMessageInfo& l, void*) {
+inline void CustomPrefix(std::ostream& s, const google::LogMessageInfo& l, void*) {
   s << std::setw(4) << 1900 + l.time.year();
   s << '-';
   s << std::setw(2) << 1 + l.time.month();
