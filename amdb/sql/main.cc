@@ -26,6 +26,8 @@ int init(int argc, char* argv[]) {
     FATAL("{}", GetErrorString(status));
     return -1;
   }
+
+  return 0;
 }
 
 int run() {

@@ -16,7 +16,7 @@ FOREACH (folder ${amdb_sql_folder})
 ENDFOREACH ()
 
 ADD_LIBRARY(libamdb_sql OBJECT ${amdb_sql_src})
-TARGET_LINK_LIBRARIES(libamdb_sql libamdb_common glog gflags leveldb)
+TARGET_LINK_LIBRARIES(libamdb_sql libamdb_proto libamdb_common glog gflags leveldb)
 
 ADD_EXECUTABLE(amdb main.h main.cc)
 TARGET_LINK_LIBRARIES(amdb libamdb_sql)
