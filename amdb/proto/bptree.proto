@@ -3,32 +3,36 @@ option cc_generic_services = true;
 
 package amdb.storage;
 
-message BpTreeStatisticsProto {
+message BptStatisticProto {
   bytes min_key = 1;
   bytes max_key = 2;
   uint64 count = 3;
   uint64 node_size = 4;
+  /*
   uint64 data_size = 5;
-}
+  */
+};
 
-message BpTreeNonLeafNodeProto {
-  uint64 node_id = 1;
-  repeated BpTreeChildRefProto children = 2;
-}
+message BptNodeRefProto {
+  uint64 id = 1;
 
-message BpTreeChildRefProto {
-  uint64 child_node_id = 1;
-  enum BpTreeNodeType {
+  enum BptNodeType {
     NON_LEAF = 0;
     LEAF = 1;
-  }
-  BpTreeNodeType child_node_type = 2;
+  };
 
-  BpTreeStatisticsProto stat = 3;
+  BptNodeType type = 2;
+
+  BptStatisticProto stat = 3;
 }
 
-message BpTreeLeafNodeProto {
-  uint64 node_id = 1;
+message BptLeafNodeProto {
+  uint64 id = 1;
   bytes keys = 2;
   bytes values = 3;
-}
+};
+
+message BptNonLeafNodeProto {
+  uint64 id = 1;
+  repeated BptNodeRefProto children = 2;
+};
