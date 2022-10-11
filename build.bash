@@ -65,6 +65,7 @@ function build() {
   -DAMDB_BUILD_TEST=${amdb_build_test} \
   -DLEVELDB_BUILD_BENCHMARKS=OFF \
   -DLEVELDB_BUILD_TESTS=OFF \
+  -DWITH_SYMBOLIZE=OFF \
   -Dprotobuf_BUILD_TESTS=OFF"
 
   run_cmd "${cmd}"
