@@ -1,10 +1,11 @@
 #include "sql/storage/bplus_tree_node.h"
 
+#include "common/assert.h"
 #include "sql/codec/codec.h"
 
 namespace amdb {
 namespace storage {
-uint32_t amdb_max_node_size = 16 * (1 << 10);
+uint32_t amdb_max_node_size = 40;  // 16 * (1 << 10);
 TreeCtx::TreeCtx(KvStorageAPI* kv) : storage_api_(kv) {}
 
 uint64_t TreeCtx::AllocateNodeID() { return id_++; }
@@ -124,15 +125,16 @@ BptNode::~BptNode() {
 }
 
 Status BptNode::Insert(const std::string& key, std::string&& value) {
-  // AMDB_ASSERT_TRUE(is_leaf_);
+  AMDB_ASSERT_TRUE(is_leaf_);
 
   if ((kvs_.find(key) != kvs_.end())) {
-    // duplicate key
-    return Status::C_BPTREE_ERROR;
+    ERROR("Duplicate key: {}", Status::C_BPTREE_DUPLICATE_KEY)
+    return Status::C_BPTREE_DUPLICATE_KEY;
   }
 
-  auto result = write_kvs_.emplace(std::move(key), std::move(value));
+  auto result = write_kvs_.emplace(key, value);
   if (!result.second) {
+    ERROR("BptNode Insert Failed: {}", Status::C_BPTREE_ERROR);
     return Status::C_BPTREE_ERROR;
   }
   auto& it = result.first;
@@ -307,7 +309,6 @@ Status BptNode::LoadNodeFromKVStorage(TreeCtx* ctx) {
 
 BptNode* BptNode::NewMutableLeafChild(TreeCtx* ctx) {
   auto child = new BptNode(ctx, this, true);
-  ctx->CollectUnsavedTreeNode(child);
   children_.emplace_back(child);
   return child;
 }
@@ -474,7 +475,55 @@ bool BptNode::NeedSplit() const {
   return stat_.node_size > amdb_max_node_size;
 }
 
-BptNode* BptNode::Split(TreeCtx* ctx, IncrStatistics* stat) { return nullptr; }
+BptNode* BptNode::Split(TreeCtx* ctx) {
+  BptNode* right_node = new BptNode(ctx, parent_, is_leaf_);
+  size_t split_idx = ((kvs_.size() + 1) >> 1) - 1;
+  if (is_leaf_) {
+    auto iter = kvs_.begin();
+
+    std::advance(iter, split_idx + 1);
+    while (iter != kvs_.end()) {
+      right_node->stat_.node_size += iter->first.size() + iter->second.size();
+      std::string key = iter->first;
+      std::string value = iter->second;
+      right_node->Insert(std::move(key), std::move(value));
+      write_kvs_.erase(iter->first);
+      iter = kvs_.erase(iter);
+    }
+
+    // update stat
+    stat_.count = kvs_.size();
+    stat_.min_key = kvs_.begin()->first;
+    stat_.max_key = kvs_.rbegin()->first;
+    stat_.node_size = stat_.node_size - right_node->stat_.node_size;
+
+    right_node->stat_.count = right_node->stat_.count;
+    right_node->stat_.min_key = right_node->kvs_.begin()->first;
+    right_node->stat_.max_key = right_node->kvs_.rbegin()->first;
+  } else {
+    for (size_t i = split_idx + 1; i < children_.size(); i++) {
+      BptNode* child = children_[i];
+      child->parent_ = right_node;
+      right_node->children_.emplace_back(child);
+
+      right_node->stat_.count += child->stat_.count;
+      right_node->stat_.node_size +=
+          child->stat_.min_key.size() + child->stat_.max_key.size() + 20;
+    }
+
+    children_.erase(children_.begin() + split_idx + 1, children_.end());
+
+    stat_.count = stat_.count - right_node->stat_.count;
+    stat_.node_size = stat_.node_size - right_node->stat_.node_size;
+    stat_.min_key = children_.front()->stat_.min_key;
+    stat_.max_key = children_.back()->stat_.max_key;
+
+    right_node->stat_.min_key = right_node->children_.front()->stat_.min_key;
+    right_node->stat_.max_key = right_node->children_.back()->stat_.max_key;
+  }
+
+  return right_node;
+}
 
 }  // namespace storage
 }  // namespace amdb

@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "common/assert.h"
 #include "proto/bptree.pb.h"
 #include "sql/storage/bplus_tree_node.h"
 

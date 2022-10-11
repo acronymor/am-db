@@ -3,10 +3,6 @@
 	url = git@github.com:/abseil/abseil-cpp.git
 	branch = lts_2022_06_23
 	shallow = true
-[submodule "third-party/incubator-brpc"]
-	path = third-party/incubator-brpc
-	url = git@github.com:/apache/incubator-brpc.git
-	branch = master
 [submodule "third-party/fmt"]
 	path = third-party/fmt
 	url = git@github.com:/fmtlib/fmt.git
@@ -16,4 +12,24 @@
 	path = third-party/glog
 	url = git@github.com:/google/glog.git
 	branch = b33e3bad4c46c8a6345525fd822af355e5ef9446
+	shallow = true
+[submodule "third-party/protobuf"]
+	path = third-party/protobuf
+	url = git@github.com:/protocolbuffers/protobuf
+	branch = 24487dd1045c7f3d64a21f38a3f0c06cc4cf2edb
+	shallow = true
+[submodule "third-party/gflags"]
+	path = third-party/gflags
+	url = git@github.com:gflags/gflags.git
+	branch = master
+	shallow = true
+[submodule "third-party/gtest"]
+	path = third-party/gtest
+	url = git@github.com:google/googletest.git
+	branch = 15460959cbbfa20e66ef0b5ab497367e47fc0a04
+	shallow = true
+[submodule "third-party/leveldb"]
+	path = third-party/leveldb
+	url = git@github.com:google/leveldb.git
+	branch = main
 	shallow = true

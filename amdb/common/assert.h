@@ -123,3 +123,18 @@ class Assertion {
 };
 
 }  // namespace amdb
+
+#define RETURN_ERR_NOT_OK(exp)            \
+  do {                                    \
+    Status code = (exp);                  \
+    if (UNLIKELY(code != Status::C_OK)) { \
+      return code;                        \
+    }                                     \
+  } while (0)
+
+#define RETURN_ERR_IF_TRUE(exp, code) \
+  do {                                \
+    if (UNLIKELY(exp)) {              \
+      return code;                    \
+    }                                 \
+  } while (0)

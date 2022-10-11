@@ -67,7 +67,7 @@ TEST_F(LevelDbClientTest, BATCH_CRUD) {
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   status = client_->GetKV(key2, &tmp_value);
-  AMDB_ASSERT_EQ(Status::C_STORAGE_ERROR, status);
+  AMDB_ASSERT_EQ(Status::C_STORAGE_KV_NOT_FOUND, status);
 }
 
 TEST_F(LevelDbClientTest, INC) {

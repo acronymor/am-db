@@ -32,21 +32,6 @@ function env() {
     cmd="sudo apt install ${item} -y"
     run_cmd "${cmd}"
   done
-
-  local libs=(libgflags-dev libgtest-dev libprotobuf-dev libprotoc-dev protobuf-compiler libleveldb-dev libssl-dev)
-  for item in "${libs[@]}"; do
-    cmd="sudo apt install ${item} -y"
-    run_cmd "${cmd}"
-  done
-
-  cmd="cd ${bin}/third-party/incubator-brpc"
-  run_cmd "${cmd}"
-
-  cmd="sh config_brpc.sh --headers=/usr/include --libs=/usr/lib"
-  run_cmd "${cmd}"
-
-  cmd="make"
-  run_cmd "${cmd}"
 }
 
 function clone() {
@@ -76,7 +61,12 @@ amdb_release_dir=${bin}/release
 ################################################
 
 function build() {
-  local cmd="cmake -S ${bin} -B ${amdb_build_dir} -DCMAKE_BUILD_TYPE=${cmake_build_type} -DAMDB_BUILD_TEST=${amdb_build_test}"
+  local cmd="cmake -S ${bin} -B ${amdb_build_dir} -DCMAKE_BUILD_TYPE=${cmake_build_type} \
+  -DAMDB_BUILD_TEST=${amdb_build_test} \
+  -DLEVELDB_BUILD_BENCHMARKS=OFF \
+  -DLEVELDB_BUILD_TESTS=OFF \
+  -Dprotobuf_BUILD_TESTS=OFF"
+
   run_cmd "${cmd}"
 
   cmd="cd ${amdb_build_dir}"

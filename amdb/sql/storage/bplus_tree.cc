@@ -23,8 +23,11 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
       } else {
         child = *it;
       }
-      // RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
-      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
+
+      Status status = child->LoadNodeFromKVStorage(ctx);
+      if (status != Status::C_OK && status != Status::C_STORAGE_KV_NOT_FOUND) {
+        return status;
+      }
     } else {
       child = cursor->NewMutableLeafChild(ctx);
     }
@@ -32,21 +35,18 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
     path.push(cursor);
   }
 
-  int64_t kv_size = key.size() + value.size();
-  bool success = path.top()->Insert(std::move(key), std::move(value));
+  Status status = path.top()->Insert(std::move(key), std::move(value));
+  if (status != Status::C_OK) {
+    return status;
+  }
 
-  IncrStatistics incr_stat;
   while (!path.empty()) {
     cursor = path.top();
     path.pop();
-    // No matter the node is split or not, we can incrementally update stat_.
+    // update stat
     if (cursor->IsLeaf()) {
-      // incrementally update stat_ of leaf node by insert kv.
-      incr_stat.node_size = kv_size;
       cursor->UpdateStatByAddKV(key, value);
     } else {
-      // incrementally update stat_ of non-leaf node by leaf node status.
-      incr_stat.node_size = 0;
       cursor->UpdateStatByRangeChange(true);
     }
 
@@ -55,10 +55,9 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
       continue;
     }
 
-    IncrStatistics split_change_stat;
-    BptNode* new_node = cursor->Split(ctx, &split_change_stat);
-    incr_stat.Add(split_change_stat);
+    BptNode* new_node = cursor->Split(ctx);
     ctx->CollectUnsavedTreeNode(new_node);
+
     if (cursor->IsRoot()) {
       root_ = new BptNode(ctx, cursor, new_node);
       ctx->CollectUnsavedTreeNode(cursor);
@@ -81,8 +80,7 @@ Status Bptree::Delete(TreeCtx* ctx, const std::string& key) {
     auto it = cursor->FindChild(key);
     if (it != cursor->children_.cend()) {
       child = *it;
-      // RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
-      child->LoadNodeFromKVStorage(ctx);
+      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
     }
 
     if (child == nullptr) {
@@ -93,8 +91,8 @@ Status Bptree::Delete(TreeCtx* ctx, const std::string& key) {
   }
 
   // delete from the leaf node
-  bool success = path.top()->Delete(key);
-  if (!success) {
+  Status status = path.top()->Delete(key);
+  if (status != Status::C_OK) {
     return Status::C_OK;
   }
 
@@ -129,17 +127,17 @@ Status Bptree::GetItem(TreeCtx* ctx, const std::string& key,
     auto it = cursor->FindChild(key);
     if (it != cursor->children_.cend()) {
       child = *it;
-      // RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
-      child->LoadNodeFromKVStorage(ctx);
+      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
     }
     if (child == nullptr) {
-      return Status::C_BPTREE_ERROR;
+      ERROR("Not Found key: {}", Status::C_STORAGE_KV_NOT_FOUND);
+      return Status::C_STORAGE_KV_NOT_FOUND;
     }
     cursor = child;
   }
 
-  bool success = cursor->GetItem(key, output);
-  return Status::C_OK;
+  Status status = cursor->GetItem(key, output);
+  return status;
 }
 }  // namespace storage
 }  // namespace amdb

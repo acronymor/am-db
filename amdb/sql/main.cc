@@ -27,11 +27,18 @@ int init(int argc, char* argv[]) {
     return -1;
   }
 
+  std::string&& key = "key-aa";
+  std::string&& value = "value-aa";
+  std::unordered_map<std::string, std::string> map;
+  std::cout << "key=" << key << ",value=" << value << std::endl;
+  map.emplace(key, value);
+  std::cout << "key=" << key << ",value=" << value << std::endl;
   return 0;
 }
 
 int run() {
-  storage::KvStorageAPI* storage = storage::KvStorageAPISingleton::GetInstance();
+  storage::KvStorageAPI* storage =
+      storage::KvStorageAPISingleton::GetInstance();
   Status status = storage->PutKV("key", "Hello world");
   if (Status::C_OK != status) {
     ERROR("{}", GetErrorString(status));

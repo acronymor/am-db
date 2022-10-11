@@ -16,8 +16,8 @@ FOREACH(proto ${proto_files})
   SET(output_cc_file ${CMAKE_CURRENT_BINARY_DIR}/${cc_file})
 
   ADD_CUSTOM_COMMAND(OUTPUT "${output_cc_file}" "${output_hdr_file}"
-      COMMAND /usr/bin/protoc -I${CMAKE_CURRENT_SOURCE_DIR} --cpp_out=${CMAKE_CURRENT_BINARY_DIR} ${input_proto_file}
-      DEPENDS "${input_proto_file}" /usr/bin/protoc
+      COMMAND protobuf::protoc -I${CMAKE_CURRENT_SOURCE_DIR} --cpp_out=${CMAKE_CURRENT_BINARY_DIR} ${input_proto_file}
+      DEPENDS "${input_proto_file}" protobuf::protoc
       COMMENT "generate proto file ${cc_file}, ${hdr_file} at ${CMAKE_CURRENT_BINARY_DIR}"
       )
 
@@ -28,5 +28,5 @@ ENDFOREACH()
 ADD_CUSTOM_TARGET(proto_gen DEPENDS ${PROTO_HDR_FILES} ${PROTO_CC_FILES})
 
 ADD_LIBRARY(libamdb_proto ${PROTO_CC_FILES} ${PROTO_HDR_FILES})
-TARGET_LINK_LIBRARIES(libamdb_proto protobuf)
+TARGET_LINK_LIBRARIES(libamdb_proto protobuf::libprotobuf)
 # need to inlcude with "proto/xx.pb.h"

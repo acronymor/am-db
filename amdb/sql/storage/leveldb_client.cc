@@ -51,6 +51,11 @@ Status LevelDbClient::MPutKV(
 
 Status LevelDbClient::GetKV(const std::string& key, std::string* value) {
   leveldb::Status status = db_->Get(leveldb::ReadOptions(), key, value);
+  if (status.IsNotFound()) {
+    DEBUG("{}", status.ToString());
+    return Status::C_STORAGE_KV_NOT_FOUND;
+  }
+
   if (!status.ok()) {
     ERROR("{}", status.ToString());
     return Status::C_STORAGE_ERROR;

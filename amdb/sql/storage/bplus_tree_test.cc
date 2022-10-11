@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include "absl/time/clock.h"
+#include "absl/time/time.h"
 #include "common/assert.h"
 
 namespace amdb {
@@ -14,38 +16,49 @@ class BplusTreeTest : public testing::Test {
     AMDB_ASSERT_EQ(Status::C_OK, status);
     instance_ = KvStorageAPISingleton::GetInstance();
 
-    BptNonLeafNodeProto root;
-    bptree_ = new Bptree(&root);
     tree_ctx_ = new TreeCtx(instance_);
   }
 
   void TearDown() override {
     delete instance_, instance_ = nullptr;
-    delete bptree_, bptree_ = nullptr;
     delete tree_ctx_, tree_ctx_ = nullptr;
   }
 
  protected:
   KvStorageAPI* instance_;
   TreeCtx* tree_ctx_;
-  Bptree* bptree_;
 };
 
 TEST_F(BplusTreeTest, CRUD) {
-  Status status = bptree_->Insert(tree_ctx_, "key-a", "value-a");
+  BptNonLeafNodeProto root;
+  root.set_id(tree_ctx_->AllocateNodeID());
+  Bptree bptree(&root);
+
+  std::string key1 = "key-a" + std::to_string(absl::ToUnixMicros(absl::Now()));
+  std::string key2 = "key-b" + std::to_string(absl::ToUnixMicros(absl::Now()) + 1000);
+
+  Status status = bptree.Insert(tree_ctx_, std::move(key1), "value-a");
   AMDB_ASSERT_EQ(Status::C_OK, status);
-  status = bptree_->Insert(tree_ctx_, "key-b", "value-b");
+  status = bptree.Insert(tree_ctx_, std::move(key2), "value-b");
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
+  std::vector<std::string> node_ids;
+  std::vector<std::string> kvs;
+  tree_ctx_->PullUnsavedTreeNode(&node_ids, &kvs);
+  instance_->MPutKV(node_ids, kvs);
+
   std::string value;
-  status = bptree_->GetItem(tree_ctx_, "key-a", &value);
+  status = bptree.GetItem(tree_ctx_, key1, &value);
   AMDB_ASSERT_EQ(Status::C_OK, status);
   AMDB_ASSERT_EQ("value-a", value);
 
-  status = bptree_->Delete(tree_ctx_, "key-b");
+  status = bptree.Delete(tree_ctx_, key2);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
-  status = bptree_->GetItem(tree_ctx_, "key-a", &value);
+  status = bptree.GetItem(tree_ctx_, key2, &value);
+  AMDB_ASSERT_EQ(Status::C_STORAGE_KV_NOT_FOUND, status);
+
+  status = bptree.GetItem(tree_ctx_, key1, &value);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 }
 }  // namespace storage

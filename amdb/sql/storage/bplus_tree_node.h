@@ -92,7 +92,7 @@ class BptNode {
   void ResetStat();
 
   bool NeedSplit() const;
-  BptNode* Split(TreeCtx* ctx, IncrStatistics* stat);
+  BptNode* Split(TreeCtx* ctx);
 
   BptNode* parent_ = nullptr;
   // only leaf node has prev_ and next
