@@ -17,12 +17,12 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
   while (!cursor->IsLeaf()) {
     BptNode* child = nullptr;
     if (cursor->HasChild()) {
-      auto it = cursor->MaxKeyLowerBound(key);
-      if (it == cursor->children_.cend()) {
-        child = cursor->children_.back();
-      } else {
-        child = *it;
-      }
+      BptNode* node = BptNode::NewTempNode();
+      node->stat_.max_key = key;
+      std::unique_ptr<BptNode> node_guard(node);
+
+      auto it = cursor->MaxKeyLowerBound(node);
+      child = it == cursor->children_.cend() ? cursor->children_.back() : *it;
 
       Status status = child->LoadNodeFromKVStorage(ctx);
       if (status != Status::C_OK && status != Status::C_STORAGE_KV_NOT_FOUND) {
@@ -44,11 +44,8 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
     cursor = path.top();
     path.pop();
     // update stat
-    if (cursor->IsLeaf()) {
-      cursor->UpdateStatByAddKV(key, value);
-    } else {
-      cursor->UpdateStatByRangeChange(true);
-    }
+    cursor->IsLeaf() ? cursor->UpdateStatByAddKV(key, value)
+                     : cursor->UpdateStatByRangeChange(true);
 
     if (!cursor->NeedSplit()) {
       ctx->CollectUnsavedTreeNode(cursor);
@@ -57,14 +54,13 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
 
     BptNode* new_node = cursor->Split(ctx);
     ctx->CollectUnsavedTreeNode(new_node);
+    ctx->CollectUnsavedTreeNode(cursor);
 
     if (cursor->IsRoot()) {
       root_ = new BptNode(ctx, cursor, new_node);
-      ctx->CollectUnsavedTreeNode(cursor);
       ctx->CollectUnsavedTreeNode(root_);
     } else {
       cursor->Parent()->AddChild(new_node);
-      ctx->CollectUnsavedTreeNode(cursor);
     }
   }
   return Status::C_OK;

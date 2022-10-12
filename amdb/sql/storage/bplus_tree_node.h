@@ -67,18 +67,16 @@ class BptNode {
   bool HasChild() const;
 
   // find node bound
-  ChildIt MaxKeyLowerBound(const std::string& key) const;
-  ChildIt MaxKeyUpperBound(const std::string& key) const;
-  ChildIt MinKeyLowerBound(const std::string& key) const;
-  ChildIt MinKeyUpperBound(const std::string& key) const;
+  ChildIt MaxKeyLowerBound(const BptNode* node) const;
+  ChildIt MaxKeyUpperBound(const BptNode* node) const;
+  ChildIt MinKeyLowerBound(const BptNode* node) const;
+  ChildIt MinKeyUpperBound(const BptNode* node) const;
 
   // find node
   ChildIt FindChild(const std::string& key) const;
   ChildIt FindChild(BptNode* child_node) const;
 
   Status LoadNodeFromKVStorage(TreeCtx* ctx);
-
-  BptNode* NewMutableLeafChild(TreeCtx* ctx);
 
   // serialize and deserialize
   Status Serialize(std::string* output);
@@ -101,17 +99,23 @@ class BptNode {
   // only non-leaf node has children_
   std::vector<BptNode*> children_;
 
+  NodeStatistics stat_ = {};
+
+  BptNode* NewMutableLeafChild(TreeCtx* ctx);
+  // crate temporary nodes, it is not guaranteed that it is always correct
+  static BptNode* NewTempNode();
+
  private:
+  BptNode() = default;
+
   uint64_t id_ = 0;
   bool is_loaded_ = false;
   bool is_leaf_ = false;
   bool is_root_ = false;
 
-  NodeStatistics stat_ = {};
-
   struct cmp_key {
     bool operator()(const std::string& lhs, const std::string& rhs) const {
-      return LessThan(lhs, rhs, true);
+      return IsCmpLt(DataCmp(lhs, rhs));
     }
   };
 

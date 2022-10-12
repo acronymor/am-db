@@ -179,7 +179,7 @@ BptNode* BptNode::Parent() const { return parent_; }
 bool BptNode::IsEmpty() const { return children_.empty() && kvs_.empty(); }
 
 void BptNode::AddChild(BptNode* child_node) {
-  auto it = MaxKeyUpperBound(child_node->stat_.max_key);
+  auto it = MaxKeyUpperBound(child_node);
   children_.insert(it, child_node);
 }
 
@@ -191,94 +191,48 @@ void BptNode::DelChild(BptNode* child_node) {
   }
 }
 
-ChildIt BptNode::MaxKeyLowerBound(const std::string& key) const {
-  auto first = children_.cbegin();
-  auto last = children_.cend();
-  ChildIt it;
-  std::iterator_traits<ChildIt>::difference_type count;
-  std::iterator_traits<ChildIt>::difference_type step;
-  count = std::distance(first, last);
-  while (count > 0) {
-    it = first;
-    step = count >> 1;
-    std::advance(it, step);
-    if (LessThan((*it)->stat_.max_key, key, true)) {
-      first = ++it;
-      count -= step + 1;
-    } else {
-      count = step;
-    }
+struct CompareMaxKey {
+  bool operator()(const BptNode* s1, const BptNode* s2) {
+    return IsCmpLe(DataCmp(s1->Stat().max_key, s2->Stat().max_key));
   }
-  return first;
+};
+
+ChildIt BptNode::MaxKeyLowerBound(const BptNode* node) const {
+  ChildIt it = std::lower_bound(children_.cbegin(), children_.cend(), node,
+                                CompareMaxKey());
+  return it;
 }
 
-ChildIt BptNode::MaxKeyUpperBound(const std::string& key) const {
-  auto first = children_.cbegin();
-  auto last = children_.cend();
-  ChildIt it;
-  std::iterator_traits<ChildIt>::difference_type count;
-  std::iterator_traits<ChildIt>::difference_type step;
-  count = std::distance(first, last);
-  while (count > 0) {
-    it = first;
-    step = count >> 1;
-    std::advance(it, step);
-    if (GreaterThan(key, (*it)->stat_.max_key, false)) {
-      first = ++it;
-      count -= step + 1;
-    } else {
-      count = step;
-    }
-  }
-  return first;
+ChildIt BptNode::MaxKeyUpperBound(const BptNode* node) const {
+  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), node,
+                                CompareMaxKey());
+  return it;
 }
 
-ChildIt BptNode::MinKeyLowerBound(const std::string& key) const {
-  auto first = children_.cbegin();
-  auto last = children_.cend();
-  ChildIt it;
-  std::iterator_traits<ChildIt>::difference_type count;
-  std::iterator_traits<ChildIt>::difference_type step;
-  count = std::distance(first, last);
-  while (count > 0) {
-    it = first;
-    step = count >> 1;
-    std::advance(it, step);
-    if (LessThan((*it)->stat_.min_key, key, true)) {
-      first = ++it;
-      count -= step + 1;
-    } else {
-      count = step;
-    }
+struct CompareMinKey {
+  bool operator()(const BptNode* s1, const BptNode* s2) {
+    return IsCmpLe(DataCmp(s1->Stat().min_key, s2->Stat().min_key));
   }
-  return first;
+};
+
+ChildIt BptNode::MinKeyLowerBound(const BptNode* node) const {
+  ChildIt it = std::lower_bound(children_.cbegin(), children_.cend(), node,
+                                CompareMinKey());
+  return it;
 }
 
-ChildIt BptNode::MinKeyUpperBound(const std::string& key) const {
-  auto first = children_.cbegin();
-  auto last = children_.cend();
-  ChildIt it;
-  std::iterator_traits<ChildIt>::difference_type count;
-  std::iterator_traits<ChildIt>::difference_type step;
-  count = std::distance(first, last);
-  while (count > 0) {
-    it = first;
-    step = count >> 1;
-    std::advance(it, step);
-    if (GreaterThan(key, (*it)->stat_.min_key, false)) {
-      first = ++it;
-      count -= step + 1;
-    } else {
-      count = step;
-    }
-  }
-
-  return first;
+ChildIt BptNode::MinKeyUpperBound(const BptNode* node) const {
+  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), node,
+                                CompareMinKey());
+  return it;
 }
 
 ChildIt BptNode::FindChild(const std::string& key) const {
-  auto it = MaxKeyLowerBound(key);
-  if (it != children_.cend() && GreaterThan(key, (*it)->stat_.min_key, false)) {
+  BptNode* node = NewTempNode();
+  node->stat_.max_key = key;
+  std::unique_ptr<BptNode> node_guard = std::unique_ptr<BptNode>(node);
+  auto it = MaxKeyLowerBound(node);
+  if (it != children_.cend() && IsCmpGe(DataCmp(key, (*it)->stat_.min_key))) {
     return it;
   } else {
     return children_.cend();
@@ -286,7 +240,7 @@ ChildIt BptNode::FindChild(const std::string& key) const {
 }
 
 ChildIt BptNode::FindChild(BptNode* child_node) const {
-  auto it = MaxKeyLowerBound(child_node->stat_.max_key);
+  auto it = MaxKeyLowerBound(child_node);
   if (it != children_.cend() && *it == child_node) {
     return it;
   } else {
@@ -312,6 +266,8 @@ BptNode* BptNode::NewMutableLeafChild(TreeCtx* ctx) {
   children_.emplace_back(child);
   return child;
 }
+
+BptNode* BptNode::NewTempNode() { return new BptNode(); }
 
 Status BptNode::Serialize(std::string* output) {
   if (is_leaf_) {
@@ -395,17 +351,12 @@ void BptNode::UpdateStatByAddKV(const std::string& key,
     return;
   }
 
-  int cmp_res = DefaultIndexDataCmpFunc(
-      key.data(), key.size(), stat_.max_key.data(), stat_.max_key.size());
-  if (IsCmpGt(cmp_res)) {
+  if (IsCmpGt(DataCmp(key, stat_.max_key))) {
     stat_.node_size = stat_.node_size - stat_.max_key.size() + key.size();
     stat_.max_key = key;
-    return;
   }
 
-  cmp_res = DefaultIndexDataCmpFunc(key.data(), key.size(),
-                                    stat_.min_key.data(), stat_.min_key.size());
-  if (IsCmpLt(cmp_res)) {
+  if (IsCmpLt(DataCmp(key, stat_.min_key))) {
     stat_.node_size = stat_.node_size - stat_.min_key.size() + key.size();
     stat_.min_key = key;
     return;
@@ -414,18 +365,15 @@ void BptNode::UpdateStatByAddKV(const std::string& key,
 
 void BptNode::UpdateStatByDelKV(const std::string& key) {
   stat_.count = kvs_.size();
-  int cmp_res = DefaultIndexDataCmpFunc(
-      key.data(), key.size(), stat_.max_key.data(), stat_.max_key.size());
-  if (IsCmpEq(cmp_res)) {
+
+  if (IsCmpEq(DataCmp(key, stat_.max_key))) {
     stat_.node_size = stat_.node_size - stat_.max_key.size();
     stat_.max_key =
         std::string(kvs_.rbegin()->first.data(), kvs_.rbegin()->first.size());
     return;
   }
 
-  cmp_res = DefaultIndexDataCmpFunc(key.data(), key.size(),
-                                    stat_.min_key.data(), stat_.min_key.size());
-  if (IsCmpEq(cmp_res)) {
+  if (IsCmpEq(DataCmp(key, stat_.min_key))) {
     stat_.node_size = stat_.node_size - stat_.min_key.size();
     stat_.min_key =
         std::string(kvs_.begin()->first.data(), kvs_.begin()->first.size());
@@ -434,20 +382,16 @@ void BptNode::UpdateStatByDelKV(const std::string& key) {
 }
 
 void BptNode::UpdateStatByRangeChange(bool is_add) {
-  std::string* min_key = &children_.front()->stat_.min_key;
-  std::string* max_key = &children_.back()->stat_.max_key;
   IncrStatistics stat;
 
-  int cmp_res =
-      DefaultIndexDataCmpFunc(min_key->data(), min_key->size(),
-                              stat_.min_key.data(), stat_.min_key.size());
-  if (!IsCmpEq(cmp_res)) {
+  std::string* min_key = &children_.front()->stat_.min_key;
+  if (IsCmpNe(DataCmp(*min_key, stat_.min_key))) {
     stat_.node_size = stat_.node_size - stat_.min_key.size() + stat.node_size;
     stat_.min_key = *min_key;
   }
-  cmp_res = DefaultIndexDataCmpFunc(max_key->data(), max_key->size(),
-                                    stat_.max_key.data(), stat_.max_key.size());
-  if (!IsCmpEq(cmp_res)) {
+
+  std::string* max_key = &children_.back()->stat_.max_key;
+  if (IsCmpNe(DataCmp(*max_key, stat_.max_key))) {
     stat_.node_size = stat_.node_size - stat_.max_key.size() + stat.node_size;
     stat_.max_key = *max_key;
   }
