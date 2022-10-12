@@ -1,10 +1,9 @@
 #include "sql/storage/leveldb_client.h"
 
-#include <gtest/gtest.h>
-
 #include <vector>
 
 #include "common/assert.h"
+#include "gtest/gtest.h"
 
 namespace amdb {
 namespace storage {

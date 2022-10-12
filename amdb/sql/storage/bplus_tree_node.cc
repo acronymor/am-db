@@ -5,7 +5,7 @@
 
 namespace amdb {
 namespace storage {
-uint32_t amdb_max_node_size = 40;  // 16 * (1 << 10);
+DECLARE_uint32(bptree_max_node_size);
 TreeCtx::TreeCtx(KvStorageAPI* kv) : storage_api_(kv) {}
 
 uint64_t TreeCtx::AllocateNodeID() { return id_++; }
@@ -416,7 +416,7 @@ bool BptNode::NeedSplit() const {
       return false;
     }
   }
-  return stat_.node_size > amdb_max_node_size;
+  return stat_.node_size > FLAGS_bptree_max_node_size;
 }
 
 BptNode* BptNode::Split(TreeCtx* ctx) {

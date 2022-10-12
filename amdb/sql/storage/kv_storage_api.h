@@ -28,8 +28,7 @@ class KvStorageAPI {
                         int64_t* new_val) = 0;
 };
 
-struct StorageAPIOptions {
-};
+struct StorageAPIOptions {};
 
 class KvStorageAPISingleton {
  public:
@@ -37,7 +36,7 @@ class KvStorageAPISingleton {
   static KvStorageAPI* GetInstance();
 
 #ifdef AMDB_BUILD_TEST
-  public:
+ public:
 #else
  private:
 #endif

@@ -1,10 +1,10 @@
 #include "sql/storage/leveldb_client.h"
 
 #include <string>
-#include <gflags/gflags.h>
 
 #include "common/assert.h"
 #include "common/log.h"
+#include "gflags/gflags.h"
 
 namespace amdb {
 DECLARE_string(leveldb_dir);

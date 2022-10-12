@@ -1,8 +1,7 @@
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
-
 #include <memory>
 
+#include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 #include "sql/storage/kv_storage_api.h"
 
 namespace amdb {
@@ -35,7 +34,7 @@ class LevelDbClient : public KvStorageAPI {
 
  private:
   explicit LevelDbClient(std::unique_ptr<leveldb::DB>&& db)
-      : db_(std::move(db)) {};
+      : db_(std::move(db)){};
   std::unique_ptr<leveldb::DB> db_;
 };
 }  // namespace storage

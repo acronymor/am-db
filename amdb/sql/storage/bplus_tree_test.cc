@@ -1,10 +1,9 @@
 #include "sql/storage/bplus_tree.h"
 
-#include <gtest/gtest.h>
-
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
 #include "common/assert.h"
+#include "gtest/gtest.h"
 
 namespace amdb {
 namespace storage {
@@ -35,7 +34,8 @@ TEST_F(BplusTreeTest, CRUD) {
   Bptree bptree(&root);
 
   std::string key1 = "key-a" + std::to_string(absl::ToUnixMicros(absl::Now()));
-  std::string key2 = "key-b" + std::to_string(absl::ToUnixMicros(absl::Now()) + 1000);
+  std::string key2 =
+      "key-b" + std::to_string(absl::ToUnixMicros(absl::Now()) + 1000);
 
   Status status = bptree.Insert(tree_ctx_, std::move(key1), "value-a");
   AMDB_ASSERT_EQ(Status::C_OK, status);

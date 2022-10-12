@@ -1,9 +1,8 @@
 #include "sql/main.h"
 
-#include <gflags/gflags.h>
-
 #include "common/log.h"
 #include "common/version.h"
+#include "gflags/gflags.h"
 #include "sql/storage/kv_storage_api.h"
 
 namespace amdb {

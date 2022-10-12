@@ -9,5 +9,5 @@ size_t DecodeBytes(const std::string& in, std::string* out);
 
 size_t EncodeCmpUInt32(uint32_t in, std::string* out);
 size_t DecodeCmpUInt32(const std::string& in, uint32_t* out);
-}
-}// namespace amdb
+}  // namespace codec
+}  // namespace amdb
