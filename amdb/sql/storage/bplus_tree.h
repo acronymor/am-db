@@ -8,22 +8,22 @@ namespace amdb {
 namespace storage {
 class Bptree {
  public:
-  explicit Bptree(BptNonLeafNodeProto* node);
+  explicit Bptree(TreeCtx* tree_ctx, BptNonLeafNodeProto* node);
 
   ~Bptree() {
-    delete root_;
     root_ = nullptr;
   };
 
-  Status Insert(TreeCtx* ctx, std::string&& key, std::string&& value);
+  Status Insert(std::string&& key, std::string&& value);
 
-  Status Delete(TreeCtx* ctx, const std::string& key);
+  Status Delete(const std::string& key);
 
-  Status GetItem(TreeCtx* ctx, const std::string& key,
+  Status GetItem(const std::string& key,
                  std::string* output) const;
 
  private:
-  BptNode* root_ = nullptr;
+  BptNode* root_{nullptr};
+  TreeCtx* tree_ctx_{nullptr};
 };
 }  // namespace storage
 }  // namespace amdb

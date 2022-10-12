@@ -5,8 +5,12 @@
 
 namespace amdb {
 namespace storage {
-DECLARE_uint32(bptree_max_node_size);
-TreeCtx::TreeCtx(KvStorageAPI* kv) : storage_api_(kv) {}
+DEFINE_uint32(bptree_max_node_size, 16 * (1 << 10), "the size of bptree node");
+
+TreeCtx::TreeCtx(amdb::Arena* arena, KvStorageAPI* kv)
+    : arena_(arena), storage_api_(kv) {}
+
+Arena* TreeCtx::AllocMem() { return arena_; }
 
 uint64_t TreeCtx::AllocateNodeID() { return id_++; }
 
@@ -39,7 +43,9 @@ void TreeCtx::PullUnsavedTreeNode(std::vector<std::string>* keys,
   unsaved_nodes_.clear();
 }
 
-BptNode::BptNode(BptNonLeafNodeProto* root) {
+BptNode::BptNode(TreeCtx* ctx, BptNonLeafNodeProto* root) {
+  tree_ctx_ = ctx;
+
   id_ = root->id();
   is_loaded_ = true;
   is_root_ = true;
@@ -51,7 +57,8 @@ BptNode::BptNode(BptNonLeafNodeProto* root) {
   stat_.node_size = 0;
 
   for (int i = 0; i < root->children_size(); i++) {
-    BptNode* node = new BptNode(this, root->children(i));
+    BptNode* node = tree_ctx_->AllocMem()->CreateObject<BptNode>(
+        tree_ctx_, this, root->children(i));
     stat_.count += node->stat_.count;
     // 20 = fixed size of encode key
     stat_.node_size +=
@@ -68,7 +75,9 @@ BptNode::BptNode(BptNonLeafNodeProto* root) {
   }
 }
 
-BptNode::BptNode(BptNode* parent, const BptNodeRefProto& node) {
+BptNode::BptNode(TreeCtx* ctx, BptNode* parent, const BptNodeRefProto& node) {
+  tree_ctx_ = ctx;
+
   id_ = node.id();
   is_loaded_ = true;
   is_leaf_ = node.type() == BptNodeRefProto::LEAF;
@@ -82,7 +91,9 @@ BptNode::BptNode(BptNode* parent, const BptNodeRefProto& node) {
 }
 
 BptNode::BptNode(TreeCtx* ctx, BptNode* left, BptNode* right) {
-  id_ = ctx->AllocateNodeID();
+  tree_ctx_ = ctx;
+
+  id_ = tree_ctx_->AllocateNodeID();
 
   left->is_root_ = false;
   left->parent_ = this;
@@ -116,9 +127,8 @@ BptNode::BptNode(TreeCtx* ctx, BptNode* parent, bool is_leaf) {
 
 BptNode::~BptNode() {
   for (auto& child : children_) {
-    delete child, child = nullptr;
+    child = nullptr;
   }
-
   children_.clear();
 }
 
@@ -214,7 +224,7 @@ struct CompareMinKey {
 
 ChildIt BptNode::MinKeyLowerBound(const BptNode* node) const {
   return std::lower_bound(children_.cbegin(), children_.cend(), node,
-                                CompareMinKey());
+                          CompareMinKey());
 }
 
 ChildIt BptNode::MinKeyUpperBound(const BptNode* node) const {
@@ -257,8 +267,9 @@ Status BptNode::LoadNodeFromKVStorage(TreeCtx* ctx) {
   return Status::C_OK;
 }
 
-BptNode* BptNode::NewMutableLeafChild(TreeCtx* ctx) {
-  auto child = new BptNode(ctx, this, true);
+BptNode* BptNode::NewMutableLeafChild() {
+  auto child =
+      tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, this, true);
   children_.emplace_back(child);
   return child;
 }
@@ -325,7 +336,8 @@ Status BptNode::Deserialize(std::string& input) {
 
     children_.reserve(non_leaf.children_size());
     for (const auto& child : non_leaf.children()) {
-      auto child_node = new BptNode(this, child);
+      BptNode* child_node =
+          tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, this, child);
       children_.emplace_back(child_node);
     }
   }
@@ -413,7 +425,8 @@ bool BptNode::NeedSplit() const {
 }
 
 BptNode* BptNode::Split(TreeCtx* ctx) {
-  BptNode* right_node = new BptNode(ctx, parent_, is_leaf_);
+  BptNode* right_node =
+      ctx->AllocMem()->CreateObject<BptNode>(ctx, parent_, is_leaf_);
   size_t split_idx = ((kvs_.size() + 1) >> 1) - 1;
   if (is_leaf_) {
     auto iter = kvs_.begin();

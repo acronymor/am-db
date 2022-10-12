@@ -7,9 +7,11 @@
 namespace amdb {
 namespace storage {
 
-Bptree::Bptree(BptNonLeafNodeProto* node) { root_ = new BptNode(node); }
+Bptree::Bptree(TreeCtx* ctx, BptNonLeafNodeProto* node) : tree_ctx_(ctx) {
+  root_ = tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, node);
+}
 
-Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
+Status Bptree::Insert(std::string&& key, std::string&& value) {
   auto cursor = root_;
   std::stack<BptNode*> path;
   path.push(root_);
@@ -24,12 +26,12 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
       auto it = cursor->MaxKeyLowerBound(node);
       child = it == cursor->children_.cend() ? cursor->children_.back() : *it;
 
-      Status status = child->LoadNodeFromKVStorage(ctx);
+      Status status = child->LoadNodeFromKVStorage(tree_ctx_);
       if (status != Status::C_OK && status != Status::C_STORAGE_KV_NOT_FOUND) {
         return status;
       }
     } else {
-      child = cursor->NewMutableLeafChild(ctx);
+      child = cursor->NewMutableLeafChild();
     }
     cursor = child;
     path.push(cursor);
@@ -48,17 +50,18 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
                      : cursor->UpdateStatByRangeChange(true);
 
     if (!cursor->NeedSplit()) {
-      ctx->CollectUnsavedTreeNode(cursor);
+      tree_ctx_->CollectUnsavedTreeNode(cursor);
       continue;
     }
 
-    BptNode* new_node = cursor->Split(ctx);
-    ctx->CollectUnsavedTreeNode(new_node);
-    ctx->CollectUnsavedTreeNode(cursor);
+    BptNode* new_node = cursor->Split(tree_ctx_);
+    tree_ctx_->CollectUnsavedTreeNode(new_node);
+    tree_ctx_->CollectUnsavedTreeNode(cursor);
 
     if (cursor->IsRoot()) {
-      root_ = new BptNode(ctx, cursor, new_node);
-      ctx->CollectUnsavedTreeNode(root_);
+      root_ = tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, cursor,
+                                                        new_node);
+      tree_ctx_->CollectUnsavedTreeNode(root_);
     } else {
       cursor->Parent()->AddChild(new_node);
     }
@@ -66,7 +69,7 @@ Status Bptree::Insert(TreeCtx* ctx, std::string&& key, std::string&& value) {
   return Status::C_OK;
 }
 
-Status Bptree::Delete(TreeCtx* ctx, const std::string& key) {
+Status Bptree::Delete(const std::string& key) {
   auto cursor = root_;
   std::stack<BptNode*> path;
   path.push(root_);
@@ -76,7 +79,7 @@ Status Bptree::Delete(TreeCtx* ctx, const std::string& key) {
     auto it = cursor->FindChild(key);
     if (it != cursor->children_.cend()) {
       child = *it;
-      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
+      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(tree_ctx_));
     }
 
     if (child == nullptr) {
@@ -96,7 +99,7 @@ Status Bptree::Delete(TreeCtx* ctx, const std::string& key) {
     cursor = path.top();
     path.pop();
     if (!cursor->IsRoot() && cursor->IsEmpty()) {
-      ctx->RemoveUnsavedTreeNode(cursor);
+      tree_ctx_->RemoveUnsavedTreeNode(cursor);
       cursor->Parent()->DelChild(cursor);
       continue;
     }
@@ -109,13 +112,12 @@ Status Bptree::Delete(TreeCtx* ctx, const std::string& key) {
         cursor->UpdateStatByRangeChange(false);
       }
     }
-    ctx->CollectUnsavedTreeNode(cursor);
+    tree_ctx_->CollectUnsavedTreeNode(cursor);
   }
   return Status::C_OK;
 }
 
-Status Bptree::GetItem(TreeCtx* ctx, const std::string& key,
-                       std::string* output) const {
+Status Bptree::GetItem(const std::string& key, std::string* output) const {
   auto cursor = root_;
   // top-down search for the leaf node to get specific item
   while (!cursor->IsLeaf()) {
@@ -123,7 +125,7 @@ Status Bptree::GetItem(TreeCtx* ctx, const std::string& key,
     auto it = cursor->FindChild(key);
     if (it != cursor->children_.cend()) {
       child = *it;
-      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(ctx));
+      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(tree_ctx_));
     }
     if (child == nullptr) {
       ERROR("Not Found key: {}", Status::C_STORAGE_KV_NOT_FOUND);

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "proto/bptree.pb.h"
+#include "sql/common/arena.h"
 #include "sql/common/statuscode.h"
 #include "sql/storage/bplus_tree_cmp.h"
 #include "sql/storage/bplus_tree_statistics.h"
@@ -17,7 +18,9 @@ class BptNode;
 
 class TreeCtx {
  public:
-  TreeCtx(KvStorageAPI* kv);
+  TreeCtx(Arena* arena, KvStorageAPI* kv);
+
+  Arena* AllocMem();
 
   uint64_t AllocateNodeID();
 
@@ -35,7 +38,9 @@ class TreeCtx {
   std::unordered_map<uint64_t, BptNode*> unsaved_nodes_;
   uint64_t id_ = 0;
 
-  KvStorageAPI* storage_api_;
+  KvStorageAPI* storage_api_{nullptr};
+
+  Arena* arena_{nullptr};
 };
 
 using ChildIt = std::vector<BptNode*>::const_iterator;
@@ -44,8 +49,8 @@ class BptNode {
  public:
   ~BptNode();
 
-  BptNode(BptNonLeafNodeProto* root);
-  BptNode(BptNode* parent, const BptNodeRefProto& proto);
+  BptNode(TreeCtx* ctx, BptNonLeafNodeProto* root);
+  BptNode(TreeCtx* ctx, BptNode* parent, const BptNodeRefProto& proto);
   BptNode(TreeCtx* ctx, BptNode* left, BptNode* right);
   BptNode(TreeCtx* ctx, BptNode* parent, bool is_leaf);
 
@@ -101,7 +106,7 @@ class BptNode {
 
   NodeStatistics stat_ = {};
 
-  BptNode* NewMutableLeafChild(TreeCtx* ctx);
+  BptNode* NewMutableLeafChild();
   // crate temporary nodes, it is not guaranteed that it is always correct
   static BptNode* NewTempNode();
 
@@ -124,6 +129,7 @@ class BptNode {
   std::unordered_map<std::string, std::string> write_kvs_;
 
   BptLeafNodeProto proto_;
+  TreeCtx* tree_ctx_;
 };
 }  // namespace storage
 }  // namespace amdb
