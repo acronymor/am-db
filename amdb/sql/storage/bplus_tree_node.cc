@@ -56,7 +56,6 @@ BptNode::BptNode(BptNonLeafNodeProto* root) {
     // 20 = fixed size of encode key
     stat_.node_size +=
         node->stat_.max_key.size() + node->stat_.min_key.size() + 20;
-    // stat_.data_size += node->stat_.data_size;
     children_.emplace_back(node);
   }
 
@@ -80,7 +79,6 @@ BptNode::BptNode(BptNode* parent, const BptNodeRefProto& node) {
   stat_.max_key = node.stat().max_key();
   stat_.min_key = node.stat().min_key();
   stat_.node_size = node.stat().node_size();
-  // stat_.data_size = node.stat().data_size();
 }
 
 BptNode::BptNode(TreeCtx* ctx, BptNode* left, BptNode* right) {
@@ -147,7 +145,7 @@ Status BptNode::Update(const std::string& key, std::string& value) {
 }
 
 Status BptNode::Delete(const std::string& key) {
-  // AMDB_ASSERT_TRUE(is_leaf_);
+  AMDB_ASSERT_TRUE(is_leaf_);
   auto it = kvs_.find(key);
   if (it != kvs_.end()) {
     kvs_.erase(it);
@@ -198,9 +196,8 @@ struct CompareMaxKey {
 };
 
 ChildIt BptNode::MaxKeyLowerBound(const BptNode* node) const {
-  ChildIt it = std::lower_bound(children_.cbegin(), children_.cend(), node,
-                                CompareMaxKey());
-  return it;
+  return std::lower_bound(children_.cbegin(), children_.cend(), node,
+                          CompareMaxKey());
 }
 
 ChildIt BptNode::MaxKeyUpperBound(const BptNode* node) const {
@@ -216,9 +213,8 @@ struct CompareMinKey {
 };
 
 ChildIt BptNode::MinKeyLowerBound(const BptNode* node) const {
-  ChildIt it = std::lower_bound(children_.cbegin(), children_.cend(), node,
+  return std::lower_bound(children_.cbegin(), children_.cend(), node,
                                 CompareMinKey());
-  return it;
 }
 
 ChildIt BptNode::MinKeyUpperBound(const BptNode* node) const {
@@ -292,7 +288,6 @@ Status BptNode::Serialize(std::string* output) {
       child_proto->mutable_stat()->set_max_key(child->stat_.max_key);
       child_proto->mutable_stat()->set_min_key(child->stat_.min_key);
       child_proto->mutable_stat()->set_node_size(child->stat_.node_size);
-      // child_proto->mutable_stat()->set_data_size(child->stat_.data_size);
     }
     *output = non_leaf_node.SerializeAsString();
   }
@@ -382,17 +377,15 @@ void BptNode::UpdateStatByDelKV(const std::string& key) {
 }
 
 void BptNode::UpdateStatByRangeChange(bool is_add) {
-  IncrStatistics stat;
-
   std::string* min_key = &children_.front()->stat_.min_key;
   if (IsCmpNe(DataCmp(*min_key, stat_.min_key))) {
-    stat_.node_size = stat_.node_size - stat_.min_key.size() + stat.node_size;
+    stat_.node_size = stat_.node_size - stat_.min_key.size() + min_key->size();
     stat_.min_key = *min_key;
   }
 
   std::string* max_key = &children_.back()->stat_.max_key;
   if (IsCmpNe(DataCmp(*max_key, stat_.max_key))) {
-    stat_.node_size = stat_.node_size - stat_.max_key.size() + stat.node_size;
+    stat_.node_size = stat_.node_size - stat_.max_key.size() + max_key->size();
     stat_.max_key = *max_key;
   }
 
