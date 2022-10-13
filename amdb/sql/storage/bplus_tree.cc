@@ -19,11 +19,7 @@ Status Bptree::Insert(std::string&& key, std::string&& value) {
   while (!cursor->IsLeaf()) {
     BptNode* child = nullptr;
     if (cursor->HasChild()) {
-      BptNode* node = BptNode::NewTempNode();
-      node->stat_.max_key = key;
-      std::unique_ptr<BptNode> node_guard(node);
-
-      auto it = cursor->MaxKeyLowerBound(node);
+      auto it = cursor->MaxKeyLowerBound(key);
       child = it == cursor->children_.cend() ? cursor->children_.back() : *it;
 
       Status status = child->LoadNodeFromKVStorage(tree_ctx_);
@@ -60,7 +56,7 @@ Status Bptree::Insert(std::string&& key, std::string&& value) {
 
     if (cursor->IsRoot()) {
       root_ = tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, cursor,
-                                                        new_node);
+                                                           new_node);
       tree_ctx_->CollectUnsavedTreeNode(root_);
     } else {
       cursor->Parent()->AddChild(new_node);
@@ -137,5 +133,8 @@ Status Bptree::GetItem(const std::string& key, std::string* output) const {
   Status status = cursor->GetItem(key, output);
   return status;
 }
+
+BptNode* Bptree::Root() { return root_; }
+
 }  // namespace storage
 }  // namespace amdb

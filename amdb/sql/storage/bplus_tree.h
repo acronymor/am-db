@@ -10,16 +10,15 @@ class Bptree {
  public:
   explicit Bptree(TreeCtx* tree_ctx, BptNonLeafNodeProto* node);
 
-  ~Bptree() {
-    root_ = nullptr;
-  };
+  ~Bptree() { root_ = nullptr; };
 
   Status Insert(std::string&& key, std::string&& value);
 
   Status Delete(const std::string& key);
 
-  Status GetItem(const std::string& key,
-                 std::string* output) const;
+  Status GetItem(const std::string& key, std::string* output) const;
+
+  BptNode* Root();
 
  private:
   BptNode* root_{nullptr};

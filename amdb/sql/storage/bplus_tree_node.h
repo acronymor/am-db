@@ -72,10 +72,10 @@ class BptNode {
   bool HasChild() const;
 
   // find node bound
-  ChildIt MaxKeyLowerBound(const BptNode* node) const;
-  ChildIt MaxKeyUpperBound(const BptNode* node) const;
-  ChildIt MinKeyLowerBound(const BptNode* node) const;
-  ChildIt MinKeyUpperBound(const BptNode* node) const;
+  ChildIt MaxKeyLowerBound(const std::string& key) const;
+  ChildIt MaxKeyUpperBound(const std::string& node) const;
+  ChildIt MinKeyLowerBound(const std::string& node) const;
+  ChildIt MinKeyUpperBound(const std::string& node) const;
 
   // find node
   ChildIt FindChild(const std::string& key) const;
@@ -104,11 +104,7 @@ class BptNode {
   // only non-leaf node has children_
   std::vector<BptNode*> children_;
 
-  NodeStatistics stat_ = {};
-
   BptNode* NewMutableLeafChild();
-  // crate temporary nodes, it is not guaranteed that it is always correct
-  static BptNode* NewTempNode();
 
  private:
   BptNode() = default;
@@ -123,6 +119,8 @@ class BptNode {
       return IsCmpLt(DataCmp(lhs, rhs));
     }
   };
+
+  NodeStatistics stat_ = {};
 
   std::map<std::string, std::string, cmp_key> kvs_;
   // store insert key-value

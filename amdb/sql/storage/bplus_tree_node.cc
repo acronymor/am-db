@@ -187,7 +187,7 @@ BptNode* BptNode::Parent() const { return parent_; }
 bool BptNode::IsEmpty() const { return children_.empty() && kvs_.empty(); }
 
 void BptNode::AddChild(BptNode* child_node) {
-  auto it = MaxKeyUpperBound(child_node);
+  auto it = MaxKeyUpperBound(child_node->stat_.max_key);
   children_.insert(it, child_node);
 }
 
@@ -205,13 +205,18 @@ struct CompareMaxKey {
   }
 };
 
-ChildIt BptNode::MaxKeyLowerBound(const BptNode* node) const {
-  return std::lower_bound(children_.cbegin(), children_.cend(), node,
+ChildIt BptNode::MaxKeyLowerBound(const std::string& key) const {
+  BptNode node;
+  node.stat_.max_key = key;
+
+  return std::lower_bound(children_.cbegin(), children_.cend(), &node,
                           CompareMaxKey());
 }
 
-ChildIt BptNode::MaxKeyUpperBound(const BptNode* node) const {
-  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), node,
+ChildIt BptNode::MaxKeyUpperBound(const std::string& key) const {
+  BptNode node;
+  node.stat_.max_key = key;
+  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), &node,
                                 CompareMaxKey());
   return it;
 }
@@ -222,22 +227,23 @@ struct CompareMinKey {
   }
 };
 
-ChildIt BptNode::MinKeyLowerBound(const BptNode* node) const {
-  return std::lower_bound(children_.cbegin(), children_.cend(), node,
+ChildIt BptNode::MinKeyLowerBound(const std::string& key) const {
+  BptNode node;
+  node.stat_.min_key = key;
+  return std::lower_bound(children_.cbegin(), children_.cend(), &node,
                           CompareMinKey());
 }
 
-ChildIt BptNode::MinKeyUpperBound(const BptNode* node) const {
-  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), node,
+ChildIt BptNode::MinKeyUpperBound(const std::string& key) const {
+  BptNode node;
+  node.stat_.min_key = key;
+  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), &node,
                                 CompareMinKey());
   return it;
 }
 
 ChildIt BptNode::FindChild(const std::string& key) const {
-  BptNode* node = NewTempNode();
-  node->stat_.max_key = key;
-  std::unique_ptr<BptNode> node_guard = std::unique_ptr<BptNode>(node);
-  auto it = MaxKeyLowerBound(node);
+  auto it = MaxKeyLowerBound(key);
   if (it != children_.cend() && IsCmpGe(DataCmp(key, (*it)->stat_.min_key))) {
     return it;
   } else {
@@ -246,7 +252,7 @@ ChildIt BptNode::FindChild(const std::string& key) const {
 }
 
 ChildIt BptNode::FindChild(BptNode* child_node) const {
-  auto it = MaxKeyLowerBound(child_node);
+  auto it = MaxKeyLowerBound(child_node->stat_.max_key);
   if (it != children_.cend() && *it == child_node) {
     return it;
   } else {
@@ -273,8 +279,6 @@ BptNode* BptNode::NewMutableLeafChild() {
   children_.emplace_back(child);
   return child;
 }
-
-BptNode* BptNode::NewTempNode() { return new BptNode(); }
 
 Status BptNode::Serialize(std::string* output) {
   if (is_leaf_) {
