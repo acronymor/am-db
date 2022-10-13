@@ -117,7 +117,8 @@ BptNode::BptNode(TreeCtx* ctx, BptNode* left, BptNode* right) {
 }
 
 BptNode::BptNode(TreeCtx* ctx, BptNode* parent, bool is_leaf) {
-  id_ = ctx->AllocateNodeID();
+  tree_ctx_ = ctx;
+  id_ = tree_ctx_->AllocateNodeID();
 
   is_loaded_ = true;
   is_leaf_ = is_leaf;
@@ -262,9 +263,9 @@ ChildIt BptNode::FindChild(BptNode* child_node) const {
 
 bool BptNode::HasChild() const { return !children_.empty(); }
 
-Status BptNode::LoadNodeFromKVStorage(TreeCtx* ctx) {
+Status BptNode::LoadNodeFromKVStorage() {
   std::string value;
-  Status status = ctx->GetNodeFromKVStorage(id_, &value);
+  Status status = tree_ctx_->GetNodeFromKVStorage(id_, &value);
   if (status != Status::C_OK) {
     return status;
   }
@@ -313,7 +314,6 @@ Status BptNode::Serialize(std::string* output) {
 Status BptNode::Deserialize(std::string& input) {
   if (is_leaf_) {
     bool success = proto_.ParseFromString(input);
-    std::cout << "Deserialize[leaf]: => " << success << std::endl;
 
     auto& keys = proto_.keys();
     auto& values = proto_.values();
@@ -428,9 +428,9 @@ bool BptNode::NeedSplit() const {
   return stat_.node_size > FLAGS_bptree_max_node_size;
 }
 
-BptNode* BptNode::Split(TreeCtx* ctx) {
-  BptNode* right_node =
-      ctx->AllocMem()->CreateObject<BptNode>(ctx, parent_, is_leaf_);
+BptNode* BptNode::Split() {
+  BptNode* right_node = tree_ctx_->AllocMem()->CreateObject<BptNode>(
+      tree_ctx_, parent_, is_leaf_);
   size_t split_idx = ((kvs_.size() + 1) >> 1) - 1;
   if (is_leaf_) {
     auto iter = kvs_.begin();

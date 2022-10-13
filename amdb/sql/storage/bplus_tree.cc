@@ -22,7 +22,7 @@ Status Bptree::Insert(std::string&& key, std::string&& value) {
       auto it = cursor->MaxKeyLowerBound(key);
       child = it == cursor->children_.cend() ? cursor->children_.back() : *it;
 
-      Status status = child->LoadNodeFromKVStorage(tree_ctx_);
+      Status status = child->LoadNodeFromKVStorage();
       if (status != Status::C_OK && status != Status::C_STORAGE_KV_NOT_FOUND) {
         return status;
       }
@@ -50,7 +50,7 @@ Status Bptree::Insert(std::string&& key, std::string&& value) {
       continue;
     }
 
-    BptNode* new_node = cursor->Split(tree_ctx_);
+    BptNode* new_node = cursor->Split();
     tree_ctx_->CollectUnsavedTreeNode(new_node);
     tree_ctx_->CollectUnsavedTreeNode(cursor);
 
@@ -75,7 +75,7 @@ Status Bptree::Delete(const std::string& key) {
     auto it = cursor->FindChild(key);
     if (it != cursor->children_.cend()) {
       child = *it;
-      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(tree_ctx_));
+      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage());
     }
 
     if (child == nullptr) {
@@ -121,7 +121,7 @@ Status Bptree::GetItem(const std::string& key, std::string* output) const {
     auto it = cursor->FindChild(key);
     if (it != cursor->children_.cend()) {
       child = *it;
-      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage(tree_ctx_));
+      RETURN_ERR_NOT_OK(child->LoadNodeFromKVStorage());
     }
     if (child == nullptr) {
       ERROR("Not Found key: {}", Status::C_STORAGE_KV_NOT_FOUND);

@@ -103,7 +103,12 @@ function test() {
 
   build
 
-  cmd="make test"
+  if [ -z ${1} ]; then
+    cmd="make test"
+  else
+    cmd="${amdb_build_dir}/amdb/sql/${1}"
+  fi
+
   run_cmd "${cmd}"
 }
 

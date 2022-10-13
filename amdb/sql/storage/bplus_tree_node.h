@@ -81,7 +81,7 @@ class BptNode {
   ChildIt FindChild(const std::string& key) const;
   ChildIt FindChild(BptNode* child_node) const;
 
-  Status LoadNodeFromKVStorage(TreeCtx* ctx);
+  Status LoadNodeFromKVStorage();
 
   // serialize and deserialize
   Status Serialize(std::string* output);
@@ -95,7 +95,7 @@ class BptNode {
   void ResetStat();
 
   bool NeedSplit() const;
-  BptNode* Split(TreeCtx* ctx);
+  BptNode* Split();
 
   BptNode* parent_ = nullptr;
   // only leaf node has prev_ and next
@@ -106,6 +106,17 @@ class BptNode {
 
   BptNode* NewMutableLeafChild();
 
+ public:
+  struct cmp_key {
+    bool operator()(const std::string& lhs, const std::string& rhs) const {
+      return IsCmpLt(DataCmp(lhs, rhs));
+    }
+  };
+
+  std::map<std::string, std::string, cmp_key> kvs_;
+  // store insert key-value
+  std::unordered_map<std::string, std::string> write_kvs_;
+
  private:
   BptNode() = default;
 
@@ -114,17 +125,7 @@ class BptNode {
   bool is_leaf_ = false;
   bool is_root_ = false;
 
-  struct cmp_key {
-    bool operator()(const std::string& lhs, const std::string& rhs) const {
-      return IsCmpLt(DataCmp(lhs, rhs));
-    }
-  };
-
   NodeStatistics stat_ = {};
-
-  std::map<std::string, std::string, cmp_key> kvs_;
-  // store insert key-value
-  std::unordered_map<std::string, std::string> write_kvs_;
 
   BptLeafNodeProto proto_;
   TreeCtx* tree_ctx_;
