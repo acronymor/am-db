@@ -9,13 +9,13 @@ class KvStorageUtil {
  public:
   explicit KvStorageUtil(KvStorageAPI* storage_api);
 
-  Status GetRecords(
+  [[nodiscard]] Status GetRecords(
       const std::vector<std::pair<std::string, std::string>>& inputs,
       std::vector<std::pair<std::string, std::string>>* outputs,
       std::function<std::string && (const std::string&)> callback);
 
-  Status GetRecords(const std::vector<std::string>& inputs,
-                    std::vector<std::string>* outputs);
+  [[nodiscard]] Status GetRecords(const std::vector<std::string>& inputs,
+                                  std::vector<std::string>* outputs);
 
  private:
   KvStorageAPI* storage_api_;

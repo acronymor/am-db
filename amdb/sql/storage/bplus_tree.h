@@ -12,11 +12,11 @@ class Bptree {
 
   ~Bptree() { root_ = nullptr; };
 
-  Status Insert(std::string&& key, std::string&& value);
+  [[nodiscard]] Status Insert(std::string&& key, std::string&& value);
 
-  Status Delete(const std::string& key);
+  [[nodiscard]] Status Delete(const std::string& key);
 
-  Status GetItem(const std::string& key, std::string* output) const;
+  [[nodiscard]] Status GetItem(const std::string& key, std::string* output) const;
 
   BptNode* Root();
 
