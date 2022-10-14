@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
 SET(CMAKE_CXX_STANDARD 20)
 
-LIST(APPEND amdb_sql_folder common codec storage)
+LIST(APPEND amdb_sql_folder common codec chunk storage)
 
 FOREACH (folder ${amdb_sql_folder})
   FILE(GLOB srcs ${folder}/*.cc)

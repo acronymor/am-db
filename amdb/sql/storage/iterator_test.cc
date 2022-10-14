@@ -1,16 +1,20 @@
-#include "sql/storage/bplus_tree_iterator.h"
+#include "sql/storage/iterator.h"
 
-#include "absl/strings/str_format.h"
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
+#include "common/assert.h"
 #include "gtest/gtest.h"
 #include "sql/storage/kv_data_testutil.h"
 
 namespace amdb {
 namespace storage {
-class BptIteratorTest : public KvDataTest {};
+class IteratorTest : public KvDataTest {};
 
-TEST_F(BptIteratorTest, Iterator) {
+TEST_F(IteratorTest, IndexIteratorTest) {
+  IteratorOptions it_opt = {
+      .lower = "b2", .upper = "c4", .lower_open = true, .upper_open = false};
+
+  IndexIterator index_it(bptree_, tree_ctx_, 3);
+  index_it.InitIterOptions(it_opt);
+
   for (size_t i = 0; i < 5; i++) {
     int64_t micros = absl::ToUnixMicros(absl::Now());
     std::string a = absl::StrFormat("a%d-%ld", i, micros);
@@ -28,21 +32,15 @@ TEST_F(BptIteratorTest, Iterator) {
   tree_ctx_->PullUnsavedTreeNode(&node_ids, &kvs);
   instance_->MPutKV(node_ids, kvs);
 
-  IteratorOptions itoptions = {
-      .lower = "b2", .upper = "c4", .lower_open = true, .upper_open = false};
-  BptIterator iterator_(bptree_, &itoptions);
-  Status status = iterator_.Open();
+  Status status = index_it.Open();
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
-  while (iterator_.HashNext()) {
-    std::vector<std::pair<std::string, std::string>> vectors;
-    size_t row_count = 3;
-    status = iterator_.Next(&vectors, row_count);
-    AMDB_ASSERT_EQ(Status::C_OK, status);
-    AMDB_ASSERT_GE(row_count, vectors.size());
-    AMDB_ASSERT_TRUE(IsCmpGe(DataCmp(vectors.begin()->first, "b2")));
-    AMDB_ASSERT_TRUE(IsCmpLe(DataCmp(vectors.back().first, "c4")));
-  }
+  index_it.Next();
+
+  chunk::Chunk chunks;
+  status = index_it.GetItem(&chunks);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
 }
-}  // namespace storage
-}  // namespace amdb
+
+};  // namespace storage
+};  // namespace amdb

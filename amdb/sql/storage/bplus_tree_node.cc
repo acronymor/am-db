@@ -12,6 +12,8 @@ TreeCtx::TreeCtx(amdb::Arena* arena, KvStorageAPI* kv)
 
 Arena* TreeCtx::AllocMem() { return arena_; }
 
+KvStorageAPI* TreeCtx::KvApi() { return storage_api_; }
+
 uint64_t TreeCtx::AllocateNodeID() { return id_++; }
 
 void TreeCtx::CollectUnsavedTreeNode(BptNode* node) {

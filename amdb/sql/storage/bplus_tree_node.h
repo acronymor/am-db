@@ -22,6 +22,8 @@ class TreeCtx {
 
   Arena* AllocMem();
 
+  KvStorageAPI* KvApi();
+
   uint64_t AllocateNodeID();
 
   void CollectUnsavedTreeNode(BptNode* node);
