@@ -32,7 +32,7 @@ class BptIterator {
   bool HashNext();
 
   Status Next(std::vector<std::pair<std::string, std::string>>* output,
-              size_t row_cout);
+              size_t row_count);
 
  private:
   Bptree* bptree_{nullptr};

@@ -1,4 +1,4 @@
-#include "sql/storage/bplus_tree_Iterator.h"
+#include "sql/storage/bplus_tree_iterator.h"
 
 namespace amdb {
 namespace storage {
