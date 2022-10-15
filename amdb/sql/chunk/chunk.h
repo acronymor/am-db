@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 
@@ -7,6 +9,7 @@ namespace amdb {
 namespace chunk {
 class Chunk {
  public:
+  friend class Iterator;
   ~Chunk() = default;
 
   Chunk() = default;
@@ -17,10 +20,16 @@ class Chunk {
 
   Chunk& operator=(const Chunk& c) = delete;
 
-  Status PullIndexData(std::vector<std::pair<std::string, std::string>>& data_segment);
+  uint32_t Size() const;
 
-  Status PullKvData(std::vector<std::pair<std::string, std::string>>& data_segment);
+  Status PullIndexData(
+      std::vector<std::pair<std::string, std::string>>& data_segment);
 
+  Status PullKvData(
+      std::vector<std::pair<std::string, std::string>>& data_segment);
+
+ private:
+  std::vector<uint32_t> select_;
 };
 }  // namespace chunk
 }  // namespace amdb

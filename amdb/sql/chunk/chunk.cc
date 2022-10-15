@@ -3,6 +3,8 @@
 namespace amdb {
 namespace chunk {
 
+uint32_t Chunk::Size() const { return select_.size(); }
+
 // convert index kv to chunk
 Status Chunk::PullIndexData(
     std::vector<std::pair<std::string, std::string>>& data_segment) {
