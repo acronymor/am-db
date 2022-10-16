@@ -1,5 +1,6 @@
 #include "sql/common/arena.h"
 
+#include "common/assert.h"
 #include "gtest/gtest.h"
 
 namespace amdb {
@@ -26,15 +27,10 @@ TEST_F(ArenaTest, CreateObject) {
   stu1->id = 0;
   stu1->sex = Student::Sex::male;
 
-  /*
-  Student* stu2 = arena_->CreateObject<Student>();
-  stu2->id = 1;
-  stu2->name = "Alice";
-  stu2->sex = Student::Sex::female;
-   */
+  uint64_t size = arena_->SpaceUsed();
+  AMDB_ASSERT_LT(0, size);
 
-  uint64_t size = arena_->SpaceAllocated();
-  size = arena_->SpaceUsed();
-  std::cout << size << std::endl;
+  size = arena_->SpaceAllocated();
+  AMDB_ASSERT_LT(0, size);
 }
 }  // namespace amdb

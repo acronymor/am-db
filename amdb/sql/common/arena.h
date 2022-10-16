@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 #include "google/protobuf/arena.h"
 
 namespace amdb {
@@ -43,11 +45,22 @@ class Arena {
                                               std::forward<Args>(args)...);
   }
 
+  template <typename T>
+  T* CreateArray(size_t num_elements) {
+    if (tracker_ != nullptr) {
+      uint64_t size = sizeof(T) * num_elements;
+      tracker_->AddUsage(size);
+    }
+    return google::protobuf::Arena::CreateArray<T>(&arena_, num_elements);
+  }
+
+  void* AllocateBytes(size_t num_bytes) { return CreateArray<char>(num_bytes); }
+
   uint64_t SpaceAllocated() { return arena_.SpaceAllocated(); }
 
   uint64_t SpaceUsed() {
     if (tracker_ == nullptr) {
-      return ((unsigned int)(-1)) >> 1;
+      return std::numeric_limits<uint64_t>::max();
     }
     return tracker_->CurrentUsage();
   }
