@@ -1,8 +1,8 @@
 #pragma once
 
+#include "row.h"
 #include "sql/chunk/chunk.h"
 #include "sql/common/statuscode.h"
-#include "sql/row/row.h"
 
 namespace amdb {
 namespace chunk {
@@ -18,7 +18,7 @@ class Iterator {
 
   void Next();
 
-  row::Row* GetRow();
+  chunk::Row* GetRow();
 
  private:
   Chunk* chunk_ = nullptr;

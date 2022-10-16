@@ -2,6 +2,9 @@
 
 #include <string>
 
+/**
+ * encode/decode basic type
+ */
 namespace amdb {
 namespace codec {
 size_t EncodeBytes(const std::string& in, std::string* out);

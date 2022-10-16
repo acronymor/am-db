@@ -28,7 +28,7 @@ Status Index::Insert(chunk::Chunk *chunk) {
   encoded_values.reserve(chunk->Size());
 
   for (itr.Open(); itr.HasNext(); itr.Next()) {
-    row::Row *row = itr.GetRow();
+    chunk::Row *row = itr.GetRow();
     std::string key;
     std::string value;
     codec::EncodeColumn(row, &key, &value);
@@ -53,7 +53,7 @@ Status Index::Delete(chunk::Chunk *chunk) {
   encoded_keys.reserve(chunk->Size());
 
   for (itr.Open(); itr.HasNext(); itr.Next()) {
-    row::Row *row = itr.GetRow();
+    chunk::Row *row = itr.GetRow();
     std::string key;
     std::string value;
     codec::EncodeColumn(row, &key, &value);
