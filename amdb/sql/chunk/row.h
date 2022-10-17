@@ -23,13 +23,14 @@ class Row {
 
   expr::ExprValue GetColValue(uint32_t row_id, uint32_t col_id);
 
+ public:
+  RowDescriptor* desc;
+
  private:
   void setTuple(uint32_t row_id, char* value);
   Tuple tupleAt(uint32_t row_id);
 
   Arena* arena_;
-  RowDescriptor* desc_;
-
   Tuple* data_;
 };
 }  // namespace chunk

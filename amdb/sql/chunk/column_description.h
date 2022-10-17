@@ -8,8 +8,6 @@ namespace amdb {
 namespace chunk {
 class ColumnDescriptor {
  public:
-  friend class Column;
-
   ColumnDescriptor(expr::ExprValueType type, uint32_t col_id);
 
   uint32_t ID();

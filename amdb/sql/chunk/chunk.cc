@@ -17,5 +17,11 @@ Status Chunk::PullKvData(
   return Status::C_OK;
 }
 
+Row* Chunk::AddRow(Row* row) {
+  for (ColumnDescriptor* col_desc : row->desc->GetAllColumnDesc()) {
+    // ...
+  }
+}
+
 }  // namespace chunk
 }  // namespace amdb

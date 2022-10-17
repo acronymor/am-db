@@ -30,11 +30,11 @@ class Column {
   void SetDouble(uint32_t row_idx, double value);
   void SetString(uint32_t row_idx, const std::string& value);
 
+ public:
+  const ColumnDescriptor* desc;
+
  private:
   Arena* arena_;
-
-  const ColumnDescriptor* desc_;
-
   uint32_t capacity_{0};
   // TODO column_size = 1024, need to modify
   std::bitset<1024> null_bitmap_;

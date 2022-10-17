@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 
+#include "sql/chunk/row.h"
 #include "sql/common/statuscode.h"
 
 namespace amdb {
@@ -28,8 +29,13 @@ class Chunk {
   Status PullKvData(
       std::vector<std::pair<std::string, std::string>>& data_segment);
 
+  Row* AddRow(Row* row);
+
  private:
   std::vector<uint32_t> select_;
+
+  RowDescriptor* row_desc_{nullptr};
+  std::vector<Column*> columns_;
 };
 }  // namespace chunk
 }  // namespace amdb
