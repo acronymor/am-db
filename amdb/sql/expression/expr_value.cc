@@ -1,4 +1,5 @@
 #include "sql/expression/expr_value.h"
+
 #include "common/log.h"
 
 namespace amdb {
@@ -110,6 +111,11 @@ ExprValue ExprValue::NewDouble(double v) {
   ExprValue value(ExprValueType::Double, false);
   value.u.double_value = v;
   return value;
+}
+
+size_t ExprValue::Length() {
+  // basic type
+  return sizeof(type_);
 }
 }  // namespace expr
 }  // namespace amdb

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 
 #include "common/assert.h"
@@ -16,7 +18,8 @@ class Bptree {
 
   [[nodiscard]] Status Delete(const std::string& key);
 
-  [[nodiscard]] Status GetItem(const std::string& key, std::string* output) const;
+  [[nodiscard]] Status GetItem(const std::string& key,
+                               std::string* output) const;
 
   BptNode* Root();
 

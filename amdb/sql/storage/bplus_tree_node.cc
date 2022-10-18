@@ -326,9 +326,9 @@ Status BptNode::Deserialize(std::string& input) {
     uint32_t v_len = 0;
 
     while (k_offset < keys.length()) {
-      k_offset += amdb::codec::DecodeCmpUInt32(
+      k_offset += amdb::codec::DecodeUInt32(
           std::string(keys.data() + k_offset, keys.size()), &k_len);
-      v_offset += amdb::codec::DecodeCmpUInt32(
+      v_offset += amdb::codec::DecodeUInt32(
           std::string(values.data() + v_offset, values.size()), &v_len);
       kvs_.emplace(std::string(keys.data() + k_offset, k_len),
                    std::string(values.data() + v_offset, v_len));

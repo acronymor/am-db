@@ -1,13 +1,22 @@
 #include "sql/chunk/column.h"
 #include "sql/chunk/row.h"
 #include "sql/codec/codec.h"
+#include "sql/schema/schema.h"
 
-/**
- * encode/decode raw and column
- */
 namespace amdb {
 namespace codec {
-size_t EncodeColumn(const chunk::Row* row, std::string* key, std::string* value);
-size_t DecodeColumn(const std::string& key, const std::string& value, chunk::Row* row);
+/**
+ * encode/decode index
+ */
+size_t EncodeIndex(const schema::TableInfo* table_info,
+                   const schema::IndexInfo* index_info, chunk::Row* row,
+                   std::string* key, std::string* value);
+
+size_t DecodeIndex(const schema::TableInfo* table_info,
+                   const schema::IndexInfo* index_info, std::string* key,
+                   std::string* value, chunk::Row* row);
+
+size_t EncodeRow(const schema::TableInfo* table_info, chunk::Row* row,
+                 std::string* key, std::string* value);
 }  // namespace codec
 }  // namespace amdb

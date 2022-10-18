@@ -30,6 +30,8 @@ class ExprValue {
   static ExprValue NewFloat(float v);
   static ExprValue NewDouble(double v);
 
+  size_t Length();
+
  private:
   ExprValueType type_ = Invalid;
   explicit ExprValue(ExprValueType type, bool null = false);
