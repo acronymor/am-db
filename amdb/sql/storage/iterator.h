@@ -3,7 +3,6 @@
 #include "sql/chunk/chunk.h"
 #include "sql/common/statuscode.h"
 #include "sql/storage/bplus_tree_iterator.h"
-#include "sql/storage/kv_storage_util.h"
 
 namespace amdb {
 namespace storage {
@@ -55,30 +54,6 @@ class BaseIterator : public Iterator {
   BptIterator* tree_it_{nullptr};
 
   uint64_t page_size_;
-};
-
-class IndexIterator : public BaseIterator {
- public:
-  IndexIterator(Bptree* bptree, TreeCtx* tree_ctx, const uint64_t page_size)
-      : BaseIterator(bptree, tree_ctx, page_size){};
-
-  Status InitIterOptions(const IteratorOptions& it_opts);
-
-  Status GetItem(chunk::Chunk* chunk) override;
-};
-
-class TableIterator : public BaseIterator {
- public:
-  TableIterator(Bptree* bptree, TreeCtx* tree_ctx, const uint64_t page_size)
-      : BaseIterator(bptree, tree_ctx, page_size) {
-    kv_util =
-        tree_ctx_->AllocMem()->CreateObject<KvStorageUtil>(tree_ctx_->KvApi());
-  };
-
-  Status GetItem(chunk::Chunk* chunk) override;
-
- private:
-  KvStorageUtil* kv_util;
 };
 }  // namespace storage
 }  // namespace amdb

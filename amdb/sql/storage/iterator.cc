@@ -40,53 +40,5 @@ void BaseIterator::Next() {
   }
 }
 
-Status IndexIterator::GetItem(chunk::Chunk* chunk) {
-  Status code = BaseIterator::Code();
-  if (code != Status::C_OK && code != Status::C_BPTREE_ITERATOR_END) {
-    return code;
-  }
-
-  if (data_segment_.empty()) {
-    DEBUG("data_segment_ is empty");
-    return Status::C_OK;
-  }
-
-  Status status = chunk->PullIndexData(data_segment_);
-
-  visited_kv_count_ += data_segment_.size();
-  return status;
-}
-
-Status IndexIterator::InitIterOptions(const IteratorOptions& it_opt) {
-  it_ops_.push_back(it_opt);
-
-  return Status::C_OK;
-}
-
-Status TableIterator::GetItem(chunk::Chunk* chunk) {
-  Status status = BaseIterator::Code();
-  if (status != Status::C_OK && status != Status::C_BPTREE_ITERATOR_END) {
-    return status;
-  }
-
-  if (data_segment_.empty()) {
-    DEBUG("data_segment_ is empty");
-    return Status::C_OK;
-  }
-
-  auto f = [](const std::string& key) -> std::string&& {
-    std::string current_key = key;
-    return std::move(current_key);
-  };
-
-  std::vector<std::pair<std::string, std::string>> data_segment;
-  RETURN_ERR_NOT_OK(kv_util->GetRecords(data_segment_, &data_segment, f));
-
-  status = chunk->PullKvData(data_segment);
-
-  visited_kv_count_ += data_segment_.size();
-  return status;
-}
-
 }  // namespace storage
 }  // namespace amdb

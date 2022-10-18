@@ -2,6 +2,9 @@
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
 #include "gtest/gtest.h"
+#include "sql/storage/bplus_tree.h"
+#include "sql/storage/bplus_tree_node.h"
+#include "sql/storage/kv_storage_api.h"
 
 namespace amdb {
 namespace storage {

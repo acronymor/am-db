@@ -6,8 +6,13 @@
 namespace amdb {
 namespace storage {
 
-Index::Index(BptNonLeafNodeProto *root, KvStorageAPI *api, Arena *arena) {
+Index::Index(Arena *arena, schema::TableInfo *table_info,
+             schema::IndexInfo *index_info, BptNonLeafNodeProto *root,
+             KvStorageAPI *api) {
   tree_ctx_ = arena->CreateObject<TreeCtx>(arena, api);
+  table_info_ = table_info;
+  index_info_ = index_info;
+  kv_api_ = api;
   bptree_ = tree_ctx_->AllocMem()->CreateObject<Bptree>(tree_ctx_, root);
 }
 
@@ -15,7 +20,7 @@ Status Index::Save() {
   std::vector<std::string> keys;
   std::vector<std::string> values;
   tree_ctx_->PullUnsavedTreeNode(&keys, &values);
-  Status status = tree_ctx_->KvApi()->MPutKV(keys, values);
+  Status status = kv_api_->MPutKV(keys, values);
   return status;
 }
 
@@ -31,9 +36,9 @@ Status Index::Insert(chunk::Chunk *chunk) {
     chunk::Row *row = itr.GetRow();
     std::string key;
     std::string value;
-    codec::EncodeColumn(row, &key, &value);
+    codec::EncodeIndex(table_info_, index_info_, row, &key, &value);
     encoded_keys.emplace_back(std::move(key));
-    encoded_values.emplace_back(std::move(value));
+    encoded_values.emplace_back(value);
   }
 
   for (int i = 0; i < encoded_keys.size() && encoded_values.size(); i++) {
@@ -56,7 +61,7 @@ Status Index::Delete(chunk::Chunk *chunk) {
     chunk::Row *row = itr.GetRow();
     std::string key;
     std::string value;
-    codec::EncodeColumn(row, &key, &value);
+    codec::EncodeIndex(table_info_, index_info_, row, &key, &value);
     encoded_keys.emplace_back(std::move(key));
   }
 

@@ -1,4 +1,5 @@
 #include "sql/common/statuscode.h"
+#include "sql/schema/schema.h"
 #include "sql/storage/iterator.h"
 
 namespace amdb {
@@ -7,7 +8,9 @@ class Index {
  public:
   ~Index() = default;
 
-  Index(BptNonLeafNodeProto *root, KvStorageAPI *api, Arena *arena);
+  Index(Arena* arena, schema::TableInfo* table_info,
+        schema::IndexInfo* index_info, BptNonLeafNodeProto* root,
+        KvStorageAPI* api);
 
   Status Save();
 
@@ -16,8 +19,13 @@ class Index {
   Status Delete(chunk::Chunk* chunk);
 
  private:
+  schema::TableInfo* table_info_{nullptr};
+  schema::IndexInfo* index_info_{nullptr};
+
   Bptree* bptree_;
   TreeCtx* tree_ctx_;
+
+  KvStorageAPI* kv_api_;
 };
 }  // namespace storage
 }  // namespace amdb
