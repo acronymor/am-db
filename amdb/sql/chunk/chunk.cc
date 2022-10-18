@@ -17,9 +17,11 @@ Status Chunk::PullKvData(
   return Status::C_OK;
 }
 
-Row* Chunk::AddRow(Row* row) {
+void Chunk::AddRow(Row* row) {
   for (ColumnDescriptor* col_desc : row->desc->GetAllColumnDesc()) {
-    // ...
+    Column* column =
+        arena_->CreateObject<Column>(arena_, col_desc, cur_capacity_);
+    columns_.push_back(column);
   }
 }
 

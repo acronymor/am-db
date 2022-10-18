@@ -26,6 +26,7 @@ class RowDescriptor {
   std::vector<ColumnDescriptor*> var_cols;
 
   uint64_t ByteSize();
+
  private:
   uint64_t byte_size_ = 0;
   bool varlen_data_ = false;

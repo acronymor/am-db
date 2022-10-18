@@ -29,13 +29,17 @@ class Chunk {
   Status PullKvData(
       std::vector<std::pair<std::string, std::string>>& data_segment);
 
-  Row* AddRow(Row* row);
+  void AddRow(Row* row);
 
  private:
   std::vector<uint32_t> select_;
 
   RowDescriptor* row_desc_{nullptr};
   std::vector<Column*> columns_;
+
+  uint32_t cur_capacity_ = 0;
+
+  Arena* arena_;
 };
 }  // namespace chunk
 }  // namespace amdb
