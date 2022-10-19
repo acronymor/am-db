@@ -18,7 +18,14 @@ class BptNode;
 
 class TreeCtx {
  public:
-  TreeCtx(Arena* arena, KvStorageAPI* kv);
+  struct Schema {
+    uint64_t db_id;
+    uint64_t table_id;
+    uint64_t index_id;
+  };
+
+ public:
+  TreeCtx(const Schema& schema, Arena* arena, KvStorageAPI* kv);
 
   Arena* AllocMem();
 
@@ -39,6 +46,7 @@ class TreeCtx {
   // <node_id, BptNode>
   std::unordered_map<uint64_t, BptNode*> unsaved_nodes_;
   uint64_t id_ = 0;
+  Schema schema_;
 
   KvStorageAPI* storage_api_{nullptr};
 
@@ -85,8 +93,9 @@ class BptNode {
 
   Status LoadNodeFromKVStorage();
 
-  // serialize and deserialize
+  // serialize to string
   Status Serialize(std::string* output);
+  // deserialize from string
   Status Deserialize(std::string& input);
 
   // statistics

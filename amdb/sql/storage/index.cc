@@ -1,7 +1,7 @@
 #include "sql/storage/index.h"
 
 #include "sql/chunk/iterator.h"
-#include "sql/codec/rccodec.h"
+#include "sql/codec/rc_codec.h"
 
 namespace amdb {
 namespace storage {
@@ -9,12 +9,19 @@ namespace storage {
 Index::Index(Arena *arena, schema::TableInfo *table_info,
              schema::IndexInfo *index_info, BptNonLeafNodeProto *root,
              KvStorageAPI *api) {
-  tree_ctx_ = arena->CreateObject<TreeCtx>(arena, api);
+  TreeCtx::Schema schema = {
+      .db_id = table_info->db_id,
+      .table_id = table_info->id,
+      .index_id = index_info->id
+  };
+  tree_ctx_ = arena->CreateObject<TreeCtx>(schema, arena, api);
   table_info_ = table_info;
   index_info_ = index_info;
   kv_api_ = api;
   bptree_ = tree_ctx_->AllocMem()->CreateObject<Bptree>(tree_ctx_, root);
 }
+
+BptNode *Index::TreeRoot() { return bptree_->Root(); }
 
 Status Index::Save() {
   std::vector<std::string> keys;

@@ -1,13 +1,15 @@
+#pragma once
+
 #include "sql/chunk/column.h"
 #include "sql/chunk/row.h"
 #include "sql/codec/codec.h"
 #include "sql/schema/schema.h"
 
+/**
+ * encode/decode row/column/index of table
+ */
 namespace amdb {
 namespace codec {
-/**
- * encode/decode index
- */
 size_t EncodeIndex(const schema::TableInfo* table_info,
                    const schema::IndexInfo* index_info, chunk::Row* row,
                    std::string* key, std::string* value);

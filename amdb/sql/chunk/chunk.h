@@ -21,6 +21,8 @@ class Chunk {
 
   Chunk& operator=(const Chunk& c) = delete;
 
+  Chunk(Arena* arena, RowDescriptor* row_desc);
+
   uint32_t Size() const;
 
   Status PullIndexData(

@@ -1,17 +1,21 @@
 #include "sql/storage/table.h"
 
 #include "sql/chunk/iterator.h"
-#include "sql/codec/rccodec.h"
+#include "sql/codec/kv_codec.h"
+#include "sql/codec/rc_codec.h"
 
 namespace amdb {
 namespace storage {
 Table::Table(Arena *arena, schema::TableInfo *table_info, KvStorageAPI *api) {
-  tree_ctx_ = arena->CreateObject<TreeCtx>(arena, api);
   kv_api_ = api;
   table_info_ = table_info;
+  arena_ = arena;
 }
 
-Status Table::Prepare() { return Status::C_OK; }
+Status Table::Prepare() {
+  RETURN_ERR_NOT_OK(loadMeta());
+  return Status::C_OK;
+}
 
 Status Table::Submit() {
   Status status = row_index_->Save();
@@ -21,37 +25,30 @@ Status Table::Submit() {
     status = index.second->Save();
     RETURN_ERR_NOT_OK(status);
   }
+
+  RETURN_ERR_NOT_OK(saveMeta());
   return Status::C_OK;
 }
 
 Status Table::Insert(chunk::Chunk *chunk) {
-  Status status = Prepare();
-  RETURN_ERR_NOT_OK(status);
-  status = insertCore(chunk);
-  RETURN_ERR_NOT_OK(status);
-  status = Submit();
-  RETURN_ERR_NOT_OK(status);
+  RETURN_ERR_NOT_OK(Prepare());
+  RETURN_ERR_NOT_OK(insertCore(chunk));
+  RETURN_ERR_NOT_OK(Submit());
   return C_OK;
 }
 
 Status Table::Delete(chunk::Chunk *chunk) {
-  Status status = Prepare();
-  RETURN_ERR_NOT_OK(status);
-  status = deleteCore(chunk);
-  RETURN_ERR_NOT_OK(status);
-  status = Submit();
-  RETURN_ERR_NOT_OK(status);
+  RETURN_ERR_NOT_OK(Prepare());
+  RETURN_ERR_NOT_OK(deleteCore(chunk));
+  RETURN_ERR_NOT_OK(Submit());
 
   return Status::C_OK;
 }
 
 Status Table::Update(chunk::Chunk *old_chunk, chunk::Chunk *new_chunk) {
-  Status status = Prepare();
-  RETURN_ERR_NOT_OK(status);
-  status = updateCore(old_chunk, new_chunk);
-  RETURN_ERR_NOT_OK(status);
-  status = Submit();
-  RETURN_ERR_NOT_OK(status);
+  RETURN_ERR_NOT_OK(Prepare());
+  RETURN_ERR_NOT_OK(updateCore(old_chunk, new_chunk));
+  RETURN_ERR_NOT_OK(Submit());
 
   return Status::C_OK;
 }
@@ -122,6 +119,65 @@ Status Table::deleteCore(chunk::Chunk *chunk) {
 }
 
 Status Table::updateCore(chunk::Chunk *old_chunk, chunk::Chunk *new_chunk) {
+  return Status::C_OK;
+}
+
+Status Table::loadMeta() {
+  auto get_index = [this](const schema::IndexInfo *index_info,
+                          Index *index) -> Status {
+    std::string key;
+    codec::EncodeTreeNodeKey(table_info_->db_id, table_info_->id,
+                             index_info->id, 0, &key);
+    std::string value;
+    Status status = kv_api_->GetKV(key, &value);
+    RETURN_ERR_NOT_OK(status);
+
+    std::string str;
+    index->TreeRoot()->Deserialize(str);
+
+    return Status::C_OK;
+  };
+
+  Status status = get_index(table_info_->primary_index, row_index_);
+  RETURN_ERR_NOT_OK(status);
+
+  for (const auto &entry : table_info_->id_to_index) {
+    Index *index;
+    status = get_index(entry.second, index);
+    RETURN_ERR_NOT_OK(status);
+
+    col_index_.emplace(entry.first, index);
+  }
+
+  return Status::C_OK;
+}
+
+Status Table::saveMeta() {
+  auto get_index = [this](const schema::IndexInfo *index_info, Index *index,
+                          std::string *key, std::string *value) -> Status {
+    codec::EncodeTreeNodeKey(table_info_->db_id, table_info_->id,
+                             table_info_->primary_index->id, 0, key);
+    Status status = index->TreeRoot()->Serialize(value);
+    return status;
+  };
+
+  std::unordered_map<std::string, std::string> meta;
+  meta.reserve(col_index_.size() + 1);
+
+  std::string row_key, row_value;
+  get_index(table_info_->primary_index, row_index_, &row_key, &row_value);
+  meta.emplace(row_key, row_value);
+
+  for (const auto &entry : col_index_) {
+    std::string col_key, col_value;
+    schema::IndexInfo *index_info = table_info_->id_to_index.at(entry.first);
+    get_index(index_info, entry.second, &col_key, &col_value);
+    meta.emplace(col_key, col_value);
+  }
+
+  Status status = kv_api_->MPutKV(meta);
+  RETURN_ERR_NOT_OK(status);
+
   return Status::C_OK;
 }
 

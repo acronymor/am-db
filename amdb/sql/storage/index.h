@@ -18,6 +18,7 @@ class Index {
 
   Status Delete(chunk::Chunk* chunk);
 
+  BptNode* TreeRoot();
  private:
   schema::TableInfo* table_info_{nullptr};
   schema::IndexInfo* index_info_{nullptr};

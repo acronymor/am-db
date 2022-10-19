@@ -17,7 +17,13 @@ class KvDataTest : public ::testing::Test {
     instance_ = KvStorageAPISingleton::GetInstance();
 
     arena_ = new Arena(nullptr);
-    tree_ctx_ = new TreeCtx(arena_, instance_);
+
+    TreeCtx::Schema schema = {
+        .db_id = 0,
+        .table_id = 0,
+        .index_id = 0
+    };
+    tree_ctx_ = new TreeCtx(schema, arena_, instance_);
 
     BptNonLeafNodeProto root;
     root.set_id(tree_ctx_->AllocateNodeID());

@@ -1,14 +1,16 @@
 #include "sql/storage/bplus_tree_node.h"
 
 #include "common/assert.h"
-#include "sql/codec/codec.h"
+#include "sql/codec/kv_codec.h"
 
 namespace amdb {
 namespace storage {
 DEFINE_uint32(bptree_max_node_size, 16 * (1 << 10), "the size of bptree node");
 
-TreeCtx::TreeCtx(amdb::Arena* arena, KvStorageAPI* kv)
-    : arena_(arena), storage_api_(kv) {}
+TreeCtx::TreeCtx(const Schema& schema, Arena* arena, KvStorageAPI* kv)
+    : arena_(arena), storage_api_(kv) {
+  schema_ = schema;
+}
 
 Arena* TreeCtx::AllocMem() { return arena_; }
 
@@ -25,8 +27,9 @@ void TreeCtx::RemoveUnsavedTreeNode(BptNode* node) {
 }
 
 Status TreeCtx::GetNodeFromKVStorage(uint64_t node_id, std::string* value) {
-  // std::string key = GetBTreeNodeKey(node_id);
-  std::string key = std::to_string(node_id);
+  std::string key;
+  codec::EncodeTreeNodeKey(schema_.db_id, schema_.table_id, schema_.index_id,
+                           node_id, &key);
   return storage_api_->GetKV(key, value);
 }
 
@@ -36,9 +39,13 @@ void TreeCtx::PullUnsavedTreeNode(std::vector<std::string>* keys,
   values->reserve(unsaved_nodes_.size());
 
   for (auto& entry : unsaved_nodes_) {
+    std::string key;
+    codec::EncodeTreeNodeKey(schema_.db_id, schema_.table_id, schema_.index_id,
+                             entry.first, &key);
+
     std::string value;
     entry.second->Serialize(&value);
-    keys->emplace_back(std::move(std::to_string(entry.first)));
+    keys->emplace_back(std::move(key));
     values->emplace_back(std::move(value));
   }
 

@@ -45,6 +45,18 @@ size_t DecodeUInt32(const std::string& in, uint32_t* out) {
   return sizeof(*out);
 }
 
+size_t EncodeUInt64(uint64_t in, std::string* out) {
+  uint64_t ret = htobe64(in);
+  out->append((char*)(&ret), sizeof(ret));
+  return sizeof(ret);
+}
+
+size_t DecodeUInt64(const std::string& in, uint64_t* out) {
+  const uint64_t* p = reinterpret_cast<const uint64_t*>(in.data());
+  *out = be64toh(*p);
+  return sizeof(*out);
+}
+
 size_t EncodeExprValue(const expr::ExprValue& in, std::string* out) {
   size_t size = 0;
   switch (in.Type()) {

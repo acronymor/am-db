@@ -41,7 +41,8 @@ struct TableInfo {
   std::unordered_map<std::string, ColumnInfo*> name_to_column;
   std::unordered_map<uint64_t, ColumnInfo*> id_to_column;
 
-  std::vector<ColumnInfo> column_list;
+  std::vector<ColumnInfo*> column_list;
+  // not contain primary_index
   std::unordered_map<uint64_t, IndexInfo*> id_to_index;
   std::unordered_map<std::string, IndexInfo*> name_to_index;
 

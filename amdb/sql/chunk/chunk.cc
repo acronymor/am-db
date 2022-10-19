@@ -3,6 +3,8 @@
 namespace amdb {
 namespace chunk {
 
+Chunk::Chunk(Arena* arena, RowDescriptor* row_desc): arena_(arena), row_desc_{row_desc} {}
+
 uint32_t Chunk::Size() const { return select_.size(); }
 
 // convert index kv to chunk

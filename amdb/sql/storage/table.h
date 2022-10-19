@@ -30,12 +30,15 @@ class Table {
 
   Status updateCore(chunk::Chunk* old_chunk, chunk::Chunk* new_chunk);
 
+  Status loadMeta();
+  Status saveMeta();
+
   schema::TableInfo* table_info_{nullptr};
 
   Index* row_index_{nullptr};
   std::unordered_map<uint64_t, Index*> col_index_;
 
-  TreeCtx* tree_ctx_;
+  Arena* arena_;
   KvStorageAPI* kv_api_;
 };
 }  // namespace storage
