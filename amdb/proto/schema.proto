@@ -1,0 +1,56 @@
+syntax = "proto3";
+option cc_generic_services = false;
+option cc_enable_arenas = false;
+
+package amdb.schema;
+
+message ColumnProto {
+  uint64 id = 1;
+  string name = 2;
+  uint64 table_id = 3;
+  string table_name = 4;
+  uint32 type = 5;
+  uint32 charset = 6;
+  optional string comment = 7;
+}
+
+message DatabaseProto {
+  uint32 version = 1;
+  uint64 id = 2;
+  string name = 3;
+  uint32 charset = 4;
+  repeated uint64 table_ids = 5;
+  uint64 create_ts = 6;
+  uint64 update_ts = 7;
+  optional string comment = 8;
+}
+
+message IndexProto {
+  uint32 version = 1;
+  uint64 id = 2;
+  string name = 3;
+  uint64 table_id = 4;
+  string table_name = 5;
+  repeated uint64 column_ids = 6;
+  uint32 type = 7;
+  uint64 create_ts = 8;
+  uint64 update_ts = 9;
+  optional string comment = 10;
+  uint64 root_node_id = 11;
+}
+
+message TableProto {
+  uint32 version = 1;
+  uint64 id = 2;
+  string name = 3;
+  uint64 database_id = 4;
+  string database_name = 5;
+
+  repeated ColumnProto columns = 6;
+  IndexProto row_index = 7;
+  repeated IndexProto col_index = 8;
+  uint32 charset = 9;
+  uint64 create_ts = 10;
+  uint64 update_ts = 11;
+  optional string comment = 12;
+}
