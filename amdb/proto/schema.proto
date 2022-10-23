@@ -31,7 +31,7 @@ message IndexProto {
   string name = 3;
   uint64 table_id = 4;
   string table_name = 5;
-  repeated uint64 column_ids = 6;
+  repeated ColumnProto columns = 6;
   uint32 type = 7;
   uint64 create_ts = 8;
   uint64 update_ts = 9;
