@@ -25,6 +25,7 @@ void Chunk::AddRow(Row* row) {
         arena_->CreateObject<Column>(arena_, col_desc, cur_capacity_);
     columns_.push_back(column);
   }
+  select_.push_back(row);
 }
 
 }  // namespace chunk

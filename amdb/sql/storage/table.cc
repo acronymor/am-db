@@ -3,13 +3,15 @@
 #include "sql/chunk/iterator.h"
 #include "sql/codec/kv_codec.h"
 #include "sql/codec/rc_codec.h"
+#include "sql/storage/metadata.h"
 
 namespace amdb {
 namespace storage {
 Table::Table(Arena *arena, schema::TableInfo *table_info, KvStorageAPI *api) {
-  kv_api_ = api;
   table_info_ = table_info;
+  kv_api_ = api;
   arena_ = arena;
+  metadata_api_ = arena_->CreateObject<Metadata>(kv_api_);
 }
 
 Status Table::Prepare() {
@@ -123,60 +125,42 @@ Status Table::updateCore(chunk::Chunk *old_chunk, chunk::Chunk *new_chunk) {
 }
 
 Status Table::loadMeta() {
-  auto get_index = [this](const schema::IndexInfo *index_info,
-                          Index *index) -> Status {
-    std::string key;
-    codec::EncodeTreeNodeKey(table_info_->db_id, table_info_->id,
-                             index_info->id, 0, &key);
-    std::string value;
-    Status status = kv_api_->GetKV(key, &value);
-    RETURN_ERR_NOT_OK(status);
+  auto get_index = [this](schema::IndexInfo *index_info) -> Index * {
+    BptNonLeafNodeProto index_tree_root;
+    Status status = metadata_api_->LoadTreeNode(
+        table_info_->db_id, table_info_->id, index_info->id,
+        index_info->root_node_id, &index_tree_root);
 
-    std::string str;
-    index->TreeRoot()->Deserialize(str);
-
-    return Status::C_OK;
+    if (status == Status::C_STORAGE_KV_NOT_FOUND) {
+      index_tree_root.set_id(index_info->root_node_id);
+    }
+    return arena_->CreateObject<Index>(kv_api_, arena_, table_info_, index_info,
+                                       &index_tree_root);
   };
 
-  Status status = get_index(table_info_->primary_index, row_index_);
-  RETURN_ERR_NOT_OK(status);
+  row_index_ = get_index(table_info_->primary_index);
 
-  for (const auto &entry : table_info_->id_to_index) {
-    Index *index;
-    status = get_index(entry.second, index);
-    RETURN_ERR_NOT_OK(status);
-
-    col_index_.emplace(entry.first, index);
+  for (auto &index : table_info_->index_list) {
+    col_index_.emplace(index.id, std::move(get_index(&index)));
   }
 
   return Status::C_OK;
 }
 
 Status Table::saveMeta() {
-  auto get_index = [this](const schema::IndexInfo *index_info, Index *index,
-                          std::string *key, std::string *value) -> Status {
-    codec::EncodeTreeNodeKey(table_info_->db_id, table_info_->id,
-                             table_info_->primary_index->id, 0, key);
-    Status status = index->TreeRoot()->Serialize(value);
-    return status;
-  };
-
-  std::unordered_map<std::string, std::string> meta;
-  meta.reserve(col_index_.size() + 1);
-
-  std::string row_key, row_value;
-  get_index(table_info_->primary_index, row_index_, &row_key, &row_value);
-  meta.emplace(row_key, row_value);
-
-  for (const auto &entry : col_index_) {
-    std::string col_key, col_value;
-    schema::IndexInfo *index_info = table_info_->id_to_index.at(entry.first);
-    get_index(index_info, entry.second, &col_key, &col_value);
-    meta.emplace(col_key, col_value);
-  }
-
-  Status status = kv_api_->MPutKV(meta);
+  Status status = metadata_api_->DumpTableMeta(table_info_->db_id,
+                                               table_info_->id, table_info_);
   RETURN_ERR_NOT_OK(status);
+
+  status = metadata_api_->DumpIndexMeta(table_info_->db_id, table_info_->id,
+                                        table_info_->primary_index);
+  RETURN_ERR_NOT_OK(status);
+
+  for (const auto &index : table_info_->id_to_index) {
+    status = metadata_api_->DumpIndexMeta(table_info_->db_id, table_info_->id,
+                                          index.second);
+    RETURN_ERR_NOT_OK(status);
+  }
 
   return Status::C_OK;
 }

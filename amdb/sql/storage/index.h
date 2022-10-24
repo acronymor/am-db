@@ -8,9 +8,9 @@ class Index {
  public:
   ~Index() = default;
 
-  Index(Arena* arena, schema::TableInfo* table_info,
-        schema::IndexInfo* index_info, BptNonLeafNodeProto* root,
-        KvStorageAPI* api);
+  Index(KvStorageAPI* api, Arena* arena,
+        schema::TableInfo* table_info,
+        schema::IndexInfo* index_info, BptNonLeafNodeProto* root);
 
   Status Save();
 
@@ -19,6 +19,7 @@ class Index {
   Status Delete(chunk::Chunk* chunk);
 
   BptNode* TreeRoot();
+
  private:
   schema::TableInfo* table_info_{nullptr};
   schema::IndexInfo* index_info_{nullptr};

@@ -7,8 +7,6 @@ class IndexIterator : public BaseIterator {
   IndexIterator(Bptree* bptree, TreeCtx* tree_ctx, const uint64_t page_size)
       : BaseIterator(bptree, tree_ctx, page_size){};
 
-  Status InitIterOptions(const IteratorOptions& it_opts);
-
   Status GetItem(chunk::Chunk* chunk) override;
 };
 }  // namespace storage

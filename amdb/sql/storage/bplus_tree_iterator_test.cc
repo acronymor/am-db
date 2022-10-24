@@ -8,7 +8,23 @@
 
 namespace amdb {
 namespace storage {
-class BptIteratorTest : public KvDataTest {};
+class BptIteratorTest : public KvDataTest {
+ protected:
+  void SetUp() override {
+    KvDataTest::SetUp();
+
+    TreeCtx::Schema schema = {.db_id = 0, .table_id = 0, .index_id = 0};
+    tree_ctx_ = new TreeCtx(instance_, arena_, schema);
+
+    BptNonLeafNodeProto root;
+    root.set_id(tree_ctx_->AllocateNodeID());
+    bptree_ = new Bptree(tree_ctx_, &root);
+  }
+
+ protected:
+  Bptree* bptree_;
+  TreeCtx* tree_ctx_;
+};
 
 TEST_F(BptIteratorTest, Iterator) {
   Status status = Status::C_OK;

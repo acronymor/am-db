@@ -4,6 +4,7 @@
 #include "sql/schema/schema.h"
 #include "sql/storage/index.h"
 #include "sql/storage/iterator.h"
+#include "sql/storage/metadata.h"
 
 namespace amdb {
 namespace storage {
@@ -30,6 +31,9 @@ class Table {
 
   Status updateCore(chunk::Chunk* old_chunk, chunk::Chunk* new_chunk);
 
+#ifdef AMDB_BUILD_TEST
+ public:
+#endif
   Status loadMeta();
   Status saveMeta();
 
@@ -39,6 +43,8 @@ class Table {
   std::unordered_map<uint64_t, Index*> col_index_;
 
   Arena* arena_;
+
+  Metadata* metadata_api_;
   KvStorageAPI* kv_api_;
 };
 }  // namespace storage

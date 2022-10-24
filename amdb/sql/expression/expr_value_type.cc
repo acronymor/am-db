@@ -11,6 +11,10 @@ uint8_t TypeSize(const ExprValueType& type) {
     case UInt8:
       size = 1;
       break;
+    case Int32:
+    case UInt32:
+      size = 4;
+      break;
     case Int64:
     case UInt64:
       size = 8;

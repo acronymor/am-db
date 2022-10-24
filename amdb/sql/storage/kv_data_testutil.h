@@ -18,30 +18,17 @@ class KvDataTest : public ::testing::Test {
 
     arena_ = new Arena(nullptr);
 
-    TreeCtx::Schema schema = {
-        .db_id = 0,
-        .table_id = 0,
-        .index_id = 0
-    };
-    tree_ctx_ = new TreeCtx(schema, arena_, instance_);
 
-    BptNonLeafNodeProto root;
-    root.set_id(tree_ctx_->AllocateNodeID());
-    bptree_ = new Bptree(tree_ctx_, &root);
   }
 
   void TearDown() override {
     delete instance_, instance_ = nullptr;
-    delete tree_ctx_, tree_ctx_ = nullptr;
     delete arena_, arena_ = nullptr;
-    delete bptree_, bptree_ = nullptr;
   }
 
  protected:
   KvStorageAPI* instance_;
-  TreeCtx* tree_ctx_;
   Arena* arena_;
-  Bptree* bptree_;
 };
 }  // namespace storage
 }  // namespace amdb

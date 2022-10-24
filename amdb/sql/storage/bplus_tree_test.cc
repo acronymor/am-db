@@ -22,7 +22,7 @@ class BplusTreeTest : public testing::Test {
         .table_id = 0,
         .index_id = 0
     };
-    tree_ctx_ = new TreeCtx(schema, arena_, instance_);
+    tree_ctx_ = new TreeCtx(instance_, arena_, schema);
   }
 
   void TearDown() override {

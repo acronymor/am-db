@@ -7,14 +7,14 @@ namespace amdb {
 namespace storage {
 DEFINE_uint32(bptree_max_node_size, 16 * (1 << 10), "the size of bptree node");
 
-TreeCtx::TreeCtx(const Schema& schema, Arena* arena, KvStorageAPI* kv)
+TreeCtx::TreeCtx(KvStorageAPI* kv, Arena* arena, Schema& schema)
     : arena_(arena), storage_api_(kv) {
   schema_ = schema;
 }
 
-Arena* TreeCtx::AllocMem() { return arena_; }
+Arena* TreeCtx::AllocMem() const { return arena_; }
 
-KvStorageAPI* TreeCtx::KvApi() { return storage_api_; }
+KvStorageAPI* TreeCtx::KvApi() const { return storage_api_; }
 
 uint64_t TreeCtx::AllocateNodeID() { return id_++; }
 
@@ -323,29 +323,23 @@ Status BptNode::Serialize(std::string* output) {
 Status BptNode::Deserialize(std::string& input) {
   if (is_leaf_) {
     bool success = proto_.ParseFromString(input);
+    AMDB_ASSERT_TRUE(success);
 
     auto& keys = proto_.keys();
     auto& values = proto_.values();
 
     uint64_t k_offset = 0;
-    uint64_t v_offset = 0;
     uint32_t k_len = 0;
-    uint32_t v_len = 0;
 
     while (k_offset < keys.length()) {
-      k_offset += amdb::codec::DecodeUInt32(
-          std::string(keys.data() + k_offset, keys.size()), &k_len);
-      v_offset += amdb::codec::DecodeUInt32(
-          std::string(values.data() + v_offset, values.size()), &v_len);
-      kvs_.emplace(std::string(keys.data() + k_offset, k_len),
-                   std::string(values.data() + v_offset, v_len));
+      k_offset += amdb::codec::DecodeUInt32(std::string(keys.data() + k_offset, keys.size()), &k_len);
+      kvs_.emplace(std::string(keys.data() + k_offset, k_len), values);
       k_offset += k_len;
-      v_offset += v_len;
     }
   } else {
     BptNonLeafNodeProto non_leaf;
     bool success = non_leaf.ParseFromString(input);
-    std::cout << "Deserialize[non_leaf]: => " << success << std::endl;
+    AMDB_ASSERT_TRUE(success);
 
     children_.reserve(non_leaf.children_size());
     for (const auto& child : non_leaf.children()) {

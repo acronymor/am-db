@@ -34,7 +34,7 @@ class Chunk {
   void AddRow(Row* row);
 
  private:
-  std::vector<uint32_t> select_;
+  std::vector<Row*> select_;
 
   RowDescriptor* row_desc_{nullptr};
   std::vector<Column*> columns_;

@@ -30,7 +30,7 @@ size_t EncodeUInt8(uint8_t in, std::string* out) {
 
 size_t DecodeUInt8(const std::string& in, uint8_t* out) {
   *out = in.at(0);
-  return sizeof(*out);
+  return sizeof(uint8_t);
 }
 
 size_t EncodeUInt32(uint32_t in, std::string* out) {
@@ -42,7 +42,7 @@ size_t EncodeUInt32(uint32_t in, std::string* out) {
 size_t DecodeUInt32(const std::string& in, uint32_t* out) {
   const uint32_t* p = reinterpret_cast<const uint32_t*>(in.data());
   *out = be32toh(*p);
-  return sizeof(*out);
+  return sizeof(uint32_t);
 }
 
 size_t EncodeUInt64(uint64_t in, std::string* out) {
@@ -54,7 +54,7 @@ size_t EncodeUInt64(uint64_t in, std::string* out) {
 size_t DecodeUInt64(const std::string& in, uint64_t* out) {
   const uint64_t* p = reinterpret_cast<const uint64_t*>(in.data());
   *out = be64toh(*p);
-  return sizeof(*out);
+  return sizeof(uint64_t);
 }
 
 size_t EncodeExprValue(const expr::ExprValue& in, std::string* out) {

@@ -12,20 +12,20 @@ size_t EncodeIndex(const schema::TableInfo* table_info,
                    std::string* key, std::string* value) {
   *value = "";
 
-  auto encode = [&row, &key](schema::ColumnInfo* col_info) -> void {
+  auto encode = [&row, &key](const schema::ColumnInfo* col_info) -> void {
     expr::ExprValue col_key = row->GetColValue(0, col_info->id);
     EncodeUInt8((uint8_t)col_key.Type(), key);
     EncodeExprValue(col_key, key);
   };
 
   if (table_info->primary_index->type != index_info->type) {
-    for (schema::ColumnInfo* col_info : index_info->columns) {
-      encode(col_info);
+    for (const schema::ColumnInfo& col_info : index_info->columns) {
+      encode(&col_info);
     }
   }
 
-  for (schema::ColumnInfo* col_info : table_info->primary_index->columns) {
-    encode(col_info);
+  for (schema::ColumnInfo& col_info : table_info->primary_index->columns) {
+    encode(&col_info);
   }
 
   return table_info->column_list.size();
@@ -36,7 +36,7 @@ size_t DecodeIndex(const schema::TableInfo* table_info,
                    std::string* value, chunk::Row* row) {
   *value = "";
 
-  auto decode = [&row, &key](schema::ColumnInfo* col_info) -> void {
+  auto decode = [&row, &key](const schema::ColumnInfo* col_info) -> void {
     uint32_t offset = 0;
 
     uint8_t type;
@@ -51,13 +51,13 @@ size_t DecodeIndex(const schema::TableInfo* table_info,
   };
 
   if (table_info->primary_index->type != index_info->type) {
-    for (schema::ColumnInfo* col_info : index_info->columns) {
-      decode(col_info);
+    for (const schema::ColumnInfo& col_info : index_info->columns) {
+      decode(&col_info);
     }
   }
 
-  for (schema::ColumnInfo* col_info : table_info->primary_index->columns) {
-    decode(col_info);
+  for (const schema::ColumnInfo& col_info : table_info->primary_index->columns) {
+    decode(&col_info);
   }
 
   return table_info->column_list.size();
@@ -70,8 +70,8 @@ size_t EncodeRow(const schema::TableInfo* table_info, chunk::Row* row,
   EncodeIndex(table_info, table_info->primary_index, row, key, value);
 
   // encode value
-  for (schema::ColumnInfo* col_info : table_info->column_list) {
-    expr::ExprValue expr_value = row->GetColValue(0, col_info->id);
+  for (const schema::ColumnInfo& col_info : table_info->column_list) {
+    expr::ExprValue expr_value = row->GetColValue(0, col_info.id);
 
     codec::EncodeUInt8(expr_value.Type(), value);
     codec::EncodeExprValue(expr_value, value);

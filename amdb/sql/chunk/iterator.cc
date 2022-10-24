@@ -12,9 +12,7 @@ bool Iterator::HasNext() { return cursor_ < chunk_->select_.size(); }
 void Iterator::Next() { cursor_++; }
 
 chunk::Row* Iterator::GetRow() {
-  chunk_->select_.at(cursor_);
-  // TODO get row
-  return nullptr;
+  return chunk_->select_.at(cursor_);
 }
 
 }  // namespace chunk

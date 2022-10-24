@@ -40,6 +40,9 @@ class BaseIterator : public Iterator {
 
   inline Status Code() override { return code_; }
 
+  Status InitIterOptions(const IteratorOptions& it_opts);
+
+
  protected:
   std::vector<std::pair<std::string, std::string>> data_segment_;
   size_t visited_kv_count_ = 0;

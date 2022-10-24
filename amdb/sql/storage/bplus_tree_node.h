@@ -25,11 +25,11 @@ class TreeCtx {
   };
 
  public:
-  TreeCtx(const Schema& schema, Arena* arena, KvStorageAPI* kv);
+  TreeCtx(KvStorageAPI* kv, Arena* arena, Schema& schema);
 
-  Arena* AllocMem();
+  Arena* AllocMem() const;
 
-  KvStorageAPI* KvApi();
+  KvStorageAPI* KvApi() const;
 
   uint64_t AllocateNodeID();
 

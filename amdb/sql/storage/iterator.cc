@@ -40,5 +40,11 @@ void BaseIterator::Next() {
   }
 }
 
+Status BaseIterator::InitIterOptions(const IteratorOptions& it_opt) {
+  it_ops_.push_back(it_opt);
+
+  return Status::C_OK;
+}
+
 }  // namespace storage
 }  // namespace amdb

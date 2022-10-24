@@ -18,11 +18,5 @@ Status IndexIterator::GetItem(chunk::Chunk* chunk) {
   visited_kv_count_ += data_segment_.size();
   return status;
 }
-
-Status IndexIterator::InitIterOptions(const IteratorOptions& it_opt) {
-  it_ops_.push_back(it_opt);
-
-  return Status::C_OK;
-}
 }  // namespace storage
 }  // namespace amdb

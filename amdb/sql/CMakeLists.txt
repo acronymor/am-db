@@ -26,6 +26,7 @@ ADD_EXECUTABLE(amdb main.h main.cc)
 TARGET_LINK_LIBRARIES(amdb libamdb_sql)
 
 IF (AMDB_BUILD_TEST)
+  ADD_DEFINITIONS(-DAMDB_BUILD_TEST)
   FOREACH (test_item ${amdb_sql_test_src})
     GET_FILENAME_COMPONENT(test_target_name ${test_item} NAME_WE)
     ADD_EXECUTABLE(${test_target_name} ${test_item})
