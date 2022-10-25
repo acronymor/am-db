@@ -1,4 +1,4 @@
-#include "column.h"
+#include "sql/chunk/column.h"
 
 namespace amdb {
 namespace chunk {

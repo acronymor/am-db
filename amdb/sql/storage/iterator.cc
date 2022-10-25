@@ -17,10 +17,18 @@ Status BaseIterator::Open() {
         tree_ctx_->AllocMem()->CreateObject<BptIterator>(bptree_, &it_op);
     Status status = tree_it_->Open();
     if (Status::C_OK != status) {
+      if (Status::C_BPTREE_ITERATOR_END == status) {
+        DEBUG("Empty Scan, tree node_id={}", bptree_->Root()->ID());
+        continue;
+      }
+
+      ERROR("Iterator init failed, node_id={}", bptree_->Root()->ID());
       return status;
     }
+    return Status::C_OK;
   }
 
+  code_ = Status::C_BPTREE_ITERATOR_END;
   return Status::C_OK;
 }
 

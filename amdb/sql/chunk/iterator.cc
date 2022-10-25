@@ -1,7 +1,5 @@
 #include "sql/chunk/iterator.h"
 
-#include "row.h"
-
 namespace amdb {
 namespace chunk {
 

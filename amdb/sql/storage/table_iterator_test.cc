@@ -8,9 +8,7 @@ namespace amdb {
 namespace storage {
 class TableIteratorTest : public KvDataTest {
  protected:
-  void SetUp() override {
-    KvDataTest::SetUp();
-  }
+  void SetUp() override { KvDataTest::SetUp(); }
 
  private:
 };
@@ -24,7 +22,7 @@ TEST_F(TableIteratorTest, CURD) {
   Bptree* bptree = new Bptree(tree_ctx, &root);
   TableIterator table_it(bptree, tree_ctx, 3);
 
-  IteratorOptions it_opt = { .lower = "0", .upper = "2", .lower_open = true, .upper_open = false};
+  IteratorOptions it_opt = {.lower = "0", .upper = "2", .lower_open = true, .upper_open = false};
   table_it.InitIterOptions(it_opt);
 
   Status status = table_it.Open();

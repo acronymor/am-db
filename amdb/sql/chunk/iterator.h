@@ -1,7 +1,7 @@
 #pragma once
 
-#include "row.h"
 #include "sql/chunk/chunk.h"
+#include "sql/chunk/row.h"
 #include "sql/common/statuscode.h"
 
 namespace amdb {

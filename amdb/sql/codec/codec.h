@@ -6,6 +6,7 @@
 
 /**
  * encode/decode basic type
+ * // TODO may be introduce into multi copy both string, need to optimization
  */
 namespace amdb {
 namespace codec {

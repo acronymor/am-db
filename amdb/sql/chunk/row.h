@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "row_description.h"
 #include "sql/chunk/column.h"
+#include "sql/chunk/row_description.h"
 #include "sql/common/arena.h"
 #include "sql/common/statuscode.h"
 #include "sql/expression/expr_value.h"

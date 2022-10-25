@@ -329,12 +329,21 @@ Status BptNode::Deserialize(std::string& input) {
     auto& values = proto_.values();
 
     uint64_t k_offset = 0;
+    uint64_t v_offset = 0;
     uint32_t k_len = 0;
+    uint32_t v_len = 0;
 
-    while (k_offset < keys.length()) {
+    while (k_offset < keys.length() && v_offset < values.length()) {
       k_offset += amdb::codec::DecodeUInt32(std::string(keys.data() + k_offset, keys.size()), &k_len);
-      kvs_.emplace(std::string(keys.data() + k_offset, k_len), values);
       k_offset += k_len;
+
+      v_offset += amdb::codec::DecodeUInt32(std::string(values.data() + v_offset, values.size()), &v_len);
+      v_offset += v_len;
+
+      std::string key = std::string(keys.data() + k_offset, k_len);
+      std::string value = std::string(values.data() + v_offset, v_len);
+
+      kvs_.emplace(std::move(key), std::move(value));
     }
   } else {
     BptNonLeafNodeProto non_leaf;

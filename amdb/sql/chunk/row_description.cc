@@ -1,4 +1,4 @@
-#include "row_description.h"
+#include "sql/chunk/row_description.h"
 
 #include "common/const.h"
 
