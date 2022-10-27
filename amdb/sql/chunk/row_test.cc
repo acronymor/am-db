@@ -44,7 +44,7 @@ TEST_F(RowTest, SetGet) {
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   const expr::ExprValue& v22 = row.GetColValue(row_id, col_id_2);
-  AMDB_ASSERT_EQ(-99, v22.u.int64_value);
+  AMDB_ASSERT_EQ(-99, v22.Int64Value());
 }
 }  // namespace chunk
 }  // namespace amdb

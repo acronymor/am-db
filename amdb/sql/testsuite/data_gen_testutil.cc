@@ -1,4 +1,4 @@
-#include "sql/testutil/data_gen_testutil.h"
+#include "sql/testsuite//data_gen_testutil.h"
 
 namespace amdb {
 namespace testutil {

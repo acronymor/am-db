@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
 SET(CMAKE_CXX_STANDARD 20)
 
-LIST(APPEND amdb_sql_folder common codec expression chunk schema storage testutil)
+LIST(APPEND amdb_sql_folder common codec expression chunk schema storage testsuite)
 
 FOREACH (folder ${amdb_sql_folder})
   FILE(GLOB srcs ${folder}/*.cc)
@@ -29,12 +29,12 @@ IF (AMDB_BUILD_TEST)
   ADD_DEFINITIONS(-DAMDB_BUILD_TEST)
 
   ADD_LIBRARY(libamdb_sql_testutil ${amdb_sql_testutil_src})
-  TARGET_LINK_LIBRARIES(libamdb_sql_testutil absl::random_random libamdb_sql)
+  TARGET_LINK_LIBRARIES(libamdb_sql_testutil absl::random_random)
 
   FOREACH (test_item ${amdb_sql_test_src})
     GET_FILENAME_COMPONENT(test_target_name ${test_item} NAME_WE)
     ADD_EXECUTABLE(${test_target_name} ${test_item})
-    TARGET_LINK_LIBRARIES(${test_target_name} gtest gtest_main absl::random_random libamdb_sql_testutil)
+    TARGET_LINK_LIBRARIES(${test_target_name} gtest gtest_main absl::random_random libamdb_sql libamdb_sql_testutil)
     ADD_TEST(NAME ${test_target_name} COMMAND ${test_target_name})
   ENDFOREACH ()
 ENDIF ()
