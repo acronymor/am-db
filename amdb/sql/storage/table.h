@@ -12,7 +12,7 @@ class Table {
  public:
   ~Table() = default;
 
-  Table(Arena* arena, schema::TableInfo* table_info, KvStorageAPI* api);
+  Table(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info);
 
   Status Prepare();
 
@@ -23,6 +23,10 @@ class Table {
   Status Delete(chunk::Chunk* chunk);
 
   Status Update(chunk::Chunk* old_chunk, chunk::Chunk* new_chunk);
+
+ public:
+  Index* row_index{nullptr};
+  std::unordered_map<uint64_t, Index*> col_index;
 
  private:
   Status insertCore(chunk::Chunk* chunk);
@@ -38,10 +42,6 @@ class Table {
   Status saveMeta();
 
   schema::TableInfo* table_info_{nullptr};
-
-  Index* row_index_{nullptr};
-  std::unordered_map<uint64_t, Index*> col_index_;
-
   Arena* arena_;
 
   Metadata* metadata_api_;

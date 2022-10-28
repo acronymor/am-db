@@ -7,7 +7,7 @@
 
 namespace amdb {
 namespace storage {
-Table::Table(Arena *arena, schema::TableInfo *table_info, KvStorageAPI *api) {
+Table::Table(KvStorageAPI *api, Arena *arena, schema::TableInfo *table_info) {
   table_info_ = table_info;
   kv_api_ = api;
   arena_ = arena;
@@ -20,11 +20,9 @@ Status Table::Prepare() {
 }
 
 Status Table::Submit() {
-  Status status = row_index_->Save();
-  RETURN_ERR_NOT_OK(status);
   // TODO sync -> async
-  for (const auto &index : col_index_) {
-    status = index.second->Save();
+  for (const auto &index : col_index) {
+    Status status = index.second->Save();
     RETURN_ERR_NOT_OK(status);
   }
 
@@ -76,28 +74,20 @@ Status Table::insertCore(chunk::Chunk *chunk) {
   RETURN_ERR_NOT_OK(status);
 
   // TODO sync -> async
-  // save other index
-  for (const auto &index : col_index_) {
+  // save index which contains primary index
+  for (const auto &index : col_index) {
     status = index.second->Insert(chunk);
     RETURN_ERR_NOT_OK(status);
   }
-
-  // save primary index
-  status = row_index_->Insert(chunk);
-  RETURN_ERR_NOT_OK(status);
 
   return Status::C_OK;
 }
 
 Status Table::deleteCore(chunk::Chunk *chunk) {
-  // delete primary index
-  Status status = row_index_->Delete(chunk);
-  RETURN_ERR_NOT_OK(status);
-
   // TODO sync -> async
   // delete other index
-  for (const auto &index : col_index_) {
-    status = index.second->Delete(chunk);
+  for (const auto &index : col_index) {
+    Status status = index.second->Delete(chunk);
     RETURN_ERR_NOT_OK(status);
   }
 
@@ -114,7 +104,7 @@ Status Table::deleteCore(chunk::Chunk *chunk) {
   }
 
   // delete data
-  status = kv_api_->MDelKV(encoded_keys);
+  Status status = kv_api_->MDelKV(encoded_keys);
   RETURN_ERR_NOT_OK(status);
 
   return Status::C_OK;
@@ -138,10 +128,10 @@ Status Table::loadMeta() {
                                        &index_tree_root);
   };
 
-  row_index_ = get_index(table_info_->primary_index);
+  row_index = get_index(table_info_->primary_index);
 
   for (auto &index : table_info_->index_list) {
-    col_index_.emplace(index.id, std::move(get_index(&index)));
+    col_index.emplace(index.id, std::move(get_index(&index)));
   }
 
   return Status::C_OK;

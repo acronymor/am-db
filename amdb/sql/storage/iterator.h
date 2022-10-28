@@ -1,8 +1,10 @@
 #pragma once
 
+#include "sql/storage/bplus_tree_iterator.h"
 #include "sql/chunk/chunk.h"
 #include "sql/common/statuscode.h"
-#include "sql/storage/bplus_tree_iterator.h"
+#include "sql/schema/schema.h"
+#include "sql/storage/index.h"
 
 namespace amdb {
 namespace storage {
@@ -26,7 +28,7 @@ class Iterator {
 
 class BaseIterator : public Iterator {
  public:
-  BaseIterator(Bptree* bptree, TreeCtx* tree_ctx, uint64_t page_size);
+  BaseIterator(Index* index, uint64_t page_size);
 
   virtual ~BaseIterator() override = default;
 
@@ -42,18 +44,16 @@ class BaseIterator : public Iterator {
 
   Status InitIterOptions(const IteratorOptions& it_opts);
 
-
  protected:
   std::vector<std::pair<std::string, std::string>> data_segment_;
   size_t visited_kv_count_ = 0;
-  TreeCtx* tree_ctx_;
   std::vector<IteratorOptions> it_ops_;
   uint64_t current_op_idx_ = 0;
 
  private:
   Status code_ = Status::C_OK;
 
-  Bptree* bptree_;
+  Index* index_;
   BptIterator* tree_it_{nullptr};
 
   uint64_t page_size_;
