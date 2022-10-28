@@ -1,7 +1,7 @@
-#include "sql/testsuite//data_gen_testutil.h"
+#include "sql/testsuite/data_gen_testutil.h"
 
 namespace amdb {
-namespace testutil {
+namespace testsuite {
 uint64_t RandomDataGen::GenUint64() { return absl::Uniform<uint64_t>(*gen_); }
 
 int64_t RandomDataGen::GenInt64() { return GenUint64() * (GenBool() ? 1 : -1); }
@@ -52,5 +52,5 @@ double SeqDataGen::GenDouble() { return cur_ * 1.0; }
 std::string SeqDataGen::GenString(size_t len) {
   return "data_gen_" + std::to_string(cur_);
 }
-}  // namespace testutil
+}  // namespace testsuite
 }  // namespace amdb

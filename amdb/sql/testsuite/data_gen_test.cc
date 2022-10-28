@@ -3,7 +3,7 @@
 #include "sql/testsuite/data_gen_testutil.h"
 
 namespace amdb {
-namespace testutil {
+namespace testsuite {
 class DataGenTest : public ::testing::Test {
  protected:
   void SetUp() override {
@@ -41,5 +41,5 @@ TEST_F(DataGenTest, Seq) {
   expr::ExprValue uint64_value_3 = seq_->GenUint64Value();
   AMDB_ASSERT_EQ(11, uint64_value_3.UInt64Value());
 };
-}  // namespace testutil
+}  // namespace testsuite
 }  // namespace amdb

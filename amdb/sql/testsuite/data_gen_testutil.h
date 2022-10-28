@@ -2,7 +2,7 @@
 #include "sql/expression/expr_value.h"
 
 namespace amdb {
-namespace testutil {
+namespace testsuite {
 class DataGen {
  public:
   DataGen() = default;
@@ -109,5 +109,5 @@ class SeqDataGen : public DataGen {
  private:
   uint64_t cur_ = 0;
 };
-}  // namespace testutil
+}  // namespace testsuite
 }  // namespace amdb
