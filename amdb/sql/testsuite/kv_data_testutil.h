@@ -1,25 +1,22 @@
-#include "absl/strings/str_format.h"
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
 #include "gtest/gtest.h"
-#include "sql/storage/bplus_tree.h"
-#include "sql/storage/bplus_tree_node.h"
+#include "common/assert.h"
 #include "sql/storage/kv_storage_api.h"
 
 namespace amdb {
-namespace storage {
+namespace testsuite {
 class KvDataTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    StorageAPIOptions options;
-    Status status = KvStorageAPISingleton::Init(options);
+    storage::StorageAPIOptions options;
+    Status status = storage::KvStorageAPISingleton::Init(options);
     AMDB_ASSERT_EQ(Status::C_OK, status);
-    instance_ = KvStorageAPISingleton::GetInstance();
-
+    instance_ = storage::KvStorageAPISingleton::GetInstance();
     arena_ = new Arena(nullptr);
-
-
   }
+
+  Arena* GetArena() { return arena_; }
+
+  storage::KvStorageAPI* GetStorage() { return instance_; }
 
   void TearDown() override {
     delete instance_, instance_ = nullptr;
@@ -27,8 +24,8 @@ class KvDataTest : public ::testing::Test {
   }
 
  protected:
-  KvStorageAPI* instance_;
+  storage::KvStorageAPI* instance_;
   Arena* arena_;
 };
-}  // namespace storage
+}  // namespace testsuite
 }  // namespace amdb
