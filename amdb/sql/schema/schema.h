@@ -12,12 +12,19 @@
 
 namespace amdb {
 namespace schema {
+struct ColumnType {
+  MysqlType type;
+  CharacterSet charset = CHARSET_NULL;
+};
+
 struct ColumnInfo {
   uint64_t id = amdb::kInvalidColumnID;
   uint64_t table_id = amdb::kInvalidTableID;
 
   std::string name;
   std::string table_name;
+
+  ColumnType type;
 
   std::string comment;
 
