@@ -61,10 +61,16 @@ size_t EncodeExprValue(const expr::ExprValue& in, std::string* out) {
   size_t size = 0;
   switch (in.Type()) {
     case expr::ExprValueType::UInt8:
-      size = EncodeUInt8(in.u.uint8_value, out);
+      size = EncodeUInt8(in.UInt8Value(), out);
       break;
     case expr::ExprValueType::UInt32:
-      size = EncodeUInt32(in.u.uint32_value, out);
+      size = EncodeUInt32(in.UInt32Value(), out);
+      break;
+    case expr::ExprValueType::UInt64:
+      size = EncodeUInt64(in.UInt64Value(), out);
+      break;
+    case expr::ExprValueType::String:
+      size = EncodeBytes(in.StringValue(), out);
       break;
     default:
       ERROR("Not Support type ", in.Type());
@@ -83,6 +89,14 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out) {
     case expr::ExprValueType::UInt32:
       size = DecodeUInt32(in, &out->u.uint32_value);
       break;
+    case expr::ExprValueType::UInt64:
+      size = DecodeUInt64(in, &out->u.uint64_value);
+      break;
+    case expr::ExprValueType::String: {
+      std::string value;
+      size = DecodeBytes(in, &value);
+      *out = expr::ExprValue::NewString(std::move(value));
+    } break;
     default:
       ERROR("Not Support type ", out->Type());
       break;

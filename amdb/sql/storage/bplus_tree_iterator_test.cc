@@ -4,21 +4,21 @@
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
 #include "gtest/gtest.h"
-#include "sql/storage/kv_data_testutil.h"
+#include "sql/testsuite/kv_data_testutil.h"
 
 namespace amdb {
 namespace storage {
-class BptIteratorTest : public KvDataTest {
+class BptIteratorTest : public testsuite::KvDataTest {
  protected:
   void SetUp() override {
     KvDataTest::SetUp();
 
     TreeCtx::Schema schema = {.db_id = 0, .table_id = 0, .index_id = 0};
-    tree_ctx_ = new TreeCtx(instance_, arena_, schema);
+    tree_ctx_ = arena_->CreateObject<TreeCtx>(instance_, arena_, schema);
 
     BptNonLeafNodeProto root;
     root.set_id(tree_ctx_->AllocateNodeID());
-    bptree_ = new Bptree(tree_ctx_, &root);
+    bptree_ = arena_->CreateObject<Bptree>(tree_ctx_, &root);
   }
 
  protected:

@@ -2,7 +2,6 @@
 
 #include "sql/common/statuscode.h"
 #include "sql/schema/schema.h"
-#include "sql/storage/index.h"
 #include "sql/storage/iterator.h"
 #include "sql/storage/metadata.h"
 

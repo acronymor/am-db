@@ -7,14 +7,26 @@
 
 namespace amdb {
 namespace storage {
+namespace {
+void __printf__(const std::string& key, const std::string& value) {
+  printf("key=");
+  for (size_t i = 0; i < key.length(); i++) {
+    printf("0x%02hhX ", key.at(i));
+  }
+  printf(", value=");
+  for (size_t i = 0; i < value.length(); i++) {
+    printf("0x%02hhX ", value.at(i));
+  }
+  printf("\n");
+}
+}  // namespace
+
 class LevelDbClientTest : public testing::Test {
  protected:
   void SetUp() override {
     StorageAPIOptions options;
     client_ = LevelDbClient::Create(options);
   }
-
-  void TearDown() override { delete client_; }
 
  protected:
   LevelDbClient* client_;
@@ -85,6 +97,13 @@ TEST_F(LevelDbClientTest, INC) {
   status = client_->Incrby(key, step, &value);
   AMDB_ASSERT_EQ(Status::C_OK, status);
   AMDB_ASSERT_EQ(1024, value);
+}
+
+TEST_F(LevelDbClientTest, Scan) {
+  leveldb::Iterator* it = client_->GetDb()->NewIterator(leveldb::ReadOptions());
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    __printf__(it->key().ToString(), it->value().ToString());
+  }
 }
 }  // namespace storage
 }  // namespace amdb

@@ -115,7 +115,7 @@ Status BptIterator::nextLeafNode() {
 
     if (child_node_runs_out) {
       auto it = cur_node_->Parent()->FindChild(cur_node_);
-      AMDB_ASSERT_TRUE(it != cur_node_->Parent()->children_.end());
+      AMDB_ASSERT(it != cur_node_->Parent()->children_.end()) << "cur_node not found in parent's children";
 
       ++it;
       if (it == cur_node_->Parent()->children_.end()) {

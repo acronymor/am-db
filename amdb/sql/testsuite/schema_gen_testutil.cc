@@ -3,6 +3,7 @@
 #include "absl/strings/str_format.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
+#include "sql/testsuite/data_gen_testutil.h"
 
 namespace {
 std::string toName(uint64_t id, std::string name) {
@@ -113,6 +114,7 @@ chunk::RowDescriptor* SchemaGen::GenRowDesc() {
   row_desc->AddColumnDesc(col_desc_1);
   row_desc->AddColumnDesc(col_desc_2);
   row_desc->AddColumnDesc(col_desc_3);
+  row_desc->InitAllColDesc();
   return row_desc;
 }
 

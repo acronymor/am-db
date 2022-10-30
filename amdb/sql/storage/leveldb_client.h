@@ -32,6 +32,13 @@ class LevelDbClient : public KvStorageAPI {
 
   static LevelDbClient* Create(const StorageAPIOptions& options);
 
+#ifdef AMDB_BUILD_TEST
+ public:
+  inline const std::unique_ptr<leveldb::DB>& GetDb() const {
+      return db_;
+  };
+#endif
+
  private:
   explicit LevelDbClient(std::unique_ptr<leveldb::DB>&& db)
       : db_(std::move(db)){};

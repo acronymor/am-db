@@ -6,6 +6,9 @@ namespace amdb {
 namespace expr {
 class ExprValue {
  public:
+  ~ExprValue();
+
+ public:
   union {
     uint8_t uint8_value;
     uint32_t uint32_value;
@@ -13,8 +16,6 @@ class ExprValue {
     float float32_value;
     double double_value;
   } u;
-
-  ExprValueType Type() const;
 
  public:
   static ExprValue NewNull(ExprValueType type = Null);
@@ -44,6 +45,9 @@ class ExprValue {
   size_t Length();
   std::string ToString();
 
+  void SetVarPtr(ExprValueType alloc_t, void* p);
+  ExprValueType Type() const;
+
  private:
   explicit ExprValue(ExprValueType type, bool null = false);
 
@@ -51,11 +55,6 @@ class ExprValue {
 
   void* var_ptr = nullptr;
   ExprValueType alloc_type = Invalid;
-
-  void setVarPtr(ExprValueType alloc_t, void* p) {
-    var_ptr = p;
-    alloc_type = alloc_t;
-  }
 };
 
 // save ExprValue into char*

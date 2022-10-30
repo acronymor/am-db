@@ -130,6 +130,9 @@ LevelDbClient* LevelDbClient::Create(const StorageAPIOptions& options) {
   leveldb::Options option;
   option.create_if_missing = true;
   leveldb::Status status = leveldb::DB::Open(option, FLAGS_leveldb_dir, &db);
+  if (!status.ok()) {
+    ERROR("{}", status.ToString());
+  }
   AMDB_ASSERT_TRUE(status.ok());
   std::unique_ptr<leveldb::DB> db1(db);
   return new LevelDbClient(std::move(db1));

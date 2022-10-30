@@ -3,7 +3,6 @@
 #include "sql/chunk/iterator.h"
 #include "sql/codec/kv_codec.h"
 #include "sql/codec/rc_codec.h"
-#include "sql/storage/metadata.h"
 
 namespace amdb {
 namespace storage {
@@ -26,7 +25,9 @@ Status Table::Submit() {
     RETURN_ERR_NOT_OK(status);
   }
 
+  /*
   RETURN_ERR_NOT_OK(saveMeta());
+   */
   return Status::C_OK;
 }
 
@@ -128,10 +129,12 @@ Status Table::loadMeta() {
                                        &index_tree_root);
   };
 
-  row_index = get_index(table_info_->primary_index);
-
   for (auto &index : table_info_->index_list) {
-    col_index.emplace(index.id, std::move(get_index(&index)));
+    Index* idx = get_index(&index);
+    col_index.emplace(index.id, idx);
+    if (index.type == schema::CONSTRAINT_PRIMARY) {
+      row_index = idx;
+    }
   }
 
   return Status::C_OK;
@@ -140,10 +143,6 @@ Status Table::loadMeta() {
 Status Table::saveMeta() {
   Status status = metadata_api_->DumpTableMeta(table_info_->db_id,
                                                table_info_->id, table_info_);
-  RETURN_ERR_NOT_OK(status);
-
-  status = metadata_api_->DumpIndexMeta(table_info_->db_id, table_info_->id,
-                                        table_info_->primary_index);
   RETURN_ERR_NOT_OK(status);
 
   for (const auto &index : table_info_->id_to_index) {

@@ -2,11 +2,11 @@
 
 #include "common/assert.h"
 #include "gtest/gtest.h"
-#include "sql/storage/kv_data_testutil.h"
+#include "sql/testsuite/kv_data_testutil.h"
 
 namespace amdb {
 namespace storage {
-class IndexTest : public KvDataTest {
+class IndexTest : public testsuite::KvDataTest {
  protected:
   void SetUp() override {
     KvDataTest::SetUp();

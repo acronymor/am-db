@@ -7,19 +7,19 @@ namespace expr {
 uint8_t TypeSize(const ExprValueType& type) {
   uint8_t size = 255;
   switch (type) {
-    case Int8:
-    case UInt8:
+    case expr::Int8:
+    case expr::UInt8:
       size = 1;
       break;
-    case Int32:
-    case UInt32:
+    case expr::Int32:
+    case expr::UInt32:
       size = 4;
       break;
-    case Int64:
-    case UInt64:
+    case expr::Int64:
+    case expr::UInt64:
       size = 8;
       break;
-    case String:
+    case expr::String:
       size = 12;
       break;
     default:

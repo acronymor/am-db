@@ -9,19 +9,25 @@ namespace expr {
 void ToData(const expr::ExprValue& value, char* col_ptr) {
   switch (value.Type()) {
     case expr::Int8:
-      *reinterpret_cast<int8_t*>(col_ptr) = value.u.uint8_value;
+      *reinterpret_cast<int8_t*>(col_ptr) = value.UInt8Value();
       break;
     case expr::UInt8:
-      *reinterpret_cast<uint8_t*>(col_ptr) = value.u.uint8_value;
+      *reinterpret_cast<uint8_t*>(col_ptr) = value.UInt8Value();
+      break;
+    case expr::Int32:
+      *reinterpret_cast<int32_t*>(col_ptr) = value.Int32Value();
       break;
     case expr::UInt32:
-      *reinterpret_cast<uint32_t*>(col_ptr) = value.u.uint32_value;
+      *reinterpret_cast<uint32_t*>(col_ptr) = value.UInt32Value();
       break;
     case expr::Int64:
-      *reinterpret_cast<int64_t*>(col_ptr) = value.u.uint64_value;
+      *reinterpret_cast<int64_t*>(col_ptr) = value.Int64Value();
       break;
     case expr::UInt64:
-      *reinterpret_cast<uint64_t*>(col_ptr) = value.u.uint64_value;
+      *reinterpret_cast<uint64_t*>(col_ptr) = value.UInt64Value();
+      break;
+    case expr::String:
+      col_ptr = const_cast<char*>(value.StringValue().data());
       break;
     default:
       ERROR("Not support type {}", value.Type());
@@ -33,24 +39,34 @@ void ToExprValue(const char* col_ptr, expr::ExprValue& value) {
   char* ptr = const_cast<char*>(col_ptr);
   switch (value.Type()) {
     case expr::Int8:
-      value = ExprValue::NewInt8(*(reinterpret_cast<int8_t*>(ptr)));
+      value.u.uint8_value = *(reinterpret_cast<int8_t*>(ptr));
       break;
     case expr::UInt8:
-      value = ExprValue::NewUInt8(*(reinterpret_cast<uint8_t*>(ptr)));
+      value.u.uint8_value = *(reinterpret_cast<uint8_t*>(ptr));
+      break;
+    case expr::Int32:
+      value.u.uint32_value = *(reinterpret_cast<int32_t*>(ptr));
       break;
     case expr::UInt32:
-      value = ExprValue::NewUInt32(*(reinterpret_cast<uint32_t*>(ptr)));
+      value.u.uint32_value = *(reinterpret_cast<uint32_t*>(ptr));
       break;
     case expr::Int64:
-      value = ExprValue::NewInt64(*(reinterpret_cast<int64_t*>(ptr)));
+      value.u.uint64_value = *(reinterpret_cast<int64_t*>(ptr));
       break;
     case expr::UInt64:
-      value = ExprValue::NewUInt64(*(reinterpret_cast<uint64_t*>(ptr)));
+      value.u.uint64_value = *(reinterpret_cast<uint64_t*>(ptr));
+      break;
+    case expr::String:
+      value.SetVarPtr(ExprValueType::String, ptr);
       break;
     default:
       ERROR("Not support type {}", value.Type());
       break;
   }
+}
+
+ExprValue::~ExprValue() {
+  // delete var_ptr, var_ptr = nullptr;
 }
 
 ExprValue::ExprValue(ExprValueType type, bool null) { type_ = type; }
@@ -62,8 +78,7 @@ ExprValue ExprValue::NewNull(ExprValueType type) {
 }
 
 ExprValue ExprValue::NewEmpty(ExprValueType type) {
-  ExprValue value(type, false);
-  return value;
+  return ExprValue(type, false);
 }
 
 ExprValue ExprValue::NewBool(bool v) {
@@ -122,8 +137,7 @@ ExprValue ExprValue::NewDouble(double v) {
 
 ExprValue ExprValue::NewString(std::string&& v) {
   ExprValue value(ExprValueType::String, false);
-  value.type_ = ExprValueType::String;
-  value.setVarPtr(ExprValueType::String, new std::string(v));
+  value.SetVarPtr(ExprValueType::String, v.data());
   return value;
 }
 
@@ -174,7 +188,7 @@ double ExprValue::DoubleValue() const {
 
 std::string ExprValue::StringValue() const {
   AMDB_ASSERT_EQ(ExprValueType::String, type_);
-  return *(static_cast<std::string*>(var_ptr));
+  return std::string(static_cast<char*>(var_ptr));
 }
 
 size_t ExprValue::Length() {
@@ -185,37 +199,42 @@ size_t ExprValue::Length() {
 std::string ExprValue::ToString() {
   std::string value;
   switch (type_) {
-    case Int8:
+    case expr::Int8:
       value = std::to_string(Int8Value());
       break;
-    case UInt8:
+    case expr::UInt8:
       value = std::to_string(UInt8Value());
       break;
-    case Int32:
+    case expr::Int32:
       value = std::to_string(Int32Value());
       break;
-    case UInt32:
+    case expr::UInt32:
       value = std::to_string(UInt32Value());
       break;
-    case Int64:
+    case expr::Int64:
       value = std::to_string(Int64Value());
       break;
-    case UInt64:
+    case expr::UInt64:
       value = std::to_string(UInt64Value());
       break;
-    case Float32:
+    case expr::Float32:
       value = std::to_string(FloatValue());
       break;
-    case Double:
+    case expr::Double:
       value = std::to_string(DoubleValue());
       break;
-    case String:
+    case expr::String:
       value = StringValue();
       break;
     default:
       break;
   }
   return value;
+}
+
+void ExprValue::SetVarPtr(ExprValueType alloc_t, void* p)  {
+  var_ptr = p;
+  alloc_type = alloc_t;
 }
 }  // namespace expr
 }  // namespace amdb
