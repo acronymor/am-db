@@ -15,6 +15,11 @@ namespace amdb {
 namespace testsuite {
 void SchemaGen::SetUp() { KvDataTest::SetUp(); }
 
+void SchemaGen::TearDown() {
+  ClearAll();
+  KvDataTest::TearDown();
+}
+
 /*
  * db_name = test-db-1
  * table_name = test-table-1
@@ -62,6 +67,7 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   index_info_01.table_id = table_id;
   index_info_01.name = "index_id";
   index_info_01.columns.emplace_back(col_info_01);
+  index_info_01.root_node_id = 1;
   index_info_01.type = schema::ConstraintType::CONSTRAINT_PRIMARY;
 
   table_info_->index_list.emplace_back();
@@ -69,6 +75,7 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   index_info_02.id = 1;
   index_info_02.table_id = table_id;
   index_info_02.name = "index_name";
+  index_info_02.root_node_id = 1;
   index_info_02.columns.emplace_back(col_info_02);
   index_info_02.type = schema::ConstraintType::CONSTRAINT_INDEX;
 
@@ -77,6 +84,7 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   index_info_03.id = 2;
   index_info_03.table_id = table_id;
   index_info_03.name = "index_age";
+  index_info_03.root_node_id = 1;
   index_info_03.columns.emplace_back(col_info_03);
   index_info_03.type = schema::ConstraintType::CONSTRAINT_INDEX;
 

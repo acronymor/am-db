@@ -2,6 +2,8 @@
 
 #include "common/assert.h"
 #include "gtest/gtest.h"
+#include "sql/chunk/iterator.h"
+#include "sql/codec/rc_codec.h"
 #include "sql/testsuite/kv_data_testutil.h"
 
 namespace amdb {
@@ -27,9 +29,10 @@ class IndexTest : public testsuite::KvDataTest {
     col_info_2.name = "age";
 
     index_info.id = 0;
-    index_info.table_id = 0;
     index_info.name = "id";
-    index_info.name = "test";
+    index_info.table_id = 0;
+    index_info.table_name = "test";
+    index_info.root_node_id = 100;
     index_info.columns.push_back(col_info_1);
     index_info.type = schema::ConstraintType::CONSTRAINT_PRIMARY;
 
@@ -54,7 +57,7 @@ class IndexTest : public testsuite::KvDataTest {
  protected:
   Index* index_;
 
- private:
+  protected:
   schema::ColumnInfo col_info_1;
   schema::ColumnInfo col_info_2;
   schema::IndexInfo index_info;
@@ -69,6 +72,7 @@ class IndexTest : public testsuite::KvDataTest {
     delete bptree_;
     delete index_;
 
+    ClearAll();
     KvDataTest::TearDown();
   }
 };
@@ -81,16 +85,29 @@ TEST_F(IndexTest, CURD) {
   row_desc.AddColumnDesc(&col_desc_1);
   row_desc.AddColumnDesc(&col_desc_2);
 
-  chunk::Row row(arena_, &row_desc);
+  chunk::Row row1(arena_, &row_desc);
   expr::ExprValue value1 = expr::ExprValue::NewUInt32(1);
   expr::ExprValue value2 = expr::ExprValue::NewUInt8(18);
-  row.SetColValue(row_desc.ID(), col_desc_1.ID(), value1);
-  row.SetColValue(row_desc.ID(), col_desc_2.ID(), value2);
+  row1.SetColValue(row_desc.ID(), col_desc_1.ID(), value1);
+  row1.SetColValue(row_desc.ID(), col_desc_2.ID(), value2);
 
-  chunk::Chunk rows(arena_, &row_desc);
-  rows.AddRow(&row);
+  chunk::Chunk rows1(arena_, &row_desc);
+  rows1.AddRow(&row1);
 
-  Status status = index_->Insert(&rows);
+  Status status = index_->Insert(&rows1);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  status = index_->Save();
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  chunk::Row row2(arena_, &row_desc);
+  row2.SetColValue(row_desc.ID(), col_desc_1.ID(), value1);
+  row2.SetColValue(row_desc.ID(), col_desc_2.ID(), value2);
+
+  chunk::Chunk rows2(arena_, &row_desc);
+  rows2.AddRow(&row2);
+
+  status = index_->Delete(&rows2);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   status = index_->Save();

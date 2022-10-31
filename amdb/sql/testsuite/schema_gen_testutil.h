@@ -13,6 +13,8 @@ class SchemaGen : public KvDataTest {
  protected:
   void SetUp() override;
 
+  void TearDown() override;
+
  public:
   schema::TableInfo* GenTableInfo(uint64_t db_id, uint64_t table_id);
 

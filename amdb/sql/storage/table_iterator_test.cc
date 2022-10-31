@@ -18,6 +18,8 @@ class TableIteratorTest : public testsuite::SchemaGen {
     table_ = arena_->CreateObject<Table>(instance_, arena_, table_info);
   }
 
+  void TearDown() override { SchemaGen::TearDown(); }
+
  protected:
   Table* table_;
 };
@@ -34,11 +36,13 @@ TEST_F(TableIteratorTest, Empty) {
   codec::EncodeRow(table_->table_info_, rows->select_.at(0), &key1, &value);
   codec::EncodeRow(table_->table_info_, rows->select_.at(2), &key2, &value);
 
-  IteratorOptions it_opt = {.lower = key1, .upper = key2, .lower_open = true, .upper_open = false};
+  IteratorOptions it_opt = {
+      .lower = key1, .upper = key2, .lower_open = true, .upper_open = false};
   table_it.InitIterOptions(it_opt);
 
-  for (table_it.Open(); table_it.HasNext() && table_it.Code() == Status::C_OK; table_it.Next()) {
+  for (table_it.Open(); table_it.HasNext() && table_it.Code() == Status::C_OK;) {
     chunk::Chunk chunks;
+    table_it.Next();
     status = table_it.GetItem(&chunks);
     AMDB_ASSERT_EQ(Status::C_OK, status);
   }

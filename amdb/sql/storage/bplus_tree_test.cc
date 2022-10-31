@@ -4,6 +4,7 @@
 #include "absl/time/time.h"
 #include "common/assert.h"
 #include "gtest/gtest.h"
+#include "sql/codec/kv_codec.h"
 
 namespace amdb {
 namespace storage {
@@ -17,12 +18,8 @@ class BplusTreeTest : public testing::Test {
 
     arena_ = new Arena(nullptr);
 
-    TreeCtx::Schema schema = {
-        .db_id = 0,
-        .table_id = 0,
-        .index_id = 0
-    };
-    tree_ctx_ = new TreeCtx(instance_, arena_, schema);
+    schema_ = {.db_id = 0, .table_id = 0, .index_id = 0};
+    tree_ctx_ = new TreeCtx(instance_, arena_, schema_);
   }
 
   void TearDown() override {
@@ -35,10 +32,11 @@ class BplusTreeTest : public testing::Test {
   KvStorageAPI* instance_;
   TreeCtx* tree_ctx_;
   Arena* arena_;
+  TreeCtx::Schema schema_;
 };
 
 TEST_F(BplusTreeTest, CRUD) {
-  BptNonLeafNodeProto root;
+  BptNodeProto root;
   root.set_id(tree_ctx_->AllocateNodeID());
   Bptree bptree(tree_ctx_, &root);
 
@@ -54,7 +52,8 @@ TEST_F(BplusTreeTest, CRUD) {
   std::vector<std::string> node_ids;
   std::vector<std::string> kvs;
   tree_ctx_->PullUnsavedTreeNode(&node_ids, &kvs);
-  instance_->MPutKV(node_ids, kvs);
+  status = instance_->MPutKV(node_ids, kvs);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
 
   std::string value;
   status = bptree.GetItem(key1, &value);

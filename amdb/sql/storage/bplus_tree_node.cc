@@ -205,51 +205,39 @@ void BptNode::DelChild(BptNode* child_node) {
   auto it = FindChild(child_node);
   if (it != children_.cend()) {
     children_.erase(it);
-    delete child_node, child_node = nullptr;
   }
 }
 
-struct CompareMaxKey {
-  bool operator()(const BptNode* s1, const BptNode* s2) {
-    return IsCmpLe(DataCmp(s1->Stat().max_key, s2->Stat().max_key));
-  }
-};
-
 ChildIt BptNode::MaxKeyLowerBound(const std::string& key) const {
-  BptNode node;
-  node.stat_.max_key = key;
-
-  return std::lower_bound(children_.cbegin(), children_.cend(), &node,
-                          CompareMaxKey());
+  return std::lower_bound(
+      children_.cbegin(), children_.cend(), key,
+      [](const BptNode* node, const std::string& max_key) -> bool {
+        return IsCmpLt(DataCmp(node->Stat().max_key, max_key));
+      });
 }
 
 ChildIt BptNode::MaxKeyUpperBound(const std::string& key) const {
-  BptNode node;
-  node.stat_.max_key = key;
-  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), &node,
-                                CompareMaxKey());
-  return it;
+  return std::upper_bound(
+      children_.cbegin(), children_.cend(), key,
+      [](const std::string& max_key, const BptNode* node) -> bool {
+        return IsCmpGt(DataCmp(node->Stat().max_key, max_key));
+      });
 }
 
-struct CompareMinKey {
-  bool operator()(const BptNode* s1, const BptNode* s2) {
-    return IsCmpLe(DataCmp(s1->Stat().min_key, s2->Stat().min_key));
-  }
-};
-
 ChildIt BptNode::MinKeyLowerBound(const std::string& key) const {
-  BptNode node;
-  node.stat_.min_key = key;
-  return std::lower_bound(children_.cbegin(), children_.cend(), &node,
-                          CompareMinKey());
+  return std::lower_bound(
+      children_.cbegin(), children_.cend(), key,
+      [](const BptNode* node, const std::string& min_key) -> bool {
+        return IsCmpLt(DataCmp(node->Stat().min_key, min_key));
+      });
 }
 
 ChildIt BptNode::MinKeyUpperBound(const std::string& key) const {
-  BptNode node;
-  node.stat_.min_key = key;
-  ChildIt it = std::upper_bound(children_.cbegin(), children_.cend(), &node,
-                                CompareMinKey());
-  return it;
+  return std::upper_bound(
+      children_.cbegin(), children_.cend(), key,
+      [](const std::string& min_key, const BptNode* node) -> bool {
+        return IsCmpGt(DataCmp(node->Stat().min_key, min_key));
+      });
 }
 
 ChildIt BptNode::FindChild(const std::string& key) const {
@@ -276,9 +264,14 @@ Status BptNode::LoadNodeFromKVStorage() {
   std::string value;
   Status status = tree_ctx_->GetNodeFromKVStorage(id_, &value);
   if (status != Status::C_OK) {
+    ERROR("Get node_id {} failed", id_);
     return status;
   }
-  Deserialize(value);
+  status = Deserialize(value);
+  if (status != Status::C_OK) {
+    ERROR("node_id {} deserialize failed", id_);
+    return status;
+  }
   is_loaded_ = true;
   return Status::C_OK;
 }
@@ -335,14 +328,14 @@ Status BptNode::Deserialize(std::string& input) {
     uint32_t v_len = 0;
 
     while (k_offset < keys.length() && v_offset < values.length()) {
-      k_offset += amdb::codec::DecodeUInt32(std::string(keys.data() + k_offset, keys.size()), &k_len);
+      std::string key, value;
+      k_len = amdb::codec::DecodeBytes(
+          std::string(keys.data() + k_offset, keys.size()), &key);
+      v_len = amdb::codec::DecodeBytes(
+          std::string(values.data() + v_offset, values.size()), &value);
+
       k_offset += k_len;
-
-      v_offset += amdb::codec::DecodeUInt32(std::string(values.data() + v_offset, values.size()), &v_len);
       v_offset += v_len;
-
-      std::string key = std::string(keys.data() + k_offset, k_len);
-      std::string value = std::string(values.data() + v_offset, v_len);
 
       kvs_.emplace(std::move(key), std::move(value));
     }

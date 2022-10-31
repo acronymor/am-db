@@ -14,7 +14,7 @@ size_t EncodeIndex(const schema::TableInfo* table_info,
 
   auto encode = [&row, &key](const schema::ColumnInfo* col_info) -> void {
     expr::ExprValue col_key = row->GetColValue(0, col_info->id);
-    EncodeUInt8((uint8_t)col_key.Type(), key);
+    EncodeUInt8(col_key.Type(), key);
     EncodeExprValue(col_key, key);
   };
 

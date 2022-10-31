@@ -2,6 +2,7 @@
 
 #include "common/assert.h"
 #include "gtest/gtest.h"
+#include "sql/codec/kv_codec.h"
 #include "sql/testsuite/schema_gen_testutil.h"
 
 namespace amdb {
@@ -9,12 +10,16 @@ namespace storage {
 class TableTest : public testsuite::SchemaGen {
  protected:
   void SetUp() override {
-    testsuite::SchemaGen::SetUp();
+    SchemaGen::SetUp();
 
     uint64_t db_id = 0;
     uint64_t table_id = 0;
     schema::TableInfo* table_info = GenTableInfo(db_id, table_id);
     table_ = arena_->CreateObject<Table>(instance_, arena_, table_info);
+  }
+
+  void TearDown() override {
+    SchemaGen::TearDown();
   }
 
  protected:

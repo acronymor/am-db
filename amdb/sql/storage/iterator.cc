@@ -35,11 +35,14 @@ void BaseIterator::Next() {
 
   data_segment_.clear();
 
-  while (code_ == Status::C_OK && data_segment_.size() < page_size_) {
+  while (Code() == Status::C_OK && data_segment_.size() < page_size_) {
     if (tree_it_->HashNext()) {
       tree_it_->Next(&data_segment_, page_size_ - data_segment_.size());
     } else {
-      code_ = Open();
+      Status code = Open();
+      if(code != Status::C_OK) {
+        code_ = code;
+      }
     };
   }
 }

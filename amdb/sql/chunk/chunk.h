@@ -33,7 +33,12 @@ class Chunk {
 
   void AddRow(Row* row);
 
+#ifdef AMDB_BUILD_TEST
+ public:
+#else
  private:
+#endif
+
   std::vector<Row*> select_;
 
   RowDescriptor* row_desc_{nullptr};

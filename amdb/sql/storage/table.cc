@@ -86,7 +86,6 @@ Status Table::insertCore(chunk::Chunk *chunk) {
 
 Status Table::deleteCore(chunk::Chunk *chunk) {
   // TODO sync -> async
-  // delete other index
   for (const auto &index : col_index) {
     Status status = index.second->Delete(chunk);
     RETURN_ERR_NOT_OK(status);
@@ -104,7 +103,6 @@ Status Table::deleteCore(chunk::Chunk *chunk) {
     encoded_keys.emplace_back(std::move(key));
   }
 
-  // delete data
   Status status = kv_api_->MDelKV(encoded_keys);
   RETURN_ERR_NOT_OK(status);
 
