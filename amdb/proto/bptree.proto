@@ -27,13 +27,13 @@ message BptNodeRefProto {
   BptStatisticProto stat = 3;
 }
 
-message BptLeafNodeProto {
+message BptLeafNodeRefProto {
   uint64 id = 1;
   bytes keys = 2;
   bytes values = 3;
 };
 
-message BptNonLeafNodeProto {
+message BptNodeProto {
   uint64 id = 1;
   repeated BptNodeRefProto children = 2;
 };

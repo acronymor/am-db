@@ -24,7 +24,7 @@ class Metadata {
 
   Status DumpIndexMeta(uint64_t db_id, uint64_t table_id, schema::IndexInfo* index_info);
 
-  Status LoadTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id, BptNonLeafNodeProto* root_proto);
+  Status LoadTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id, BptNodeProto* root_proto);
 
  private:
   KvStorageAPI* kv_api_;

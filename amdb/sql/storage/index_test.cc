@@ -14,7 +14,7 @@ class IndexTest : public testsuite::KvDataTest {
     TreeCtx::Schema schema = {.db_id = 0, .table_id = 0, .index_id = 0};
     tree_ctx_ = new TreeCtx(instance_, arena_, schema);
 
-    BptNonLeafNodeProto root;
+    BptNodeProto root;
     root.set_id(tree_ctx_->AllocateNodeID());
     bptree_ = new Bptree(tree_ctx_, &root);
 
@@ -59,7 +59,7 @@ class IndexTest : public testsuite::KvDataTest {
   schema::ColumnInfo col_info_2;
   schema::IndexInfo index_info;
   schema::TableInfo table_info;
-  BptNonLeafNodeProto root;
+  BptNodeProto root;
   TreeCtx* tree_ctx_;
   Bptree* bptree_;
 

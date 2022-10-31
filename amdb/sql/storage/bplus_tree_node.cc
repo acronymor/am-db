@@ -52,7 +52,7 @@ void TreeCtx::PullUnsavedTreeNode(std::vector<std::string>* keys,
   unsaved_nodes_.clear();
 }
 
-BptNode::BptNode(TreeCtx* ctx, BptNonLeafNodeProto* root) {
+BptNode::BptNode(TreeCtx* ctx, BptNodeProto* root) {
   tree_ctx_ = ctx;
 
   id_ = root->id();
@@ -292,7 +292,7 @@ BptNode* BptNode::NewMutableLeafChild() {
 
 Status BptNode::Serialize(std::string* output) {
   if (is_leaf_) {
-    auto leaf_node = BptLeafNodeProto();
+    BptLeafNodeRefProto leaf_node = BptLeafNodeRefProto();
     leaf_node.set_id(id_);
     std::string* keys = leaf_node.mutable_keys();
     std::string* values = leaf_node.mutable_values();
@@ -302,10 +302,10 @@ Status BptNode::Serialize(std::string* output) {
     }
     *output = leaf_node.SerializeAsString();
   } else {
-    auto non_leaf_node = BptNonLeafNodeProto();
+    BptNodeProto non_leaf_node = BptNodeProto();
     non_leaf_node.set_id(id_);
     for (auto& child : children_) {
-      auto child_proto = non_leaf_node.add_children();
+      BptNodeRefProto* child_proto = non_leaf_node.add_children();
       child_proto->set_id(child->ID());
       child_proto->set_type(child->IsLeaf() ? BptNodeRefProto::LEAF
                                             : BptNodeRefProto::NON_LEAF);
@@ -322,11 +322,12 @@ Status BptNode::Serialize(std::string* output) {
 
 Status BptNode::Deserialize(std::string& input) {
   if (is_leaf_) {
-    bool success = proto_.ParseFromString(input);
+    BptLeafNodeRefProto proto;
+    bool success = proto.ParseFromString(input);
     AMDB_ASSERT_TRUE(success);
 
-    auto& keys = proto_.keys();
-    auto& values = proto_.values();
+    auto& keys = proto.keys();
+    auto& values = proto.values();
 
     uint64_t k_offset = 0;
     uint64_t v_offset = 0;
@@ -346,7 +347,7 @@ Status BptNode::Deserialize(std::string& input) {
       kvs_.emplace(std::move(key), std::move(value));
     }
   } else {
-    BptNonLeafNodeProto non_leaf;
+    BptNodeProto non_leaf;
     bool success = non_leaf.ParseFromString(input);
     AMDB_ASSERT_TRUE(success);
 

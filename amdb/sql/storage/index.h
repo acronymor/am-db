@@ -11,7 +11,7 @@ class Index {
   ~Index() = default;
 
   Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
-        schema::IndexInfo* index_info, BptNonLeafNodeProto* root);
+        schema::IndexInfo* index_info, BptNodeProto* root);
 
   Status Save();
 

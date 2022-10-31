@@ -59,7 +59,7 @@ class BptNode {
  public:
   ~BptNode();
 
-  BptNode(TreeCtx* ctx, BptNonLeafNodeProto* root);
+  BptNode(TreeCtx* ctx, BptNodeProto* root);
   BptNode(TreeCtx* ctx, BptNode* parent, const BptNodeRefProto& proto);
   BptNode(TreeCtx* ctx, BptNode* left, BptNode* right);
   BptNode(TreeCtx* ctx, BptNode* parent, bool is_leaf);
@@ -137,8 +137,6 @@ class BptNode {
   bool is_root_ = false;
 
   NodeStatistics stat_ = {};
-
-  BptLeafNodeProto proto_;
   TreeCtx* tree_ctx_;
 };
 }  // namespace storage

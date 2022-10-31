@@ -7,7 +7,7 @@ namespace amdb {
 namespace storage {
 
 Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
-             schema::IndexInfo* index_info, BptNonLeafNodeProto* root) {
+             schema::IndexInfo* index_info, BptNodeProto* root) {
   TreeCtx::Schema schema = {.db_id = table_info->db_id,
                             .table_id = table_info->id,
                             .index_id = index_info->id};

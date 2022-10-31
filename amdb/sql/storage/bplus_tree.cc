@@ -7,7 +7,7 @@
 namespace amdb {
 namespace storage {
 
-Bptree::Bptree(TreeCtx* ctx, BptNonLeafNodeProto* node) : tree_ctx_(ctx) {
+Bptree::Bptree(TreeCtx* ctx, BptNodeProto* node) : tree_ctx_(ctx) {
   root_ = tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, node);
 }
 

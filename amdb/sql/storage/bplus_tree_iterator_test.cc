@@ -16,7 +16,7 @@ class BptIteratorTest : public testsuite::KvDataTest {
     TreeCtx::Schema schema = {.db_id = 0, .table_id = 0, .index_id = 0};
     tree_ctx_ = arena_->CreateObject<TreeCtx>(instance_, arena_, schema);
 
-    BptNonLeafNodeProto root;
+    BptNodeProto root;
     root.set_id(tree_ctx_->AllocateNodeID());
     bptree_ = arena_->CreateObject<Bptree>(tree_ctx_, &root);
   }

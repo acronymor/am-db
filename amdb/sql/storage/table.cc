@@ -117,7 +117,7 @@ Status Table::updateCore(chunk::Chunk *old_chunk, chunk::Chunk *new_chunk) {
 
 Status Table::loadMeta() {
   auto get_index = [this](schema::IndexInfo *index_info) -> Index * {
-    BptNonLeafNodeProto index_tree_root;
+    BptNodeProto index_tree_root;
     Status status = metadata_api_->LoadTreeNode(
         table_info_->db_id, table_info_->id, index_info->id,
         index_info->root_node_id, &index_tree_root);

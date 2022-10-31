@@ -18,7 +18,7 @@ class IndexIteratorTest : public testsuite::SchemaGen {
     uint64_t table_id = 0;
     schema::TableInfo* table_info = GenTableInfo(db_id, table_id);
 
-    BptNonLeafNodeProto* root = arena_->CreateObject<BptNonLeafNodeProto>();
+    BptNodeProto* root = arena_->CreateObject<BptNodeProto>();
     root->set_id(0);
     index_ = new Index(instance_, arena_, table_info, table_info->primary_index,
                        root);

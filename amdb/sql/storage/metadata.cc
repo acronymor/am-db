@@ -92,7 +92,7 @@ Status Metadata::DumpIndexMeta(uint64_t db_id, uint64_t table_id,
 
 Status Metadata::LoadTreeNode(uint64_t db_id, uint64_t table_id,
                               uint64_t index_id, uint64_t node_id,
-                              BptNonLeafNodeProto *root_proto) {
+                              BptNodeProto *root_proto) {
   std::string key;
   codec::EncodeTreeNodeKey(db_id, table_id, index_id, node_id, &key);
 
