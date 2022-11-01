@@ -19,17 +19,14 @@ class KvDataTest : public ::testing::Test {
     delete arena_, arena_ = nullptr;
   }
 
-  const std::unique_ptr<leveldb::DB>& RawKvClient() {
-    return dynamic_cast<storage::LevelDbClient*>(instance_)->GetDb();
-  }
-
   void ClearAll() {
-    leveldb::Iterator* it = RawKvClient()->NewIterator(leveldb::ReadOptions());
-    for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      leveldb::Status status = RawKvClient()->Delete(leveldb::WriteOptions(), it->key());
-      assert(it->status().ok());  // Check for any errors found during the scan
-    }
-    delete it;
+    std::vector<std::string> keys;
+    std::vector<std::string> values;
+    Status status = instance_->Scan(keys, values);
+    AMDB_ASSERT_EQ(Status::C_OK, status);
+
+    status = instance_->MDelKV(keys);
+    AMDB_ASSERT_EQ(Status::C_OK, status);
   }
 
   Arena* GetArena() { return arena_; }

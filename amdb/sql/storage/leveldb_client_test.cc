@@ -32,7 +32,7 @@ class LevelDbClientTest : public testing::Test {
   LevelDbClient* client_;
 };
 
-TEST_F(LevelDbClientTest, CRUD) {
+TEST_F(LevelDbClientTest, DISABLED_CRUD) {
   std::string key = "key";
   std::string value = "hello world";
 
@@ -50,7 +50,7 @@ TEST_F(LevelDbClientTest, CRUD) {
   AMDB_ASSERT_EQ(Status::C_STORAGE_KV_NOT_FOUND, status);
 }
 
-TEST_F(LevelDbClientTest, BATCH_CRUD) {
+TEST_F(LevelDbClientTest, DISABLED_BATCH_CRUD) {
   std::string key1 = "key1";
   std::string value1 = "value1";
 
@@ -81,7 +81,7 @@ TEST_F(LevelDbClientTest, BATCH_CRUD) {
   AMDB_ASSERT_EQ(Status::C_STORAGE_KV_NOT_FOUND, status);
 }
 
-TEST_F(LevelDbClientTest, INC) {
+TEST_F(LevelDbClientTest, DISABLED_INC) {
   std::string key = "inc_key";
   int64_t value;
 
@@ -100,9 +100,13 @@ TEST_F(LevelDbClientTest, INC) {
 }
 
 TEST_F(LevelDbClientTest, Scan) {
-  leveldb::Iterator* it = client_->GetDb()->NewIterator(leveldb::ReadOptions());
-  for (it->SeekToFirst(); it->Valid(); it->Next()) {
-    __printf__(it->key().ToString(), it->value().ToString());
+  std::vector<std::string> keys;
+  std::vector<std::string> values;
+  Status status = client_->Scan(keys, values);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  for (size_t i = 0; i < keys.size(); i++) {
+    __printf__(keys.at(i), values.at(i));
   }
 }
 }  // namespace storage

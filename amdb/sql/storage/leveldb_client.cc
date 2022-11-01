@@ -125,6 +125,19 @@ Status LevelDbClient::Incrby(const std::string& key, int64_t step,
   return C_OK;
 }
 
+#ifdef AMDB_BUILD_TEST
+Status LevelDbClient::Scan(std::vector<std::string>& keys, std::vector<std::string>& values) {
+  leveldb::Iterator* it = db_->NewIterator(leveldb::ReadOptions());
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    keys.push_back(it->key().ToString());
+    values.push_back(it->value().ToString());
+  }
+  AMDB_ASSERT_EQ(keys.size(), values.size());
+  delete it;
+  return C_OK;
+}
+#endif
+
 LevelDbClient* LevelDbClient::Create(const StorageAPIOptions& options) {
   leveldb::DB* db;
   leveldb::Options option;
