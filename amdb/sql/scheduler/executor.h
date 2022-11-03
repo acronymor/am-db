@@ -4,6 +4,7 @@
 
 #include "sql/common/statuscode.h"
 #include "sql/scheduler/port.h"
+#include "sql/context/statement_context.h"
 
 namespace amdb {
 namespace scheduler {
@@ -18,12 +19,13 @@ class IExecutor {
     kFinished,
   };
 
-  IExecutor(ExecType exec_type) : exec_type_(exec_type){};
+  explicit IExecutor(StatementContext* ctx, ExecType exec_type) : ctx_(ctx), exec_type_(exec_type){};
+  virtual ~IExecutor() = default;
 
   virtual Status Open() { return Status::C_OK; }
   virtual Status Close() { return Status::C_OK; }
   virtual State Prepare() = 0;
-  virtual State Work() = 0;
+  virtual Status Work() = 0;
 
   std::vector<InputPort>& GetInputs() { return inputs_; }
   std::vector<OutputPort>& GetOutputs() { return outputs_; }
@@ -45,6 +47,7 @@ class IExecutor {
   std::vector<InputPort> inputs_;
   std::vector<OutputPort> outputs_;
 
+  StatementContext* ctx_;
   ExecType exec_type_;
 };
 }  // namespace scheduler
