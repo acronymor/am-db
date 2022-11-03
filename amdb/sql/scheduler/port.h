@@ -11,10 +11,12 @@ class IExecutor;
 class InputPort;
 class OutputPort;
 void Connect(InputPort&, OutputPort&);
+void Connect(OutputPort&, InputPort&);
 
 class Port {
  private:
   friend void Connect(InputPort&, OutputPort&);
+  friend void Connect(OutputPort&, InputPort&);
 
  public:
   enum State {
@@ -23,8 +25,15 @@ class Port {
     kHasData,
   };
 
-  void Push(chunk::Chunk&& data);
-  chunk::Chunk Pull();
+  class Cache {
+   public:
+    void Push(chunk::Chunk* chunk);
+
+    chunk::Chunk* Pull();
+
+   private:
+    chunk::Chunk* chunk_;
+  };
 
  public:
   Port(IExecutor* exec = nullptr) : exec_(exec) {
@@ -41,16 +50,17 @@ class Port {
  protected:
   IExecutor* exec_ = nullptr;
   size_t idx_ = 0;
+  std::shared_ptr<Cache> cache_;
 };
 
 class InputPort : public Port {
  private:
   friend void Connect(InputPort&, OutputPort&);
+  friend void Connect(OutputPort&, InputPort&);
 
  public:
-  explicit InputPort(IExecutor* exec) : Port(exec) {}
-
-  chunk::Chunk PullData(bool set_not_needed = false);
+  explicit InputPort(IExecutor* exec) : Port(exec){};
+  chunk::Chunk* PullData(bool set_not_needed = false);
 
   bool IsFinished() const;
   void SetNeeded();
@@ -66,11 +76,12 @@ class InputPort : public Port {
 class OutputPort : public Port {
  private:
   friend void Connect(InputPort&, OutputPort&);
+  friend void Connect(OutputPort&, InputPort&);
 
  public:
   explicit OutputPort(IExecutor* exec) : Port(exec) {}
 
-  void PushData(chunk::Chunk&& data);
+  void PushData(chunk::Chunk* data);
 
   bool IsFinished() const;
   bool CanPush() const;
