@@ -6,9 +6,9 @@
 
 namespace amdb {
 namespace storage {
-Table::Table(KvStorageAPI *api, Arena *arena, schema::TableInfo *table_info) {
+Table::Table(Arena *arena, schema::TableInfo *table_info) {
+  kv_api_ = KvStorageAPISingleton::GetInstance();
   table_info_ = table_info;
-  kv_api_ = api;
   arena_ = arena;
   metadata_api_ = arena_->CreateObject<Metadata>(kv_api_);
 }

@@ -5,7 +5,7 @@ namespace amdb {
 namespace storage {
 class TableIterator : public BaseIterator {
  public:
-  TableIterator(Table* table, const uint64_t page_size)
+  TableIterator(Table* table, uint64_t page_size)
       : BaseIterator(table->row_index, page_size){};
 
   Status GetItem(chunk::Chunk* chunk) override;

@@ -15,7 +15,7 @@ class TableIteratorTest : public testsuite::SchemaGen {
     uint64_t db_id = 0;
     uint64_t table_id = 0;
     schema::TableInfo* table_info = GenTableInfo(db_id, table_id);
-    table_ = arena_->CreateObject<Table>(instance_, arena_, table_info);
+    table_ = arena_->CreateObject<Table>(arena_, table_info);
   }
 
   void TearDown() override { SchemaGen::TearDown(); }

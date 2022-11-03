@@ -11,7 +11,7 @@ class Table {
  public:
   ~Table() = default;
 
-  Table(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info);
+  Table(Arena* arena, schema::TableInfo* table_info);
 
   Status Prepare();
 
