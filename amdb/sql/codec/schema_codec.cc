@@ -77,5 +77,15 @@ size_t EncodeIndexTreeNodeID(const uint64_t db_id, const uint64_t table_id,
   offset += EncodeUInt64(node_id, out);
   return offset;
 }
+
+size_t EncodeDataKey(const uint64_t db_id, const uint64_t table_id, const std::string& key, std::string* out) {
+  size_t offset = 0;
+  offset += EncodeUInt64(db_id, out);
+  offset += EncodeUInt64(table_id, out);
+  offset += EncodeUInt8(DataType::kRow, out);
+  offset += EncodeBytes(key, out);
+  return offset;
+}
+
 }  // namespace codec
 }  // namespace amdb

@@ -69,7 +69,7 @@ Status LevelDbClient::MGetKV(const std::vector<std::string>& keys,
     std::string value;
     Status status = GetKV(key, &value);
     if (status != Status::C_OK) {
-      return Status::C_STORAGE_ERROR;
+      return status;
     }
     values->emplace_back(value);
   }

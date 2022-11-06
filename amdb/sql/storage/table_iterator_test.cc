@@ -43,8 +43,7 @@ TEST_F(TableIteratorTest, Empty) {
   for (table_it.Open(); table_it.HasNext() && table_it.Code() == Status::C_OK;) {
     chunk::Chunk chunks;
     table_it.Next();
-    status = table_it.GetItem(&chunks);
-    AMDB_ASSERT_EQ(Status::C_OK, status);
+    AMDB_ASSERT_EQ(Status::C_OK, table_it.GetItem(&chunks));
   }
 }
 };  // namespace storage

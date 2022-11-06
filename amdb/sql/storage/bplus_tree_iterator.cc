@@ -70,8 +70,7 @@ Status BptIterator::Next(
 
       RETURN_ERR_NOT_OK(nextLeafNode());
       if (node_it_reach_end_) {
-        DEBUG("node_it_ reach end, cur_node_ is empty, node_id={}",
-              cur_node_->ID());
+        DEBUG("node_it_ reach end");
         return Status::C_OK;
       }
 
