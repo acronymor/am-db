@@ -18,9 +18,9 @@ class TableScanExecutor : public scheduler::ISource {
   Status Generate(chunk::Chunk* chunk) override;
 
  private:
-  schema::TableInfo* table_info_{nullptr};
   storage::Table* table_{nullptr};
-  storage::Iterator* table_iter_{nullptr};
+  schema::TableInfo* table_info_{nullptr};
+  storage::TableIterator* table_iter_{nullptr};
 };
 }  // namespace executor
 }  // namespace amdb

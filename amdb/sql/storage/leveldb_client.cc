@@ -126,7 +126,8 @@ Status LevelDbClient::Incrby(const std::string& key, int64_t step,
 }
 
 #ifdef AMDB_BUILD_TEST
-Status LevelDbClient::Scan(std::vector<std::string>& keys, std::vector<std::string>& values) {
+Status LevelDbClient::Scan(std::vector<std::string>& keys,
+                           std::vector<std::string>& values) {
   leveldb::Iterator* it = db_->NewIterator(leveldb::ReadOptions());
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     keys.push_back(it->key().ToString());

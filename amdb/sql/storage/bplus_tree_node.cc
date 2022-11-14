@@ -1,7 +1,7 @@
 #include "sql/storage/bplus_tree_node.h"
 
 #include "common/assert.h"
-#include "sql/codec/kv_codec.h"
+#include "sql/codec/schema_codec.h"
 
 namespace amdb {
 namespace storage {
@@ -28,7 +28,7 @@ void TreeCtx::RemoveUnsavedTreeNode(BptNode* node) {
 
 Status TreeCtx::GetNodeFromKVStorage(uint64_t node_id, std::string* value) {
   std::string key;
-  codec::EncodeTreeNodeKey(schema_.db_id, schema_.table_id, schema_.index_id,
+  codec::EncodeIndexTreeNodeID(schema_.db_id, schema_.table_id, schema_.index_id,
                            node_id, &key);
   return storage_api_->GetKV(key, value);
 }
@@ -40,7 +40,7 @@ void TreeCtx::PullUnsavedTreeNode(std::vector<std::string>* keys,
 
   for (auto& entry : unsaved_nodes_) {
     std::string key;
-    codec::EncodeTreeNodeKey(schema_.db_id, schema_.table_id, schema_.index_id,
+    codec::EncodeIndexTreeNodeID(schema_.db_id, schema_.table_id, schema_.index_id,
                              entry.first, &key);
 
     std::string value;
@@ -324,18 +324,18 @@ Status BptNode::Deserialize(std::string& input) {
 
     uint64_t k_offset = 0;
     uint64_t v_offset = 0;
-    uint32_t k_len = 0;
-    uint32_t v_len = 0;
 
     while (k_offset < keys.length() && v_offset < values.length()) {
-      std::string key, value;
-      k_len = amdb::codec::DecodeBytes(
-          std::string(keys.data() + k_offset, keys.size()), &key);
-      v_len = amdb::codec::DecodeBytes(
-          std::string(values.data() + v_offset, values.size()), &value);
+      std::string key;
+      uint32_t k_len = 0;
 
-      k_offset += k_len;
-      v_offset += v_len;
+      codec::DecodeUInt32(std::string(keys.data() + k_offset, sizeof(uint32_t)), &k_len);
+      k_offset += codec::DecodeBytes(std::string(keys.data() + k_offset, sizeof(uint32_t) + k_len), &key);
+
+      std::string value;
+      uint32_t v_len = 0;
+      codec::DecodeUInt32(std::string(values.data() + v_offset, sizeof(uint32_t)), &v_len);
+      v_offset += codec::DecodeBytes(std::string(values.data() + v_offset, sizeof(uint32_t) + v_len), &value);
 
       kvs_.emplace(std::move(key), std::move(value));
     }

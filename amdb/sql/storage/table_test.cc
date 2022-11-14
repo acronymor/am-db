@@ -2,7 +2,6 @@
 
 #include "common/assert.h"
 #include "gtest/gtest.h"
-#include "sql/codec/kv_codec.h"
 #include "sql/testsuite/schema_gen_testutil.h"
 
 namespace amdb {

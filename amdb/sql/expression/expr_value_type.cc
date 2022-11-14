@@ -20,6 +20,7 @@ uint8_t TypeSize(const ExprValueType& type) {
       size = 8;
       break;
     case expr::String:
+      // str_addr[8] + str_len[4]
       size = 12;
       break;
     default:

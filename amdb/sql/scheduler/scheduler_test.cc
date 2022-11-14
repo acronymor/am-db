@@ -1,3 +1,4 @@
+#include "sql/chunk/iterator.h"
 #include "sql/executor/filter_executor.h"
 #include "sql/executor/resultset_executor.h"
 #include "sql/executor/table_scan_executor.h"
@@ -17,6 +18,7 @@ struct SchedulerTest : public testsuite::SchemaGen {
     ctx = new StatementContext();
     ctx->arena = arena_;
     ctx->row_desc = GenRowDesc();
+    ctx->row_desc->InitAllColDesc();
   }
 
   void TearDown() override {
@@ -30,6 +32,10 @@ struct SchedulerTest : public testsuite::SchemaGen {
 };
 
 TEST_F(SchedulerTest, Connect) {
+  chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
+  Status status = table_->Insert(rows);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
   std::vector<IExecutor*> executors;
 
   executor::TableScanExecutor* table_scan_executor =
@@ -49,8 +55,7 @@ TEST_F(SchedulerTest, Connect) {
 
   // Connect
   for (size_t i = 0; i < executors.size() - 1; i++) {
-    Connect(executors.at(i)->CreateOutputPort(),
-            executors.at(i + 1)->CreateInputPort());
+    Connect(executors.at(i)->CreateOutputPort(), executors.at(i + 1)->CreateInputPort());
   }
 
   // Open

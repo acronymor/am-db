@@ -33,7 +33,8 @@ class LevelDbClient : public KvStorageAPI {
   static LevelDbClient* Create(const StorageAPIOptions& options);
 
 #ifdef AMDB_BUILD_TEST
-  Status Scan(std::vector<std::string>& keys, std::vector<std::string>& values) override;
+  Status Scan(std::vector<std::string>& keys,
+              std::vector<std::string>& values) override;
 #endif
 
  private:

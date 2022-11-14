@@ -17,7 +17,7 @@ void RowDescriptor::InitAllColDesc() {
     byte_size_ += cols[col_id]->bytes_count;
     if (expr::IsVariableSize(cols[col_id]->Type())) {
       varlen_data_ = true;
-      var_cols.push_back(cols[col_id]);
+      var_cols.emplace_back(cols[col_id]);
     }
   }
 }

@@ -1,7 +1,6 @@
 #include "sql/storage/table.h"
 
 #include "sql/chunk/iterator.h"
-#include "sql/codec/kv_codec.h"
 #include "sql/codec/rc_codec.h"
 
 namespace amdb {

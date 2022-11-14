@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sql/codec/kv_codec.h"
+#include "sql/codec/codec.h"
 
 namespace amdb {
 namespace codec {
@@ -15,8 +15,8 @@ enum MetaType : uint8_t {
 };
 
 enum DataType: uint8_t  {
-  kTreeNode = 1,
-  kRow = 2
+  kTreeNode = 0,
+  kRow = 1
 };
 
 size_t EncodeDatabaseID(uint64_t db_id, std::string* out);

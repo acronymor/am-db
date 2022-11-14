@@ -4,7 +4,6 @@
 #include "absl/time/time.h"
 #include "common/assert.h"
 #include "gtest/gtest.h"
-#include "sql/codec/kv_codec.h"
 
 namespace amdb {
 namespace storage {

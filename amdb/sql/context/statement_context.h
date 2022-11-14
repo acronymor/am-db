@@ -1,5 +1,5 @@
-#include "sql/common/arena.h"
 #include "sql/chunk/row_description.h"
+#include "sql/common/arena.h"
 
 namespace amdb {
 class StatementContext {

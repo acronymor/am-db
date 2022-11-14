@@ -13,6 +13,8 @@ class Index {
   Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
         schema::IndexInfo* index_info, BptNodeProto* root);
 
+  Status GetRecords(std::vector<std::string>& keys, std::vector<std::string>* values);
+
   Status Save();
 
   Status Insert(chunk::Chunk* chunk);
@@ -23,14 +25,14 @@ class Index {
 
   TreeCtx* TreeCtxx();
 
+  schema::TableInfo* table_info_{nullptr};
+  schema::IndexInfo* index_info_{nullptr};
+
 #ifdef AMDB_BUILD_TEST
  public:
 #else
  private:
 #endif
-  schema::TableInfo* table_info_{nullptr};
-  schema::IndexInfo* index_info_{nullptr};
-
   Bptree* bptree_;
   TreeCtx* tree_ctx_;
 

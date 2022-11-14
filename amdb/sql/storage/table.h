@@ -27,6 +27,8 @@ class Table {
   Index* row_index{nullptr};
   std::unordered_map<uint64_t, Index*> col_index;
 
+  Status loadMeta();
+  Status saveMeta();
  private:
   Status insertCore(chunk::Chunk* chunk);
 
@@ -37,9 +39,6 @@ class Table {
 #ifdef AMDB_BUILD_TEST
  public:
 #endif
-  Status loadMeta();
-  Status saveMeta();
-
   schema::TableInfo* table_info_{nullptr};
   Arena* arena_;
 

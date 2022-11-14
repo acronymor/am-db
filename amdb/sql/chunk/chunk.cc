@@ -1,5 +1,6 @@
 #include "sql/chunk/chunk.h"
-#include "common/log.h"
+
+#include "sql/codec/rc_codec.h"
 
 namespace amdb {
 namespace chunk {
@@ -7,44 +8,29 @@ namespace chunk {
 Chunk::Chunk(Arena* arena, RowDescriptor* row_desc)
     : arena_(arena), row_desc_{row_desc} {}
 
-Chunk& Chunk::operator=(Chunk&& rsh) noexcept {
-  select_ = std::move(rsh.select_);
-  cursor_ = rsh.cursor_;
-  row_desc_ = rsh.row_desc_;
-  columns_ = std::move(rsh.columns_);
-  max_capacity_ = rsh.max_capacity_;
-  cur_capacity_ = rsh.cur_capacity_;
-  arena_ = std::move(rsh.arena_);
-}
-
 uint32_t Chunk::Size() const { return select_.size(); }
 
 // convert index kv to chunk
-Status Chunk::PullIndexData(
-    std::vector<std::pair<std::string, std::string>>& data_segment) {
-  return C_OK;
-}
+Status Chunk::PullIndexData(schema::TableInfo* table_info,
+                            schema::IndexInfo* index_info,
+                            std::vector<std::string>& keys,
+                            std::vector<std::string>& values) {
+  cursor_ = 0;
+  max_capacity_ = 1024;
+  cur_capacity_ = keys.size();
 
-// convert data kv to chunk
-Status Chunk::PullKvData(
-    std::vector<std::pair<std::string, std::string>>& data_segment) {
-  for(auto& entry: data_segment) {
-    INFO("key={}, value={}", entry.first, entry.second);
+  for (size_t i = 0; i < keys.size() && i < values.size(); i++) {
+    chunk::Row* row = arena_->CreateObject<chunk::Row>(arena_, row_desc_);
+    codec::DecodeIndex(table_info, index_info, &keys.at(i), &values.at(i), row);
+    select_.emplace_back(row);
   }
+
   return Status::C_OK;
 }
 
-void Chunk::AddRow(Row* row) {
-  RowDescriptor* row_desc = row->desc;
-  /*
-  for (ColumnDescriptor* col_desc : row_desc->GetAllColumnDesc()) {
-    Column* column = arena_->CreateObject<Column>(arena_, col_desc, cur_capacity_);
-    column->SetExprValue(row_desc->ID(), row->GetColValue(row_desc->ID(), col_desc->ID()));
-    columns_.push_back(column);
-  }
-   */
-  select_.push_back(row);
-}
+void Chunk::AddRow(Row* row) { select_.push_back(row); }
+
+RowDescriptor* Chunk::GetRowDesc() { return row_desc_; }
 
 }  // namespace chunk
 }  // namespace amdb

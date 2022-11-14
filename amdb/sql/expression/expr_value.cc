@@ -6,10 +6,10 @@
 namespace amdb {
 namespace expr {
 
-void ToData(const expr::ExprValue& value, char* col_ptr) {
+void ToData(const expr::ExprValue& value, char* col_ptr, Arena* arena) {
   switch (value.Type()) {
     case expr::Int8:
-      *reinterpret_cast<int8_t*>(col_ptr) = value.UInt8Value();
+      *reinterpret_cast<int8_t*>(col_ptr) = value.Int8Value();
       break;
     case expr::UInt8:
       *reinterpret_cast<uint8_t*>(col_ptr) = value.UInt8Value();
@@ -26,9 +26,14 @@ void ToData(const expr::ExprValue& value, char* col_ptr) {
     case expr::UInt64:
       *reinterpret_cast<uint64_t*>(col_ptr) = value.UInt64Value();
       break;
-    case expr::String:
-      col_ptr = const_cast<char*>(value.StringValue().data());
-      break;
+    case expr::String: {
+      AMDB_ASSERT_FALSE(arena == nullptr);
+      std::string str = value.StringValue();
+      char* str_copy = reinterpret_cast<char*>(arena->AllocateBytes(str.size()));
+      memcpy(str_copy, str.data(), str.length());
+      *reinterpret_cast<uint64_t*>(col_ptr) = reinterpret_cast<uint64_t>(str_copy);
+      *reinterpret_cast<uint32_t*>(col_ptr + sizeof(uint64_t)) = str.length();
+    } break;
     default:
       ERROR("Not support type {}", value.Type());
       break;
@@ -56,9 +61,15 @@ void ToExprValue(const char* col_ptr, expr::ExprValue& value) {
     case expr::UInt64:
       value.u.uint64_value = *(reinterpret_cast<uint64_t*>(ptr));
       break;
-    case expr::String:
-      value.SetVarPtr(ExprValueType::String, ptr);
-      break;
+    case expr::String: {
+      uint64_t* str_ptr = reinterpret_cast<uint64_t*>(ptr);
+      uint32_t* str_size = reinterpret_cast<uint32_t*>(ptr + sizeof(uint64_t));
+      std::string* str = new std::string();
+      str->resize(*str_size);
+      str->assign(reinterpret_cast<char*>(*str_ptr), *str_size);
+
+      value.SetVarPtr(ExprValueType::String, str);
+    } break;
     default:
       ERROR("Not support type {}", value.Type());
       break;
@@ -135,9 +146,10 @@ ExprValue ExprValue::NewDouble(double v) {
   return value;
 }
 
-ExprValue ExprValue::NewString(std::string&& v) {
+ExprValue ExprValue::NewString(std::string&& v, Arena* arena) {
+  AMDB_ASSERT_FALSE(arena == nullptr);
   ExprValue value(ExprValueType::String, false);
-  value.SetVarPtr(ExprValueType::String, v.data());
+  value.SetVarPtr(ExprValueType::String, new std::string(std::move(v)));
   return value;
 }
 
@@ -188,12 +200,13 @@ double ExprValue::DoubleValue() const {
 
 std::string ExprValue::StringValue() const {
   AMDB_ASSERT_EQ(ExprValueType::String, type_);
-  return std::string(static_cast<char*>(var_ptr));
+  // return std::string(static_cast<char*>(var_ptr));
+  return *(static_cast<std::string*>(var_ptr));
 }
 
 size_t ExprValue::Length() {
   // basic type
-  return sizeof(type_);
+  return TypeSize(type_);
 }
 
 std::string ExprValue::ToString() {
@@ -232,7 +245,7 @@ std::string ExprValue::ToString() {
   return value;
 }
 
-void ExprValue::SetVarPtr(ExprValueType alloc_t, void* p)  {
+void ExprValue::SetVarPtr(ExprValueType alloc_t, void* p) {
   var_ptr = p;
   alloc_type = alloc_t;
 }

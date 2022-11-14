@@ -8,7 +8,7 @@ namespace amdb {
 namespace chunk {
 class Iterator {
  public:
-  Iterator(Chunk* chunk) : chunk_{chunk} {};
+  Iterator(const Chunk* chunk) : chunk_{chunk} {};
 
   ~Iterator() = default;
 
@@ -21,7 +21,7 @@ class Iterator {
   chunk::Row* GetRow();
 
  private:
-  Chunk* chunk_ = nullptr;
+  const Chunk* chunk_ = nullptr;
   size_t cursor_ = 0;
 };
 }  // namespace chunk

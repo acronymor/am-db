@@ -10,7 +10,7 @@ class ResultSetExecutor : public scheduler::ISink {
   Status Close() override;
 
  protected:
-  Status Consume(chunk::Chunk *chunk) override;
+  Status Consume(chunk::Chunk* chunk) override;
 };
 }  // namespace executor
 }  // namespace amdb

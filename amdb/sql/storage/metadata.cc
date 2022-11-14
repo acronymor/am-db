@@ -94,7 +94,7 @@ Status Metadata::LoadTreeNode(uint64_t db_id, uint64_t table_id,
                               uint64_t index_id, uint64_t node_id,
                               BptNodeProto *root_proto) {
   std::string key;
-  codec::EncodeTreeNodeKey(db_id, table_id, index_id, node_id, &key);
+  codec::EncodeIndexTreeNodeID(db_id, table_id, index_id, node_id, &key);
 
   std::string value;
   Status status = kv_api_->GetKV(key, &value);

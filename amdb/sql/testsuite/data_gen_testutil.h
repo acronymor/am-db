@@ -5,7 +5,7 @@ namespace amdb {
 namespace testsuite {
 class DataGen {
  public:
-  DataGen() = default;
+  DataGen() { arena_ = new Arena(nullptr); }
   virtual ~DataGen() = default;
 
   inline expr::ExprValue GenUint64Value() {
@@ -33,7 +33,7 @@ class DataGen {
   }
 
   inline expr::ExprValue GenStringValue(size_t len = 8) {
-    return expr::ExprValue::NewString(GenString(len));
+    return expr::ExprValue::NewString(GenString(len), arena_);
   }
 
  protected:
@@ -54,6 +54,9 @@ class DataGen {
   virtual double GenDouble() = 0;
 
   virtual std::string GenString(size_t len = 8) = 0;
+
+ private:
+  Arena* arena_;
 };
 
 class RandomDataGen : public DataGen {

@@ -1,5 +1,8 @@
 #include "sql/storage/index_iterator.h"
 
+#include "sql/codec/rc_codec.h"
+#include "sql/codec/schema_codec.h"
+
 namespace amdb {
 namespace storage {
 Status IndexIterator::GetItem(chunk::Chunk* chunk) {
@@ -13,10 +16,15 @@ Status IndexIterator::GetItem(chunk::Chunk* chunk) {
     return Status::C_OK;
   }
 
-  Status status = chunk->PullIndexData(data_segment_);
+  // TODO data_segment -> keys and value
+  std::vector<std::string> keys;
+  std::vector<std::string> values;
+  Status status = chunk->PullIndexData(index_->table_info_, index_->index_info_,
+                                       keys, values);
+  RETURN_ERR_NOT_OK(status);
 
   visited_kv_count_ += data_segment_.size();
-  return status;
+  return Status::C_OK;
 }
 }  // namespace storage
 }  // namespace amdb

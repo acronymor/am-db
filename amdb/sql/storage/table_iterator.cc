@@ -1,5 +1,7 @@
 #include "sql/storage/table_iterator.h"
 
+#include "sql/codec/rc_codec.h"
+
 namespace amdb {
 namespace storage {
 Status TableIterator::GetItem(chunk::Chunk* chunk) {
@@ -13,7 +15,26 @@ Status TableIterator::GetItem(chunk::Chunk* chunk) {
     return Status::C_OK;
   }
 
-  status = chunk->PullKvData(data_segment_);
+  std::vector<std::string> keys;
+  keys.reserve(data_segment_.size());
+
+  for (std::pair<std::string, std::string>& segment : data_segment_) {
+    chunk::Row row(index_->TreeCtxx()->AllocMem(), chunk->GetRowDesc());
+    codec::DecodeIndex(index_->table_info_, index_->index_info_, &segment.first,
+                       &segment.second, &row);
+
+    std::string key, value;
+    codec::EncodeRow(index_->table_info_, &row, &key, &value);
+
+    keys.emplace_back(std::move(key));
+  }
+
+  std::vector<std::string> values;
+  status = index_->GetRecords(keys, &values);
+  RETURN_ERR_NOT_OK(status);
+
+  status = chunk->PullIndexData(index_->table_info_, index_->index_info_, keys,
+                                values);
 
   visited_kv_count_ += data_segment_.size();
   return status;

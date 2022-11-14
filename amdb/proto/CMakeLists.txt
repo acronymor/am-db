@@ -6,7 +6,7 @@ FILE(GLOB proto_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SO
 SET(PROTO_CC_FILES)
 SET(PROTO_HDR_FILES)
 
-FOREACH(proto ${proto_files})
+FOREACH (proto ${proto_files})
   STRING(REGEX REPLACE ".proto\$" ".pb.h" hdr_file "${proto}")
   STRING(REGEX REPLACE ".proto\$" ".pb.cc" cc_file "${proto}")
   MESSAGE(STATUS "add proto target: ${proto} -> ${hdr_file}, ${cc_file}")
@@ -23,7 +23,7 @@ FOREACH(proto ${proto_files})
 
   SET(PROTO_HDR_FILES ${PROTO_HDR_FILES} "${output_hdr_file}")
   SET(PROTO_CC_FILES ${PROTO_CC_FILES} "${output_cc_file}")
-ENDFOREACH()
+ENDFOREACH ()
 
 ADD_CUSTOM_TARGET(proto_gen DEPENDS ${PROTO_HDR_FILES} ${PROTO_CC_FILES})
 

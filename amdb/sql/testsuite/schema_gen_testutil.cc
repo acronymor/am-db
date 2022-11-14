@@ -3,6 +3,7 @@
 #include "absl/strings/str_format.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
+#include "sql/chunk/iterator.h"
 #include "sql/testsuite/data_gen_testutil.h"
 
 namespace {
@@ -131,7 +132,7 @@ chunk::Chunk* SchemaGen::GenRows(chunk::RowDescriptor* row_desc, size_t size) {
 
   for (size_t i = 0; i < size; i++) {
     expr::ExprValue value1 = expr::ExprValue::NewUInt64(i);
-    expr::ExprValue value2 = expr::ExprValue::NewString(toName(i, "col"));
+    expr::ExprValue value2 = expr::ExprValue::NewString(toName(i, "col"), arena_);
     expr::ExprValue value3 = expr::ExprValue::NewUInt8(i % 99);
 
     chunk::Row* row = arena_->CreateObject<chunk::Row>(arena_, row_desc);

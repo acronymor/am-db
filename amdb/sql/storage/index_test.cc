@@ -57,7 +57,7 @@ class IndexTest : public testsuite::KvDataTest {
  protected:
   Index* index_;
 
-  protected:
+ protected:
   schema::ColumnInfo col_info_1;
   schema::ColumnInfo col_info_2;
   schema::IndexInfo index_info;

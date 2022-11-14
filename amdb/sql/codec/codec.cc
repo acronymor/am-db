@@ -1,5 +1,6 @@
 #include "sql/codec/codec.h"
 
+#include "common/assert.h"
 #include "common/log.h"
 
 namespace amdb {
@@ -80,7 +81,8 @@ size_t EncodeExprValue(const expr::ExprValue& in, std::string* out) {
   return size;
 }
 
-size_t DecodeExprValue(const std::string& in, expr::ExprValue* out) {
+size_t DecodeExprValue(const std::string& in, expr::ExprValue* out,
+                       Arena* arena) {
   size_t size = 0;
   switch (out->Type()) {
     case expr::ExprValueType::UInt8:
@@ -93,9 +95,10 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out) {
       size = DecodeUInt64(in, &out->u.uint64_value);
       break;
     case expr::ExprValueType::String: {
+      AMDB_ASSERT_FALSE(arena == nullptr);
       std::string value;
       size = DecodeBytes(in, &value);
-      *out = expr::ExprValue::NewString(std::move(value));
+      *out = expr::ExprValue::NewString(std::move(value), arena);
     } break;
     default:
       ERROR("Not Support type ", out->Type());

@@ -5,7 +5,6 @@
 
 namespace amdb {
 namespace storage {
-
 Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
              schema::IndexInfo* index_info, BptNodeProto* root) {
   TreeCtx::Schema schema = {.db_id = table_info->db_id,
@@ -16,6 +15,10 @@ Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
   index_info_ = index_info;
   kv_api_ = api;
   bptree_ = tree_ctx_->AllocMem()->CreateObject<Bptree>(tree_ctx_, root);
+}
+
+Status Index::GetRecords(std::vector<std::string>& keys, std::vector<std::string>* values) {
+  return kv_api_->MGetKV(keys, values);
 }
 
 Bptree* Index::Tree() { return bptree_; }
@@ -40,6 +43,11 @@ Status Index::Insert(chunk::Chunk* chunk) {
 
   for (itr.Open(); itr.HasNext(); itr.Next()) {
     chunk::Row* row = itr.GetRow();
+
+    for (chunk::ColumnDescriptor* desc : row->desc->GetAllColumnDesc()) {
+      expr::ExprValue key = row->GetColValue(row->desc->ID(), desc->ID());
+    }
+
     std::string key;
     std::string value;
     codec::EncodeIndex(table_info_, index_info_, row, &key, &value);

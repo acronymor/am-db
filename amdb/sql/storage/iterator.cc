@@ -40,7 +40,7 @@ void BaseIterator::Next() {
       tree_it_->Next(&data_segment_, page_size_ - data_segment_.size());
     } else {
       Status code = Open();
-      if(code != Status::C_OK) {
+      if (code != Status::C_OK) {
         code_ = code;
       }
     };

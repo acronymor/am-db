@@ -46,7 +46,7 @@ bool BptIterator::HashNext() {
 }
 
 Status BptIterator::Next(
-    std::vector<std::pair<std::string, std::string>>* output,
+    std::vector<std::pair<std::string, std::string>>* data_segment,
     size_t row_count) {
   uint64_t rows_remain = row_count;
 
@@ -57,7 +57,7 @@ Status BptIterator::Next(
     }
 
     if (!kv_it_reach_end_) {
-      output->emplace_back(cur_kv_->first, cur_kv_->second);
+      data_segment->emplace_back(cur_kv_->first, cur_kv_->second);
       rows_remain--;
       nextKV();
     } else {

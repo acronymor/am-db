@@ -4,22 +4,10 @@
 
 #include "common/assert.h"
 #include "gtest/gtest.h"
+#include "sql/testsuite/print_testutil.h"
 
 namespace amdb {
 namespace storage {
-namespace {
-void __printf__(const std::string& key, const std::string& value) {
-  printf("key=");
-  for (size_t i = 0; i < key.length(); i++) {
-    printf("0x%02hhX ", key.at(i));
-  }
-  printf(", value=");
-  for (size_t i = 0; i < value.length(); i++) {
-    printf("0x%02hhX ", value.at(i));
-  }
-  printf("\n");
-}
-}  // namespace
 
 class LevelDbClientTest : public testing::Test {
  protected:
@@ -106,7 +94,10 @@ TEST_F(LevelDbClientTest, Scan) {
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   for (size_t i = 0; i < keys.size(); i++) {
-    __printf__(keys.at(i), values.at(i));
+    printf("key=");
+    testsuite::PrintHexStr(&keys.at(i));
+    printf("value=");
+    testsuite::PrintHexStr(&values.at(i));
   }
 }
 }  // namespace storage

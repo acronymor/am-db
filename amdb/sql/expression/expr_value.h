@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sql/common/arena.h"
 #include "sql/expression/expr_value_type.h"
 
 namespace amdb {
@@ -29,7 +30,7 @@ class ExprValue {
   static ExprValue NewUInt64(uint64_t v);
   static ExprValue NewFloat(float v);
   static ExprValue NewDouble(double v);
-  static ExprValue NewString(std::string&& v);
+  static ExprValue NewString(std::string&& v, Arena* arena);
 
   bool BoolValue() const;
   int8_t Int8Value() const;
@@ -58,7 +59,7 @@ class ExprValue {
 };
 
 // save ExprValue into char*
-void ToData(const expr::ExprValue& value, char* col_ptr);
+void ToData(const expr::ExprValue& value, char* col_ptr, Arena* arena);
 
 // convert char* to ExprValue
 void ToExprValue(const char* col_ptr, expr::ExprValue& value);

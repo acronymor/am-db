@@ -5,26 +5,26 @@
 
 #include "sql/chunk/row.h"
 #include "sql/common/statuscode.h"
+#include "sql/schema/schema.h"
 
 namespace amdb {
 namespace chunk {
 class Chunk {
  public:
-  friend class Iterator;
   ~Chunk() = default;
   Chunk() = default;
 
   Chunk(const Chunk& c) = delete;
   Chunk(Arena* arena, RowDescriptor* row_desc);
 
-  Chunk& operator=(Chunk&& rsh) noexcept;
   friend bool operator==(const Chunk& lhs, const Chunk& rhs);
-  Chunk& operator=(const Chunk& c) = delete;
 
   uint32_t Size() const;
 
-  Status PullIndexData(std::vector<std::pair<std::string, std::string>>& data_segment);
-  Status PullKvData(std::vector<std::pair<std::string, std::string>>& data_segment);
+  Status PullIndexData(schema::TableInfo* table_info,
+                       schema::IndexInfo* index_info,
+                       std::vector<std::string>& keys,
+                       std::vector<std::string>& values);
 
   void AddRow(Row* row);
 
@@ -33,15 +33,15 @@ class Chunk {
   bool ReachEnd() { return cursor_ >= select_.size(); }
   Row* CurrentRow() { return select_.at(cursor_); }
 
+  uint32_t cursor_ = 0;
+  std::vector<Row*> select_;
+
+  RowDescriptor* GetRowDesc();
 #ifdef AMDB_BUILD_TEST
  public:
 #else
  private:
 #endif
-
-  uint32_t cursor_ = 0;
-  std::vector<Row*> select_;
-
   RowDescriptor* row_desc_{nullptr};
   std::vector<Column*> columns_;
 
