@@ -17,8 +17,8 @@ Status TableScanExecutor::Generate(chunk::Chunk *chunk) {
   }
 
   if (table_iter_ == nullptr) {
-    table_iter_ =
-        ctx_->arena->CreateObject<storage::TableIterator>(table_, 1024);
+    // TODO determine the upper limit of data processing
+    table_iter_ = ctx_->arena->CreateObject<storage::TableIterator>(table_, 1024);
     storage::IteratorOptions it_opt = {
         .lower = "", .upper = "c", .lower_open = true, .upper_open = false};
     table_iter_->InitIterOptions(it_opt);

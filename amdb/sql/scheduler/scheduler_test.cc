@@ -1,4 +1,3 @@
-#include "sql/chunk/iterator.h"
 #include "sql/executor/filter_executor.h"
 #include "sql/executor/resultset_executor.h"
 #include "sql/executor/table_scan_executor.h"
@@ -32,7 +31,7 @@ struct SchedulerTest : public testsuite::SchemaGen {
 };
 
 TEST_F(SchedulerTest, Connect) {
-  chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
+  chunk::Chunk* rows = GenRows(GenRowDesc(), 1026);
   Status status = table_->Insert(rows);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
@@ -49,9 +48,9 @@ TEST_F(SchedulerTest, Connect) {
           ctx, IExecutor::ExecType::kExecResultSet);
 
   executors.reserve(3);
-  executors.push_back(table_scan_executor);
-  executors.push_back(filter_executor);
-  executors.push_back(resultset_executor);
+  executors.emplace_back(table_scan_executor);
+  executors.emplace_back(filter_executor);
+  executors.emplace_back(resultset_executor);
 
   // Connect
   for (size_t i = 0; i < executors.size() - 1; i++) {

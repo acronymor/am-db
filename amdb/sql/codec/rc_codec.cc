@@ -49,7 +49,7 @@ size_t DecodeIndex(const schema::TableInfo* table_info,
 
     tmp.clear();
     tmp.assign(key->data() + offset, expr_value.Length());
-    DecodeExprValue(tmp, &expr_value);
+    offset += DecodeExprValue(tmp, &expr_value);
     row->SetColValue(row->desc->ID(), col_info->id, expr_value);
   };
 

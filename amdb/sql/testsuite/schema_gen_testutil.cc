@@ -133,7 +133,7 @@ chunk::Chunk* SchemaGen::GenRows(chunk::RowDescriptor* row_desc, size_t size) {
   for (size_t i = 0; i < size; i++) {
     expr::ExprValue value1 = expr::ExprValue::NewUInt64(i);
     expr::ExprValue value2 = expr::ExprValue::NewString(std::move(toName(i, "col")), arena_);
-    expr::ExprValue value3 = expr::ExprValue::NewUInt8(i * 2 % 99);
+    expr::ExprValue value3 = expr::ExprValue::NewUInt8(i + i * 2 % 99);
 
     chunk::Row* row = arena_->CreateObject<chunk::Row>(arena_, row_desc);
     row->SetColValue(row_desc->ID(), row_desc->GetColumnDesc(0)->ID(), value1);

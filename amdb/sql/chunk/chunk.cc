@@ -14,7 +14,7 @@ uint32_t Chunk::Size() const { return select_.size(); }
 Status Chunk::PullData(schema::TableInfo* table_info,
                        std::vector<std::string>& values) {
   cursor_ = 0;
-  max_capacity_ = 1024;
+  cur_capacity_ = values.size();
 
   for (size_t i = 0; i < values.size(); i++) {
     chunk::Row* row = arena_->CreateObject<chunk::Row>(arena_, row_desc_);

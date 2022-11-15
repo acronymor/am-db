@@ -16,11 +16,13 @@ void PrintChunk(const chunk::Chunk* chunk) {
   chunk::Iterator itr(chunk);
   for (itr.Open(); itr.HasNext(); itr.Next()) {
     chunk::Row* row = itr.GetRow();
+    std::string str_build;
     for (chunk::ColumnDescriptor* desc : row->desc->GetAllColumnDesc()) {
       expr::ExprValue value = row->GetColValue(row->desc->ID(), desc->ID());
-      std::string str = value.ToString();
-      PrintHexStr(&str);
+      str_build.append(value.ToString());
+      str_build.append("\t");
     }
+    PrintHexStr(&str_build);
   }
 }
 }  // namespace testsuite
