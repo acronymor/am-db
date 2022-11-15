@@ -21,10 +21,8 @@ class Chunk {
 
   uint32_t Size() const;
 
-  Status PullIndexData(schema::TableInfo* table_info,
-                       schema::IndexInfo* index_info,
-                       std::vector<std::string>& keys,
-                       std::vector<std::string>& values);
+  Status PullData(schema::TableInfo* table_info,
+                  std::vector<std::string>& values);
 
   void AddRow(Row* row);
 

@@ -85,15 +85,21 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out,
                        Arena* arena) {
   size_t size = 0;
   switch (out->Type()) {
-    case expr::ExprValueType::UInt8:
-      size = DecodeUInt8(in, &out->u.uint8_value);
-      break;
-    case expr::ExprValueType::UInt32:
-      size = DecodeUInt32(in, &out->u.uint32_value);
-      break;
-    case expr::ExprValueType::UInt64:
-      size = DecodeUInt64(in, &out->u.uint64_value);
-      break;
+    case expr::ExprValueType::UInt8: {
+      std::string tmp;
+      tmp.assign(in.data(), sizeof(uint8_t));
+      size = DecodeUInt8(tmp, &out->u.uint8_value);
+    } break;
+    case expr::ExprValueType::UInt32: {
+      std::string tmp;
+      tmp.assign(in.data(), sizeof(uint32_t));
+      size = DecodeUInt32(tmp, &out->u.uint32_value);
+    } break;
+    case expr::ExprValueType::UInt64: {
+      std::string tmp;
+      tmp.assign(in.data(), sizeof(uint64_t));
+      size = DecodeUInt64(tmp, &out->u.uint64_value);
+    } break;
     case expr::ExprValueType::String: {
       AMDB_ASSERT_FALSE(arena == nullptr);
       std::string value;
@@ -101,7 +107,7 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out,
       *out = expr::ExprValue::NewString(std::move(value), arena);
     } break;
     default:
-      ERROR("Not Support type ", out->Type());
+      ERROR("Not Support type, {}", out->Type());
       break;
   }
   return size;

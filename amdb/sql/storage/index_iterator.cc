@@ -17,11 +17,12 @@ Status IndexIterator::GetItem(chunk::Chunk* chunk) {
   }
 
   // TODO data_segment -> keys and value
+  /*
   std::vector<std::string> keys;
   std::vector<std::string> values;
-  Status status = chunk->PullIndexData(index_->table_info_, index_->index_info_,
-                                       keys, values);
+  Status status = chunk->PullData(index_->table_info_, values);
   RETURN_ERR_NOT_OK(status);
+   */
 
   visited_kv_count_ += data_segment_.size();
   return Status::C_OK;

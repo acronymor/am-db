@@ -29,7 +29,7 @@ Status Row::SetColValue(uint32_t row_id, uint32_t col_id,
   ColumnDescriptor* col_desc = desc->GetColumnDesc(col_id);
   char* col_ptr = tuple + col_desc->bytes_offset;
   expr::ToData(value, col_ptr, arena_);
-  return C_OK;
+  return Status::C_OK;
 }
 
 expr::ExprValue Row::GetColValue(uint32_t row_id, uint32_t col_id) {

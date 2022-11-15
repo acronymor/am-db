@@ -44,7 +44,8 @@ size_t DecodeIndex(const schema::TableInfo* table_info,
     tmp.assign(key->data() + offset, sizeof(type));
     offset += DecodeUInt8(tmp, &type);
 
-    expr::ExprValue expr_value = expr::ExprValue::NewEmpty((expr::ExprValueType)type);
+    expr::ExprValue expr_value =
+        expr::ExprValue::NewEmpty((expr::ExprValueType)type);
 
     tmp.clear();
     tmp.assign(key->data() + offset, expr_value.Length());
@@ -58,7 +59,8 @@ size_t DecodeIndex(const schema::TableInfo* table_info,
     }
   }
 
-  for (const schema::ColumnInfo& col_info : table_info->primary_index->columns) {
+  for (const schema::ColumnInfo& col_info :
+       table_info->primary_index->columns) {
     decode(&col_info);
   }
 
@@ -70,7 +72,8 @@ size_t EncodeRow(const schema::TableInfo* table_info, chunk::Row* row,
                  std::string* key, std::string* value) {
   // encode key
   for (schema::ColumnInfo& col_info : table_info->primary_index->columns) {
-    std::string col_key = row->GetColValue(row->desc->ID(), col_info.id).ToString();
+    std::string col_key =
+        row->GetColValue(row->desc->ID(), col_info.id).ToString();
     EncodeDataKey(table_info->db_id, table_info->id, col_key, key);
   }
 
@@ -80,6 +83,30 @@ size_t EncodeRow(const schema::TableInfo* table_info, chunk::Row* row,
 
     codec::EncodeUInt8(expr_value.Type(), value);
     codec::EncodeExprValue(expr_value, value);
+  }
+
+  return 0;
+}
+
+size_t DecodeRow(Arena* arena, const schema::TableInfo* table_info,
+                 std::string* value, chunk::Row* row) {
+  // decode value
+  size_t offset = 0;
+  for (const schema::ColumnInfo& col_info : table_info->column_list) {
+    uint8_t type;
+
+    std::string tmp;
+    tmp.assign(value->data() + offset, sizeof(type));
+    offset += codec::DecodeUInt8(tmp, &type);
+
+    expr::ExprValue expr_value =
+        expr::ExprValue::NewEmpty(expr::ExprValueType(type));
+
+    tmp.clear();
+    tmp.assign(value->data() + offset, value->length() - offset);
+
+    offset += codec::DecodeExprValue(tmp, &expr_value, arena);
+    row->SetColValue(row->desc->ID(), col_info.id, expr_value);
   }
 
   return 0;

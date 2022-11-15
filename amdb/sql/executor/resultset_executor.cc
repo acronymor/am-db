@@ -14,9 +14,9 @@ Status ResultSetExecutor::Consume(chunk::Chunk* chunk) {
     for (chunk::ColumnDescriptor* desc : row->desc->GetAllColumnDesc()) {
       expr::ExprValue value = row->GetColValue(row->desc->ID(), desc->ID());
       std::string str = value.ToString();
-      std::cout << " | " << str << " | ";
+      std::cout << " | " << str;
     }
-    std::cout << std::endl;
+    std::cout << " |" << std::endl;
   }
   return Status::C_OK;
 }

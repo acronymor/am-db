@@ -33,8 +33,7 @@ Status TableIterator::GetItem(chunk::Chunk* chunk) {
   status = index_->GetRecords(keys, &values);
   RETURN_ERR_NOT_OK(status);
 
-  status = chunk->PullIndexData(index_->table_info_, index_->index_info_, keys,
-                                values);
+  status = chunk->PullData(index_->table_info_, values);
 
   visited_kv_count_ += data_segment_.size();
   return status;

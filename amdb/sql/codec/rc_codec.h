@@ -21,5 +21,8 @@ size_t DecodeIndex(const schema::TableInfo* table_info,
 
 size_t EncodeRow(const schema::TableInfo* table_info, chunk::Row* row,
                  std::string* key, std::string* value);
+
+size_t DecodeRow(Arena* arena, const schema::TableInfo* table_info,
+                 std::string* value, chunk::Row* row);
 }  // namespace codec
 }  // namespace amdb

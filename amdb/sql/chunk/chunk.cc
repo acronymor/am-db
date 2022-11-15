@@ -10,18 +10,15 @@ Chunk::Chunk(Arena* arena, RowDescriptor* row_desc)
 
 uint32_t Chunk::Size() const { return select_.size(); }
 
-// convert index kv to chunk
-Status Chunk::PullIndexData(schema::TableInfo* table_info,
-                            schema::IndexInfo* index_info,
-                            std::vector<std::string>& keys,
-                            std::vector<std::string>& values) {
+// convert kv to chunk
+Status Chunk::PullData(schema::TableInfo* table_info,
+                       std::vector<std::string>& values) {
   cursor_ = 0;
   max_capacity_ = 1024;
-  cur_capacity_ = keys.size();
 
-  for (size_t i = 0; i < keys.size() && i < values.size(); i++) {
+  for (size_t i = 0; i < values.size(); i++) {
     chunk::Row* row = arena_->CreateObject<chunk::Row>(arena_, row_desc_);
-    codec::DecodeIndex(table_info, index_info, &keys.at(i), &values.at(i), row);
+    codec::DecodeRow(arena_, table_info, &values.at(i), row);
     select_.emplace_back(row);
   }
 
