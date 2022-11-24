@@ -8,6 +8,14 @@ namespace chunk {
 Chunk::Chunk(Arena* arena, RowDescriptor* row_desc)
     : arena_(arena), row_desc_{row_desc} {}
 
+Chunk& Chunk::operator=(Chunk&& chunk) noexcept {
+  select_ = std::move(chunk.select_);
+  cursor_ = chunk.cursor_;
+  cur_capacity_ = chunk.cur_capacity_;
+  max_capacity_ = chunk.max_capacity_;
+  return *this;
+}
+
 uint32_t Chunk::Size() const { return select_.size(); }
 
 // convert kv to chunk

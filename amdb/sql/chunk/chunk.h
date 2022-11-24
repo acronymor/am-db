@@ -17,7 +17,7 @@ class Chunk {
   Chunk(const Chunk& c) = delete;
   Chunk(Arena* arena, RowDescriptor* row_desc);
 
-  friend bool operator==(const Chunk& lhs, const Chunk& rhs);
+  Chunk& operator= (Chunk&& chunk) noexcept;
 
   uint32_t Size() const;
 
