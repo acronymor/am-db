@@ -4,7 +4,12 @@ namespace amdb {
 namespace executor {
 class FilterExecutor : public scheduler::ITransform {
  public:
-  FilterExecutor(StatementContext* ctx, ExecType exec_type) : ITransform(ctx, exec_type){};
+  FilterExecutor(StatementContext* ctx, Type exec_type) : ITransform(ctx, exec_type){};
+
+  std::string Name() const override {
+    return "Filter";
+  };
+
 
   Status Open() override;
   Status Close() override;

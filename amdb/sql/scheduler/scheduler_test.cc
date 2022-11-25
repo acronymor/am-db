@@ -39,13 +39,13 @@ TEST_F(SchedulerTest, Connect) {
 
   executor::TableScanExecutor* table_scan_executor =
       arena_->CreateObject<executor::TableScanExecutor>(
-          ctx, IExecutor::ExecType::kExecTableScan, table_->table_info_);
+          ctx, IExecutor::Type::kExecTableScan, table_->table_info_);
   executor::FilterExecutor* filter_executor =
       arena_->CreateObject<executor::FilterExecutor>(
-          ctx, IExecutor::ExecType::kExecFilter);
+          ctx, IExecutor::Type::kExecFilter);
   executor::ResultSetExecutor* resultset_executor =
       arena_->CreateObject<executor::ResultSetExecutor>(
-          ctx, IExecutor::ExecType::kExecResultSet);
+          ctx, IExecutor::Type::kExecResultSet);
 
   executors.reserve(3);
   executors.emplace_back(table_scan_executor);

@@ -6,8 +6,9 @@ namespace amdb {
 namespace expr {
 enum ExprValueType : uint8_t {
   Null = 0,
-  Bool = 1,
+  MinInf = 2,
 
+  Bool = 10,
   Int8 = 11,
   UInt8 = 12,
   Int32 = 15,
@@ -22,6 +23,7 @@ enum ExprValueType : uint8_t {
 
   String = 40,
 
+  MaxInf = 250,
   Invalid = 255
 };
 

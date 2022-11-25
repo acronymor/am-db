@@ -5,10 +5,14 @@ namespace amdb {
 namespace executor {
 class TableScanExecutor : public scheduler::ISource {
  public:
-  TableScanExecutor(StatementContext* ctx, ExecType exec_type,
+  TableScanExecutor(StatementContext* ctx, Type exec_type,
                     schema::TableInfo* table_info)
       : table_info_(table_info), ISource(ctx, exec_type) {
     table_ = ctx->arena->CreateObject<storage::Table>(ctx->arena, table_info_);
+  };
+
+  std::string Name() const override {
+      return "TableScan";
   };
 
   Status Open() override;

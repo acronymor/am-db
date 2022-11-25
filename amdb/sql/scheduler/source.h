@@ -5,7 +5,7 @@ namespace amdb {
 namespace scheduler {
 class ISource : public IExecutor {
  public:
-  explicit ISource(StatementContext* ctx, ExecType type)
+  explicit ISource(StatementContext* ctx, Type type)
       : IExecutor(ctx, type) {
     chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, ctx_->row_desc);
   };

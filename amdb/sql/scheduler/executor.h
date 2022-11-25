@@ -10,7 +10,7 @@ namespace amdb {
 namespace scheduler {
 class IExecutor {
  public:
-  enum ExecType { kExecShow, kExecTableScan, kExecFilter, kExecResultSet };
+  enum Type { kExecShow, kExecTableScan, kExecFilter, kExecResultSet };
 
   enum State {
     kNeedData,
@@ -19,8 +19,10 @@ class IExecutor {
     kFinished,
   };
 
-  explicit IExecutor(StatementContext* ctx, ExecType exec_type) : ctx_(ctx), exec_type_(exec_type){};
+  explicit IExecutor(StatementContext* ctx, Type exec_type) : ctx_(ctx), type_(exec_type){};
   virtual ~IExecutor() = default;
+
+  virtual std::string Name() const;
 
   virtual Status Open() { return Status::C_OK; }
   virtual Status Close() { return Status::C_OK; }
@@ -48,7 +50,7 @@ class IExecutor {
   std::vector<OutputPort> outputs_;
 
   StatementContext* ctx_;
-  ExecType exec_type_;
+  Type type_;
 };
 }  // namespace scheduler
 }  // namespace amdb
