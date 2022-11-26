@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sql/chunk/row_description.h"
 #include "sql/common/arena.h"
 

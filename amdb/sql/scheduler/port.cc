@@ -15,13 +15,19 @@ void Port::Cache::Push(chunk::Chunk* chunk) { chunk_ = chunk; }
 
 chunk::Chunk* Port::Cache::Pull() { return chunk_; }
 
-void OutputPort::PushData(chunk::Chunk* data) {
-  cache_->Push(data);
+bool InputPort::operator==(const InputPort& p) const {
+  return this == &p && exec_ == p.GetExecutor();
 }
 
 chunk::Chunk* InputPort::PullData(bool set_not_needed) {
   return cache_->Pull();
 }
+
+bool OutputPort::operator==(const OutputPort& p) const {
+  return this == &p && exec_ == p.GetExecutor();
+}
+
+void OutputPort::PushData(chunk::Chunk* data) { cache_->Push(data); }
 
 bool OutputPort::IsFinished() const { return false; }
 bool OutputPort::CanPush() const { return false; }

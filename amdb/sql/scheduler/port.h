@@ -60,6 +60,8 @@ class InputPort : public Port {
 
  public:
   explicit InputPort(IExecutor* exec) : Port(exec){};
+  bool operator==(const InputPort& p) const;
+
   chunk::Chunk* PullData(bool set_not_needed = false);
 
   bool IsFinished() const;
@@ -80,6 +82,7 @@ class OutputPort : public Port {
 
  public:
   explicit OutputPort(IExecutor* exec) : Port(exec) {}
+  bool operator==(const OutputPort& p) const;
 
   void PushData(chunk::Chunk* data);
 
