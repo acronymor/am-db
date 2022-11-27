@@ -8,8 +8,8 @@
 #include "proto/bptree.pb.h"
 #include "sql/common/arena.h"
 #include "sql/common/statuscode.h"
-#include "sql/storage/bplus_tree_cmp.h"
 #include "sql/storage/bplus_tree_statistics.h"
+#include "sql/storage/data_cmp.h"
 #include "sql/storage/kv_storage_api.h"
 
 namespace amdb {

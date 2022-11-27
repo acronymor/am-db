@@ -17,7 +17,7 @@ class Scheduler {
 #ifdef AMDB_BUILD_TEST
   Status TestRun(schema::TableInfo* table_info) {
     graph_.TestInit(ctx_, table_info);
-    Run();
+    return Run();
   }
 #endif
   Status Run();
