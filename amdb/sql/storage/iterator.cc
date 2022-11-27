@@ -47,8 +47,14 @@ void BaseIterator::Next() {
   }
 }
 
-Status BaseIterator::InitIterOptions(const IteratorOptions& it_opt) {
-  it_ops_.push_back(it_opt);
+Status BaseIterator::AddRange(const planner::IndexRange* range) {
+  it_ops_.emplace_back();
+  IteratorOptions& opt = it_ops_.back();
+
+  opt.lower_open = range->lower.type == planner::IndexRange::RangePointType::LEFT_OPEN;
+  opt.upper_open = range->upper.type == planner::IndexRange::RangePointType::RIGHT_OPEN;
+  opt.lower = range->lower_str;
+  opt.upper = range->upper_str;
 
   return Status::C_OK;
 }

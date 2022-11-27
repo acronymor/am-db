@@ -5,6 +5,7 @@
 #include "sql/schema/schema.h"
 #include "sql/storage/bplus_tree_iterator.h"
 #include "sql/storage/index.h"
+#include "sql/planner/range.h"
 
 namespace amdb {
 namespace storage {
@@ -42,7 +43,7 @@ class BaseIterator : public Iterator {
 
   inline Status Code() override { return code_; }
 
-  Status InitIterOptions(const IteratorOptions& it_opts);
+  Status AddRange(const planner::IndexRange* range);
 
  protected:
   std::vector<std::pair<std::string, std::string>> data_segment_;

@@ -36,9 +36,12 @@ TEST_F(TableIteratorTest, Empty) {
   codec::EncodeRow(table_->table_info_, rows->select_.at(0), &key1, &value);
   codec::EncodeRow(table_->table_info_, rows->select_.at(2), &key2, &value);
 
-  IteratorOptions it_opt = {
-      .lower = key1, .upper = key2, .lower_open = true, .upper_open = false};
-  table_it.InitIterOptions(it_opt);
+  planner::IndexRange ir;
+  ir.lower.type = planner::IndexRange::RangePointType::LEFT_CLOSE;
+  ir.lower_str = key1;
+  ir.upper.type = planner::IndexRange::RangePointType::RIGHT_OPEN;
+  ir.upper_str = key2;
+  table_it.AddRange(&ir);
 
   for (table_it.Open(); table_it.HasNext() && table_it.Code() == Status::C_OK;) {
     chunk::Chunk chunks;

@@ -31,11 +31,14 @@ class IndexIteratorTest : public testsuite::SchemaGen {
 };
 
 TEST_F(IndexIteratorTest, CRUD) {
-  IteratorOptions it_opt = {
-      .lower = "b2", .upper = "c4", .lower_open = true, .upper_open = false};
+  planner::IndexRange ir;
+  ir.lower.type = planner::IndexRange::RangePointType::LEFT_CLOSE;
+  ir.lower_str = "b2";
+  ir.upper.type = planner::IndexRange::RangePointType::RIGHT_OPEN;
+  ir.upper_str = "c4";
 
   IndexIterator index_it(index_, 3);
-  index_it.InitIterOptions(it_opt);
+  index_it.AddRange(&ir);
 
   Status status = Status::C_OK;
 
