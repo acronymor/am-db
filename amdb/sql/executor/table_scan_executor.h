@@ -6,25 +6,17 @@ namespace executor {
 class TableScanExecutor : public scheduler::ISource {
  public:
   TableScanExecutor(StatementContext* ctx, Type exec_type,
-                    schema::TableInfo* table_info)
-      : table_info_(table_info), ISource(ctx, exec_type) {
+                    planner::PhysicalNode* plan)
+      :ISource(ctx, exec_type, plan) {
+    AMDB_ASSERT_TRUE(plan != nullptr);
+    AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalTableScan, plan->type);
+    scan_plan_ = static_cast<planner::PhysicalTableScan*>(plan);
+    table_info_ = scan_plan_->table_info;
     table_ = ctx->arena->CreateObject<storage::Table>(ctx->arena, table_info_);
-
-    // TODO extract primary_range from physical_node
-    planner::IndexRange* ir = ctx->arena->CreateObject<planner::IndexRange>();
-    ir->lower.value.push_back(expr::ExprValue::NewString("", ctx->arena));
-    ir->lower.type = planner::IndexRange::RangePointType::LEFT_CLOSE;
-    ir->lower_str = "";
-    ir->upper.value.push_back(expr::ExprValue::NewUInt8(3));
-    ir->upper.value.push_back(expr::ExprValue::NewString("c", ctx->arena));
-    ir->upper.type = planner::IndexRange::RangePointType::RIGHT_OPEN;
-    ir->upper_str = "c";
-    primary_ranges_.push_back(ir);
+    primary_ranges_ = scan_plan_->primary_ranges;
   };
 
-  std::string Name() const override {
-      return "TableScan";
-  };
+  std::string Name() const override { return "TableScan"; };
 
   Status Open() override;
   Status Close() override;
@@ -37,6 +29,8 @@ class TableScanExecutor : public scheduler::ISource {
   schema::TableInfo* table_info_{nullptr};
   storage::TableIterator* table_iter_{nullptr};
   std::vector<planner::IndexRange*> primary_ranges_;
+
+  planner::PhysicalTableScan* scan_plan_{nullptr};
 };
 }  // namespace executor
 }  // namespace amdb

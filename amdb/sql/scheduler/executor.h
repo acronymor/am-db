@@ -3,8 +3,9 @@
 #include <vector>
 
 #include "sql/common/statuscode.h"
-#include "sql/scheduler/port.h"
 #include "sql/context/statement_context.h"
+#include "sql/planner/physical_plan_node.h"
+#include "sql/scheduler/port.h"
 
 namespace amdb {
 namespace scheduler {
@@ -19,7 +20,9 @@ class IExecutor {
     kFinished,
   };
 
-  explicit IExecutor(StatementContext* ctx, Type exec_type) : ctx_(ctx), type_(exec_type){};
+  explicit IExecutor(StatementContext* ctx, Type exec_type, planner::PhysicalNode* node)
+      : ctx_(ctx), type_(exec_type), physical_node_(node){};
+
   virtual ~IExecutor() = default;
 
   virtual std::string Name() const;
@@ -51,6 +54,8 @@ class IExecutor {
 
   StatementContext* ctx_;
   Type type_;
+
+  planner::PhysicalNode* physical_node_ = nullptr;
 };
 }  // namespace scheduler
 }  // namespace amdb

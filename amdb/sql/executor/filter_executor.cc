@@ -3,9 +3,19 @@
 namespace amdb {
 namespace executor {
 
-Status FilterExecutor::Open() { return Status::C_OK; }
+Status FilterExecutor::Open() {
+  for (auto &condition : filter_plan_->conditions) {
+    RETURN_ERR_NOT_OK(condition->Open(ctx_));
+  }
+  return Status::C_OK;
+}
 
-Status FilterExecutor::Close() { return Status::C_OK; }
+Status FilterExecutor::Close() {
+  for (auto &condition : filter_plan_->conditions) {
+    RETURN_ERR_NOT_OK(condition->Close(ctx_));
+  }
+  return Status::C_OK;
+}
 
 Status FilterExecutor::Transform(chunk::Chunk *input_chunk,
                                  chunk::Chunk *output_chunk) {

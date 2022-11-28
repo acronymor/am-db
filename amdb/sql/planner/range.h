@@ -1,4 +1,4 @@
-#include <iostream>
+#pragma once
 
 #include "sql/expression/expr_value.h"
 

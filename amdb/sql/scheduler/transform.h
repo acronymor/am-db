@@ -5,8 +5,8 @@ namespace amdb {
 namespace scheduler {
 class ITransform : public IExecutor {
  public:
-  explicit ITransform(StatementContext* ctx, Type exec_type)
-      : IExecutor(ctx, exec_type) {
+  explicit ITransform(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan)
+      : IExecutor(ctx, exec_type, plan) {
     input_chunk_ =
         ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, ctx_->row_desc);
     output_chunk_ =
