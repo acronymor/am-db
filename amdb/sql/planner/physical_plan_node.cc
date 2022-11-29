@@ -2,6 +2,10 @@
 
 namespace amdb {
 namespace planner {
+void PhysicalNode::AddChild(PhysicalNode *child) {
+  children.push_back(child);
+  child->parent = this;
+}
 
 std::string PhysicalTableScan::ToString() {
   std::string res;
