@@ -12,10 +12,15 @@ Status BuildPlan(StatementContext* ctx);
 class Planner {
  public:
   Planner(StatementContext* ctx) : stmt_ctx_(ctx) {
-    opt::RewriteRule* rule =
-        ctx->arena->CreateObject<opt::PredicatePushdownRule>(ctx);
+    opt::RewriteRule* rule = new opt::PredicatePushdownRule(ctx);
     rules_.push_back(rule);
   };
+
+  ~Planner() {
+    for(opt::RewriteRule* rule: rules_) {
+      delete rule;
+    }
+  }
 
   // convert ast to logical plan
   Status AstToLogicalPlan();

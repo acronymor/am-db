@@ -1,7 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
 SET(CMAKE_CXX_STANDARD 20)
 
-LIST(APPEND amdb_sql_folder common codec expression chunk storage schema context optimizer scheduler executor planner testsuite)
+LIST(APPEND amdb_sql_folder common codec expression chunk schema context optimizer/rules optimizer/costs
+    planner scheduler executor storage
+    testsuite)
 
 FOREACH (folder ${amdb_sql_folder})
   FILE(GLOB srcs ${folder}/*.cc)

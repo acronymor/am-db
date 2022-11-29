@@ -1,8 +1,8 @@
+#pragma once
+
 #include <iostream>
-#include <vector>
 
 #include "sql/common/statuscode.h"
-#include "sql/context/statement_context.h"
 #include "sql/expression/expr_node.h"
 
 namespace amdb {

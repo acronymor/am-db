@@ -1,3 +1,7 @@
+#pragma once
+
+#include <vector>
+
 #include "sql/planner/plan_node.h"
 #include "sql/planner/range.h"
 #include "sql/schema/schema.h"

@@ -17,15 +17,13 @@ Status BuildPlan(StatementContext* ctx) {
 
 Status Planner::AstToLogicalPlan() { return Status::C_OK; }
 
-Status Planner::LogicalToPhysicalPlan() {
-  return Status::C_OK;
-}
+Status Planner::LogicalToPhysicalPlan() { return Status::C_OK; }
 
 Status Planner::OptimizeLogicalPlan() {
   for (opt::RewriteRule* rule : rules_) {
     bool applied = false;
     Status status = rule->Rewrite(stmt_ctx_->logical_plan, &applied);
-    DEBUG("{} {}", rule->name, status);
+    DEBUG("logical optimize with {}, and status is {}", rule->name, status);
   }
   return Status::C_OK;
 }
@@ -34,13 +32,14 @@ Status Planner::OptimizePhysicalPlan() {
   for (opt::RewriteRule* rule : rules_) {
     bool applied = false;
     Status status = rule->Rewrite(stmt_ctx_->physical_plan, &applied);
-    DEBUG("{} {}", rule->name, status);
+    DEBUG("physical optimize with {}, and status is {}", rule->name, status);
   }
   return Status::C_OK;
 }
 
 Status Planner::AttachFinalPlan() {
   stmt_ctx_->resolved_plan = stmt_ctx_->physical_plan;
+  return Status::C_OK;
 }
 }  // namespace planner
 }  // namespace amdb

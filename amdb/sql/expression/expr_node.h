@@ -1,11 +1,13 @@
 #pragma once
 
+#include <iostream>
 #include "common/assert.h"
 #include "sql/common/statuscode.h"
-#include "sql/context/statement_context.h"
 #include "sql/expression/expr_value.h"
 
 namespace amdb {
+struct StatementContext;
+
 namespace expr {
 enum ExprNodeType { Literal = 1 };
 
