@@ -15,8 +15,8 @@ class Scheduler {
   ~Scheduler() = default;
 
 #ifdef AMDB_BUILD_TEST
-  Status TestRun(schema::TableInfo* table_info) {
-    graph_.TestInit(ctx_, table_info);
+  Status TestRun(std::vector<IExecutor*>* executors) {
+    graph_.InitExecutors(executors);
     return Run();
   }
 #endif
