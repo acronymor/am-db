@@ -1,7 +1,31 @@
 #include "sql/planner/planner.h"
 
+#include "sql/planner/plan_node_util.h"
+#include "sql/planner/plan_node_visitor.h"
+#include "sql/storage/metadata.h"
+
 namespace amdb {
 namespace planner {
+namespace {
+Status ToPhyPlan(StatementContext* stmt_ctx, LogicalNode* logical, PhysicalNode* physical) {
+  if (logical->children.empty()) {
+    return Status::C_OK;
+  }
+
+  if (physical == nullptr) {
+    physical = ToPhysicalNode(stmt_ctx, logical);
+    stmt_ctx->physical_plan = physical;
+  }
+
+  for (LogicalNode* node : logical->children) {
+    PhysicalNode* p_node = ToPhysicalNode(stmt_ctx, node);
+    physical->AddChild(p_node);
+    ToPhyPlan(stmt_ctx, node, p_node);
+  }
+
+  return Status::C_OK;
+}
+}  // namespace
 
 Status BuildPlan(StatementContext* ctx) {
   Planner plan(ctx);
@@ -17,7 +41,14 @@ Status BuildPlan(StatementContext* ctx) {
 
 Status Planner::AstToLogicalPlan() { return Status::C_OK; }
 
-Status Planner::LogicalToPhysicalPlan() { return Status::C_OK; }
+  stmt_ctx_->logical_plan = logical_result_set;
+  return Status::C_OK;
+}
+
+Status Planner::LogicalToPhysicalPlan() {
+  ToPhyPlan(stmt_ctx_, stmt_ctx_->logical_plan, stmt_ctx_->physical_plan);
+  return Status::C_OK;
+}
 
 Status Planner::OptimizeLogicalPlan() {
   for (opt::RewriteRule* rule : rules_) {

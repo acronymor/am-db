@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sql/scheduler/source.h"
 #include "sql/storage/table_iterator.h"
 

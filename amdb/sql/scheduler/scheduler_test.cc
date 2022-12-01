@@ -1,5 +1,6 @@
 #include "sql/scheduler/scheduler.h"
 
+#include "sql/planner/planner.h"
 #include "sql/testsuite/schema_gen_testutil.h"
 
 namespace amdb {
@@ -28,7 +29,7 @@ struct SchedulerTest : public testsuite::SchemaGen {
   StatementContext* ctx;
 };
 
-TEST_F(SchedulerTest, ExecutePlanTest) {
+TEST_F(SchedulerTest, MockPlanTest) {
   chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
   Status status = table_->Insert(rows);
   AMDB_ASSERT_EQ(Status::C_OK, status);
@@ -44,13 +45,16 @@ TEST_F(SchedulerTest, ExecutePlanTest) {
   planner::PhysicalTableScan* scan_plan = ctx->arena->CreateObject<planner::PhysicalTableScan>();
   scan_plan->table_info = table_->table_info_;
   scan_plan->primary_ranges.push_back(ir);
-  executor::TableScanExecutor* table_scan_executor = ctx->arena->CreateObject<executor::TableScanExecutor>(ctx, IExecutor::Type::kExecTableScan, scan_plan);
+  executor::TableScanExecutor* table_scan_executor =
+      ctx->arena->CreateObject<executor::TableScanExecutor>(ctx, IExecutor::Type::kExecTableScan, scan_plan);
 
   planner::PhysicalFilter* filter_plan = ctx->arena->CreateObject<planner::PhysicalFilter>();
-  executor::FilterExecutor* filter_executor = ctx->arena->CreateObject<executor::FilterExecutor>(ctx, IExecutor::Type::kExecFilter, filter_plan);
+  executor::FilterExecutor* filter_executor =
+      ctx->arena->CreateObject<executor::FilterExecutor>(ctx, IExecutor::Type::kExecFilter, filter_plan);
 
   planner::PhysicalResultSet* result_plan = ctx->arena->CreateObject<planner::PhysicalResultSet>();
-  executor::ResultSetExecutor* resultset_executor = ctx->arena->CreateObject<executor::ResultSetExecutor>(ctx, IExecutor::Type::kExecResultSet, result_plan);
+  executor::ResultSetExecutor* resultset_executor =
+      ctx->arena->CreateObject<executor::ResultSetExecutor>(ctx, IExecutor::Type::kExecResultSet, result_plan);
 
   std::vector<IExecutor*> executors;
   executors.reserve(3);
@@ -60,6 +64,23 @@ TEST_F(SchedulerTest, ExecutePlanTest) {
 
   Scheduler scheduler(ctx);
   status = scheduler.TestRun(&executors);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+}
+
+TEST_F(SchedulerTest, ExecutePlanTest) {
+  chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
+  Status status = table_->Insert(rows);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  schema::TableInfo* table_info = table_->table_info_;
+  storage::Metadata meta(instance_);
+  meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+
+  status = planner::BuildPlan(ctx);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  AMDB_ASSERT_TRUE(ctx->resolved_plan != nullptr);
+
+  status = scheduler::ExecutePlan(ctx);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 }
 }  // namespace scheduler

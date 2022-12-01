@@ -6,6 +6,11 @@
 
 namespace amdb {
 namespace storage {
+
+Metadata::Metadata() {
+  kv_api_ = KvStorageAPISingleton::GetInstance();
+}
+
 Metadata::Metadata(storage::KvStorageAPI *kv_api) : kv_api_(kv_api) {}
 
 Status Metadata::LoadDatabaseMeta(uint64_t db_id,

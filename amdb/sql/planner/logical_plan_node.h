@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sql/planner/plan_node.h"
+#include "sql/planner/range.h"
 #include "sql/schema/schema.h"
 
 namespace amdb {
@@ -40,7 +41,9 @@ class LogicalTableScan : public LogicalNode {
   std::string ToString() override;
 
   schema::TableInfo* table_info{nullptr};
-  std::vector<expr::ExprNode*> conditions;
+  std::vector<IndexRange*> primary_ranges;
+  std::vector<expr::ExprNode*> primary_filters;  // known as index_filters
+  std::vector<expr::ExprNode*> table_filters;
 };
 
 class LogicalFilter : public LogicalNode {

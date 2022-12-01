@@ -11,7 +11,7 @@ Status ExecutePlan(StatementContext* stmt_ctx);
 
 class Scheduler {
  public:
-  Scheduler(StatementContext* stmt_ctx) : ctx_(stmt_ctx) {}
+  explicit Scheduler(StatementContext* stmt_ctx) : ctx_(stmt_ctx), graph_(stmt_ctx) {}
   ~Scheduler() = default;
 
 #ifdef AMDB_BUILD_TEST

@@ -53,18 +53,28 @@ class ExecutingGraph {
   Status Work(Node* node);
 
  public:
+  explicit ExecutingGraph(StatementContext* ctx) : stmt_ctx(ctx){};
+
+ private:
+  ExecutingGraph* initExecutors();
+  ExecutingGraph* initNodes();
+  ExecutingGraph* initEdges();
+
+ public:
   const std::vector<std::unique_ptr<Node>>& Nodes() const { return nodes_; }
 
 #ifdef AMDB_BUILD_TEST
   void InitExecutors(std::vector<IExecutor*>* executors) {
     executors_.reserve(executors->size());
-    for(size_t i = 0; i < executors->size(); i++) {
+    for (size_t i = 0; i < executors->size(); i++) {
       executors_.push_back(executors->at(i));
     }
   }
 #endif
 
  private:
+  StatementContext* stmt_ctx;
+
   std::unordered_map<IExecutor*, uint64_t> exec_to_id;
   std::vector<IExecutor*> executors_;
   std::vector<std::unique_ptr<Node>> nodes_;

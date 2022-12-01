@@ -9,6 +9,7 @@ namespace amdb {
 namespace storage {
 class Metadata {
  public:
+  Metadata();
   explicit Metadata(KvStorageAPI* kv_api);
 
   Status LoadDatabaseMeta(uint64_t db_id, schema::DatabaseInfo* database_info);

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sql/scheduler/transform.h"
 
 namespace amdb {

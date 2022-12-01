@@ -1,10 +1,23 @@
 #include "sql/scheduler/executing_graph.h"
 
 #include <algorithm>
+#include <vector>
+
+#include "sql/executor/executor_util.h"
 
 namespace amdb {
 namespace scheduler {
 namespace {
+IExecutor* ToExecutor(StatementContext* stmt_ctx, planner::PhysicalNode* cur_node, std::vector<IExecutor*>* executors) {
+  IExecutor* parent_executor = executor::ToExecutor(stmt_ctx, cur_node);
+  for (planner::PhysicalNode* node : cur_node->children) {
+    IExecutor* child_exec = ToExecutor(stmt_ctx, node, executors);
+    Connect(parent_executor->CreateInputPort(), child_exec->CreateOutputPort());
+  }
+  executors->push_back(parent_executor);
+  return parent_executor;
+}
+
 ExecutingGraph::State StateConv(IExecutor::State state) {
   ExecutingGraph::State res;
   switch (state) {
@@ -23,13 +36,13 @@ ExecutingGraph::State StateConv(IExecutor::State state) {
 }
 }  // namespace
 
-Status ExecutingGraph::Init() {
-  // connect all executors
-  for (size_t i = 0; i < executors_.size() - 1; i++) {
-    Connect(executors_.at(i)->CreateOutputPort(),
-            executors_.at(i + 1)->CreateInputPort());
-  }
+ExecutingGraph* ExecutingGraph::initExecutors() {
+  planner::PhysicalNode* root = dynamic_cast<planner::PhysicalNode*>(stmt_ctx->resolved_plan);
+  ToExecutor(stmt_ctx, root, &executors_);
+  return this;
+}
 
+ExecutingGraph* ExecutingGraph::initNodes() {
   // construct node
   nodes_.reserve(executors_.size());
   for (size_t id = 0; id < executors_.size(); id++) {
@@ -38,6 +51,10 @@ Status ExecutingGraph::Init() {
     nodes_.emplace_back(std::make_unique<Node>(executor, id));
   }
 
+  return this;
+}
+
+ExecutingGraph* ExecutingGraph::initEdges() {
   // construct edge
   for (size_t id = 0; id < nodes_.size(); id++) {
     IExecutor* executor = nodes_.at(id)->exec;
@@ -49,11 +66,8 @@ Status ExecutingGraph::Init() {
     for (size_t idx = 0; idx < input_ports.size(); idx++) {
       OutputPort* output_port = input_ports.at(idx).GetPeerPort();
       IExecutor* backward_connected_exec = output_port->GetExecutor();
-      std::vector<OutputPort>& peer_outputs =
-          backward_connected_exec->GetOutputs();
-      size_t to_idx =
-          std::find(peer_outputs.begin(), peer_outputs.end(), *output_port) -
-          peer_outputs.begin();
+      std::vector<OutputPort>& peer_outputs = backward_connected_exec->GetOutputs();
+      size_t to_idx = std::find(peer_outputs.begin(), peer_outputs.end(), *output_port) - peer_outputs.begin();
       AMDB_ASSERT(to_idx == output_port->GetIdx());
       AMDB_ASSERT(exec_to_id.find(backward_connected_exec) != exec_to_id.end());
       Edge new_edge = {exec_to_id[backward_connected_exec], true};
@@ -68,15 +82,18 @@ Status ExecutingGraph::Init() {
       InputPort* input_port = output_ports.at(idx).GetPeerPort();
       IExecutor* forward_connected_exec = input_port->GetExecutor();
       std::vector<InputPort>& peer_inputs = forward_connected_exec->GetInputs();
-      size_t to_idx =
-          std::find(peer_inputs.begin(), peer_inputs.end(), *input_port) -
-          peer_inputs.begin();
+      size_t to_idx = std::find(peer_inputs.begin(), peer_inputs.end(), *input_port) - peer_inputs.begin();
       AMDB_ASSERT(to_idx == input_port->GetIdx());
       AMDB_ASSERT(exec_to_id.find(forward_connected_exec) != exec_to_id.end());
       Edge new_edge = {exec_to_id[forward_connected_exec], false};
       nodes_[id]->directed_edges.push_back(new_edge);
     }
   }
+  return this;
+}
+
+Status ExecutingGraph::Init() {
+  this->initExecutors()->initNodes()->initEdges();
   return Status::C_OK;
 }
 
