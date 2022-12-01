@@ -7,6 +7,8 @@
 
 namespace amdb {
 namespace planner {
+struct PlanNodeVisitor;
+
 struct PlanNode {
   enum PlanType : uint8_t {
     kPlanLogical = 0,

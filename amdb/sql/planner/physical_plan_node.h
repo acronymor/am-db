@@ -25,6 +25,8 @@ class PhysicalNode : public PlanNode {
   size_t ChildrenSize() const { return children.size(); }
   PhysicalNode* Child(size_t i) const { return children.at(i); }
 
+  virtual void Accept(PlanNodeVisitor* visitor);
+
  public:
   Type type = kPhysicalTypeInvalid;
   std::vector<PhysicalNode*> children;

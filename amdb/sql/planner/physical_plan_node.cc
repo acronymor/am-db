@@ -1,8 +1,12 @@
 #include "sql/planner/physical_plan_node.h"
 
+#include "sql/planner/plan_node_visitor.h"
+
 namespace amdb {
 namespace planner {
-void PhysicalNode::AddChild(PhysicalNode *child) {
+void PhysicalNode::Accept(PlanNodeVisitor* visitor) { visitor->Visit(this); }
+
+void PhysicalNode::AddChild(PhysicalNode* child) {
   children.push_back(child);
   child->parent = this;
 }

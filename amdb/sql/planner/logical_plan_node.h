@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sql/planner/plan_node.h"
 #include "sql/schema/schema.h"
 
@@ -19,6 +21,8 @@ struct LogicalNode : public PlanNode {
   void AddChild(LogicalNode* child);
   size_t ChildrenSize() const { return children.size(); }
   LogicalNode* Child(size_t i) const { return children.at(i); }
+
+  virtual void Accept(PlanNodeVisitor* visitor);
 
   void PrintPlan(std::vector<std::string>& lines, const std::string& ident);
 
@@ -48,6 +52,15 @@ class LogicalFilter : public LogicalNode {
   std::string ToString() override;
 
   std::vector<expr::ExprNode*> conditions;
+};
+
+class LogicalResultSet : public LogicalNode {
+ public:
+  LogicalResultSet() : LogicalNode(kLogicalResultSet) {}
+  ~LogicalResultSet() override = default;
+
+  std::string Name() override { return "LogicalResultSet"; }
+  std::string ToString() override;
 };
 }  // namespace planner
 }  // namespace amdb
