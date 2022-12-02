@@ -1,7 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
 SET(CMAKE_CXX_STANDARD 20)
 
-LIST(APPEND amdb_sql_folder common codec expression chunk schema context optimizer/rules optimizer/costs
+ADD_SUBDIRECTORY(parser)
+
+LIST(APPEND amdb_sql_folder common codec expression chunk schema context
+    optimizer/rules optimizer/costs
     planner scheduler executor storage
     testsuite)
 
@@ -20,7 +23,7 @@ ENDFOREACH ()
 LIST(APPEND libraries absl::base absl::strings absl::str_format_internal glog::glog gflags::gflags leveldb)
 
 ADD_LIBRARY(libamdb_sql OBJECT ${amdb_sql_src})
-TARGET_LINK_LIBRARIES(libamdb_sql libamdb_proto libamdb_common ${libraries})
+TARGET_LINK_LIBRARIES(libamdb_sql libamdb_proto libamdb_common libamdb_parser ${libraries})
 
 ADD_EXECUTABLE(amdb main.h main.cc)
 TARGET_LINK_LIBRARIES(amdb libamdb_sql)
