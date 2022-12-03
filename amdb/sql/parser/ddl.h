@@ -16,6 +16,7 @@
 #include "base.h"
 #include "expr.h"
 
+namespace amdb {
 namespace parser {
 
 const int MYSQL_FLOAT_PRECISION = 24;
@@ -375,5 +376,7 @@ struct AlterTableStmt : public DdlNode {
         node_type = NT_ALTER_TABLE;
     }
 };
-}
+}  // namespace parser
+}  // namespace amdb
+
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

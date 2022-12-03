@@ -1,24 +1,33 @@
-%{
-// Copyright 2013 The ql Authors. All rights reserved.  
-// Use of this source code is governed by a BSD-style   
-// license that can be found in the LICENSES/QL-LICENSE file.   
-// Copyright 2015 PingCAP, Inc. 
-// Modifications copyright (C) 2018-present, Baidu.com, Inc.    
-// Licensed under the Apache License, Version 2.0 (the "License");  
-// you may not use this file except in compliance with the License. 
-// You may obtain a copy of the License at  
-//  
-//     http://www.apache.org/licenses/LICENSE-2.0   
-//  
-// Unless required by applicable law or agreed to in writing, software  
-// distributed under the License is distributed on an "AS IS" BASIS,    
-// See the License for the specific language governing permissions and  
+%code top {
+// Copyright 2013 The ql Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSES/QL-LICENSE file.
+// Copyright 2015 PingCAP, Inc.
+// Modifications copyright (C) 2018-present, Baidu.com, Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// See the License for the specific language governing permissions and
 // limitations under the License.
+}
 
+%code requires {
 #include <stdio.h>
 #include <iostream>
-#define YY_DECL
-#include "parser.h"
+
+#include "sql/parser/parser.h"
+#include "sql_lex.flex.h"
+}
+
+%code requires {
+using namespace amdb;
+using namespace amdb::parser;
+
 using parser::SqlParser;
 using parser::InsertStmt;
 using parser::Node;
@@ -33,15 +42,13 @@ using parser::ColumnName;
 using parser::TableName;
 using parser::PriorityEnum;
 using parser::CreateTableStmt;
+}
 
-using namespace parser;
-#include "sql_lex.flex.h"
-#include "sql_parse.yacc.hh"
+%code provides {
 extern int sql_lex(YYSTYPE* yylval, YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser);
 extern int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser, const char* s);
-#define new_node(T) new(parser->arena.allocate(sizeof(T)))T()
-
-%}
+#define new_node(T) new(parser->arena.AllocateBytes(sizeof(T)))T()
+}
 
 %defines
 %output "sql_parse.yacc.cc"
@@ -5199,6 +5206,7 @@ ExplainableStmt:
 //    ;
 
 %%
+
 int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser *parser, const char *s) {    
     parser->error = parser::SYNTAX_ERROR;
     std::ostringstream os;

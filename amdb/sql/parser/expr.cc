@@ -16,6 +16,7 @@
 #include "dml.h"
 #include <unordered_map>
 
+namespace amdb {
 namespace parser {
 static std::unordered_map<int, std::string> FUNC_STR_MAP = {
     {FT_COMMON, ""},
@@ -120,15 +121,15 @@ bool FuncExpr::has_subquery() const {
     return false;
 }
 
-FuncExpr* FuncExpr::new_unary_op_node(FuncType t, Node* arg1, butil::Arena& arena) {
-    FuncExpr* fun = new(arena.allocate(sizeof(FuncExpr)))FuncExpr();
+FuncExpr* FuncExpr::new_unary_op_node(FuncType t, Node* arg1, Arena& arena) {
+    FuncExpr* fun = new(arena.AllocateBytes(sizeof(FuncExpr)))FuncExpr();
     fun->func_type = t;
     fun->fn_name = type_to_name(t);
     fun->children.push_back(arg1, arena);
     return fun;
 }
-FuncExpr* FuncExpr::new_binary_op_node(FuncType t, Node* arg1, Node* arg2, butil::Arena& arena) {
-    FuncExpr* fun = new(arena.allocate(sizeof(FuncExpr)))FuncExpr();
+FuncExpr* FuncExpr::new_binary_op_node(FuncType t, Node* arg1, Node* arg2, Arena& arena) {
+    FuncExpr* fun = new(arena.AllocateBytes(sizeof(FuncExpr)))FuncExpr();
     fun->func_type = t;
     fun->fn_name = type_to_name(t);
     fun->children.push_back(arg1, arena);
@@ -136,8 +137,8 @@ FuncExpr* FuncExpr::new_binary_op_node(FuncType t, Node* arg1, Node* arg2, butil
     return fun;
 }
 FuncExpr* FuncExpr::new_ternary_op_node(
-        FuncType t, Node* arg1, Node* arg2, Node* arg3, butil::Arena& arena) {
-    FuncExpr* fun = new(arena.allocate(sizeof(FuncExpr)))FuncExpr();
+        FuncType t, Node* arg1, Node* arg2, Node* arg3, Arena& arena) {
+    FuncExpr* fun = new(arena.AllocateBytes(sizeof(FuncExpr)))FuncExpr();
     fun->func_type = t;
     fun->fn_name = type_to_name(t);
     fun->children.reserve(3, arena);
@@ -174,7 +175,7 @@ void FuncExpr::to_stream(std::ostream& os) const {
             }
             int children_size = children.size();
             // hll/rolling bitmap/tdigest相关的函数归一化时避免过长
-            if (print_sample && children.size() > 2 && 
+            if (print_sample && children.size() > 2 &&
                 (fn_name.starts_with("hll_") || fn_name.starts_with("rb_") || fn_name.starts_with("tdigest_"))) {
                 children_size = 2;
             }
@@ -222,26 +223,26 @@ void FuncExpr::to_stream(std::ostream& os) const {
             break;
         case FT_IN:
             if (print_sample && !has_subquery()) {
-                os << children[0] << not_str[is_not] << " IN (?)"; 
+                os << children[0] << not_str[is_not] << " IN (?)";
             } else {
-                os << children[0] << not_str[is_not] << " IN " << children[1]; 
+                os << children[0] << not_str[is_not] << " IN " << children[1];
             }
             break;
         case FT_LIKE:
-            os << children[0] << not_str[is_not] << " LIKE " << children[1]; 
+            os << children[0] << not_str[is_not] << " LIKE " << children[1];
             break;
         case FT_EXACT_LIKE:
-            os << children[0] << not_str[is_not] << " EXACT_LIKE " << children[1]; 
+            os << children[0] << not_str[is_not] << " EXACT_LIKE " << children[1];
             break;
         case FT_REGEXP:
-            os << children[0] << not_str[is_not] << " REGEXP " << children[1]; 
+            os << children[0] << not_str[is_not] << " REGEXP " << children[1];
             break;
         case FT_MATCH_AGAINST:
-            os << "MATCH" << children[0] << " AGAINST " << "(" << children[1] << " " << children[2] << ")"; 
+            os << "MATCH" << children[0] << " AGAINST " << "(" << children[1] << " " << children[2] << ")";
             break;
         case FT_BETWEEN:
-            os << children[0] << not_str[is_not] << 
-                " BETWEEN " << children[1] << " AND " << children[2]; 
+            os << children[0] << not_str[is_not] <<
+                " BETWEEN " << children[1] << " AND " << children[2];
             break;
         case FT_VALUES:
             os << "VALUES(" << children[0] << ")";
@@ -294,7 +295,7 @@ void ExistsSubqueryExpr::to_stream(std::ostream& os) const {
 void ColumnName::to_stream(std::ostream& os) const {
     if (db.value != nullptr) {
         os << db << ".";
-    } 
+    }
     if (table.value != nullptr) {
         os << table << ".";
     }
@@ -335,7 +336,7 @@ void LiteralExpr::to_stream(std::ostream& os) const {
 }
 
 std::string LiteralExpr::to_string() const {
-    std::ostringstream os;        
+    std::ostringstream os;
     if (print_sample) {
         os << "?";
         return os.str();
@@ -369,6 +370,6 @@ std::string LiteralExpr::to_string() const {
     return os.str();
 }
 
-}
-
+}  // namespace parser
+}  // namespace amdb
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

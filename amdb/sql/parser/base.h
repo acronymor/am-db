@@ -19,14 +19,9 @@
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
-
-#ifdef BAIDU_INTERNAL
-#include <base/arena.h>
-#else
-#include <butil/arena.h>
-#endif
 #include "utils.h"
 
+namespace amdb {
 namespace parser {
 enum NodeType {
     NT_BASE,
@@ -65,9 +60,9 @@ enum NodeType {
     NT_INDEX_OPT,
     NT_TABLE_OPT,
     NT_CREATE_TABLE, // CreateTableStmt in ddl.h
-    NT_FLOAT_OPT,    
-    NT_TYPE_OPT,     // TypeOption (unsigned, zerofill) 
-    NT_FIELD_TYPE,   // TypeOption (unsigned, zerofill) 
+    NT_FLOAT_OPT,
+    NT_TYPE_OPT,     // TypeOption (unsigned, zerofill)
+    NT_FIELD_TYPE,   // TypeOption (unsigned, zerofill)
     NT_DROP_TABLE,
     NT_RESTORE_TABLE,
     NT_DATABASE_OPT,
@@ -119,7 +114,7 @@ struct Node {
     virtual void print() const {
         std::cout << "type:" << node_type << std::endl;
     }
-    // to_stream usage: 
+    // to_stream usage:
     //   std::ostringstream os;
     //   node->to_stream(os); or os << node;
     //   os.str();
@@ -159,6 +154,7 @@ struct DdlNode : public StmtNode {
         node_type = NT_DDL;
     }
 };
-}
+}  // namespace parser
+}  // namespace amdb
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

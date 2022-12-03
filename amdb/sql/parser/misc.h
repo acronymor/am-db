@@ -15,6 +15,7 @@
 #pragma once
 #include "base.h"
 
+namespace amdb {
 namespace parser {
 
 struct StartTxnStmt : public StmtNode {
@@ -85,6 +86,7 @@ struct KillStmt : public StmtNode {
         node_type = NT_KILL;
     }
 };
-}
 
+}  // namespace parser
+}  // namespace amdb
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

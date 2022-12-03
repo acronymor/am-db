@@ -16,6 +16,7 @@
 #include "base.h"
 #include <stdlib.h>
 
+namespace amdb {
 namespace parser {
 enum ExprType {
     ET_COLUMN,
@@ -123,9 +124,9 @@ struct FuncExpr : public ExprNode {
     }
     virtual void to_stream(std::ostream& os) const override;
 
-    static FuncExpr* new_unary_op_node(FuncType t, Node* arg1, butil::Arena& arena);
-    static FuncExpr* new_binary_op_node(FuncType t, Node* arg1, Node* arg2, butil::Arena& arena);
-    static FuncExpr* new_ternary_op_node(FuncType t, Node* arg1, Node* arg2, Node* arg3, butil::Arena& arena);
+    static FuncExpr* new_unary_op_node(FuncType t, Node* arg1, Arena& arena);
+    static FuncExpr* new_binary_op_node(FuncType t, Node* arg1, Node* arg2, Arena& arena);
+    static FuncExpr* new_ternary_op_node(FuncType t, Node* arg1, Node* arg2, Node* arg3, Arena& arena);
 };
 
 struct SelectStmt;
@@ -255,23 +256,23 @@ struct LiteralExpr : public ExprNode {
     virtual void to_stream(std::ostream& os) const override;
     virtual std::string to_string() const override;
 
-    static LiteralExpr* make_int(const char* str, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_int(const char* str, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_INT;
         lit->_u.int64_val = strtoull(str, NULL, 10);
         return lit;
     }
 
-    static LiteralExpr* make_double(const char* str, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_double(const char* str, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_DOUBLE;
         lit->_u.double_val = strtod(str, NULL);
         return lit;
     }
 
 
-    static LiteralExpr* make_bit(const char* str, size_t len, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_bit(const char* str, size_t len, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         std::string out_str;
         out_str.reserve(len / 8 + 1);
         size_t pos = len % 8;
@@ -286,8 +287,8 @@ struct LiteralExpr : public ExprNode {
         return lit;
     }
 
-    static LiteralExpr* make_hex(const char* str, size_t len, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_hex(const char* str, size_t len, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         std::string out_str;
         out_str.reserve(len / 2 + 1);
         size_t pos = len % 2;
@@ -302,8 +303,8 @@ struct LiteralExpr : public ExprNode {
         return lit;
     }
 
-    static LiteralExpr* make_string(const char* str, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_string(const char* str, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_STRING;
         // trim ' "
         if (str[0] == '"' || str[0] == '\'') {
@@ -317,34 +318,34 @@ struct LiteralExpr : public ExprNode {
         return lit;
     }
 
-    static LiteralExpr* make_string(String value, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_string(String value, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_STRING;
         lit->_u.str_val = value;
         return lit;
     }
 
-    static LiteralExpr* make_true(butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_true(Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_BOOL;
         lit->_u.bool_val = true;
         return lit;
     }
 
-    static LiteralExpr* make_false(butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_false(Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_BOOL;
         lit->_u.bool_val = false;
         return lit;
     }
-    static LiteralExpr* make_null(butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_null(Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_NULL;
         return lit;
     }
 
-    static LiteralExpr* make_place_holder(int place_holder_id, butil::Arena& arena) {
-        LiteralExpr* lit = new(arena.allocate(sizeof(LiteralExpr))) LiteralExpr();
+    static LiteralExpr* make_place_holder(int place_holder_id, Arena& arena) {
+        LiteralExpr* lit = new(arena.AllocateBytes(sizeof(LiteralExpr))) LiteralExpr();
         lit->literal_type = LT_PLACE_HOLDER;
         lit->_u.int64_val = place_holder_id;
         return lit;
@@ -370,6 +371,6 @@ struct RowExpr : public ExprNode {
     }
 };
 
-}
-
+}  // namespace parser
+}  // namespace amdb
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

@@ -16,6 +16,7 @@
 #include "base.h"
 #include "expr.h"
 
+namespace amdb {
 namespace parser {
 
 static const char* priority_str[] = {"", " LOW_PRIORITY", " DELAYED", " HIGH_PRIORITY"};
@@ -686,8 +687,8 @@ struct InsertStmt : public DmlNode {
             on_duplicate[i]->set_print_sample(print_sample_);
         }
     }
-    static InsertStmt* New(butil::Arena& arena) {
-        InsertStmt* insert = new(arena.allocate(sizeof(InsertStmt)))InsertStmt();
+    static InsertStmt* New(Arena& arena) {
+        InsertStmt* insert = new(arena.AllocateBytes(sizeof(InsertStmt)))InsertStmt();
         insert->columns.reserve(10, arena);
         insert->lists.reserve(10, arena);
         insert->on_duplicate.reserve(10, arena);
@@ -926,7 +927,7 @@ struct LoadDataStmt : public DdlNode {
         }
     }
 };
-
-} 
+}  // namespace parser
+}  // namespace amdb
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

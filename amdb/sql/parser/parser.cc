@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "parser.h"
-#ifdef BAIDU_INTERNAL
-#include <bthread.h>
-#include "uconv.h"
-#include "log.h"
-#include <gflags/gflags.h>
-#endif
-#include "sql_lex.flex.h"
+#include "sql/parser/parser.h"
+#include "sql/parser/sql_lex.flex.h"
 
-extern int sql_parse(yyscan_t scanner, parser::SqlParser* parser);
+namespace amdb {
 namespace parser {
+extern int sql_parse(yyscan_t scanner, SqlParser* parser);
+
 #ifdef BAIDU_INTERNAL
 DEFINE_bool(use_is_utf8_strict, true, "is_utf8_strict");
 #endif
@@ -93,6 +89,8 @@ void SqlParser::parse(const std::string& sql_) {
     sql__delete_buffer(bp, scanner);
     sql_lex_destroy(scanner);
 }
-}
+
+}  // namespace parser
+}  // namespace amdb
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */

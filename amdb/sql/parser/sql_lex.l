@@ -1,8 +1,11 @@
 %{
-
 #include <stdio.h>
 #include <string.h>
-#include "parser.h"
+#include "sql/parser/parser.h"
+#include "sql/parser/sql_parse.yacc.hh"
+
+using namespace amdb;
+
 using parser::SqlParser;
 using parser::InsertStmt;
 using parser::Node;
@@ -12,14 +15,13 @@ using parser::String;
 using parser::RowExpr;
 using parser::ColumnName;
 using parser::TableName;
-using namespace parser;
-#include "sql_parse.yacc.hh"
 using parser::LiteralExpr;
 using parser::SqlParser;
- //redefine the lex
+
+//redefine the lex
+
 #define YY_DECL int sql_lex(YYSTYPE *yylval, YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser)
-#define YY_USER_ACTION yylloc->start = yytext;\
-  yylloc->end = yytext + yyleng;
+#define YY_USER_ACTION yylloc->start = yytext; yylloc->end = yytext + yyleng;
 void un_reserved_keyword(YYSTYPE *yylval, yyscan_t yyscanner, SqlParser* parser);
 %}
 

@@ -37,6 +37,8 @@ struct YYLTYPE {
       (Current).start = (Current).end = YYRHSLOC(Rhs, 0).end;             \
     }                                                                     \
   } while (0)
+
+namespace amdb {
 namespace parser {
 enum ParseError {
     SUCC = 0,
@@ -49,7 +51,7 @@ struct SqlParser {
     std::vector<StmtNode*> result;
     ParseError error = SUCC;
     std::string syntax_err_str;
-    butil::Arena arena;
+    Arena arena;
     bool is_gbk = false;
     bool has_5c = false;
     int place_holder_id = 0;
@@ -67,6 +69,7 @@ inline void print_stmt(Node* node, int ii = 0) {
         print_stmt(node->children[i], ii + 1);
     }
 }
-}
+}  // namespace parser
+}  // namespace amdb
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */
