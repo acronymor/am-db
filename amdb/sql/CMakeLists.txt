@@ -20,6 +20,10 @@ FOREACH (folder ${amdb_sql_folder})
   LIST(APPEND amdb_sql_testutil_src ${testutil_srcs})
 ENDFOREACH ()
 
+list(APPEND amdb_sql_test_src
+    ${CMAKE_CURRENT_SOURCE_DIR}/parser/parser_test.cc
+    )
+
 LIST(APPEND libraries absl::base absl::strings absl::str_format_internal glog::glog gflags::gflags leveldb)
 
 ADD_LIBRARY(libamdb_sql OBJECT ${amdb_sql_src})

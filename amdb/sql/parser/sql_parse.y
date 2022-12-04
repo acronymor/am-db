@@ -45,6 +45,8 @@ using parser::CreateTableStmt;
 }
 
 %code provides {
+#define YYSTYPE SQL_STYPE
+#define YYLTYPE SQL_LTYPE
 extern int sql_lex(YYSTYPE* yylval, YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser);
 extern int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser, const char* s);
 #define new_node(T) new(parser->arena.AllocateBytes(sizeof(T)))T()
@@ -52,15 +54,16 @@ extern int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser, con
 
 %defines
 %output "sql_parse.yacc.cc"
-%name-prefix "sql_"
-%error-verbose
 %lex-param {yyscan_t yyscanner}
 %lex-param {SqlParser* parser}
 %parse-param {yyscan_t yyscanner}
 %parse-param {SqlParser* parser}
 
 %token-table
-%pure-parser
+%define api.prefix {sql_}
+%define api.pure full
+%define parse.error verbose
+%locations
 %verbose
 
 %union
@@ -1702,10 +1705,10 @@ SelectField:
         SelectField* select_field = new_node(SelectField);
         select_field->expr = $1;
         select_field->as_name = $2;
-        if (select_field->expr->expr_type != ET_COLUMN 
-            && select_field->expr->expr_type != ET_LITETAL) {
-            select_field->org_name.strdup(@1.start, @1.end - @1.start, parser->arena);
-        }
+        // if (select_field->expr->expr_type != ET_COLUMN
+        //     && select_field->expr->expr_type != ET_LITETAL) {
+        //     select_field->org_name.strdup(@1.start, @1.end - @1.start, parser->arena);
+        // }
         $$ = select_field;
     }
     | '{' AllIdent Expr '}' FieldAsNameOpt {
@@ -5207,10 +5210,12 @@ ExplainableStmt:
 
 %%
 
-int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser *parser, const char *s) {    
+int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser *parser, const char *s) {
     parser->error = parser::SYNTAX_ERROR;
     std::ostringstream os;
-    os << s << ", near " << std::string(yylloc->start, yylloc->end - yylloc->start);
+    os << s << ", in [" << yylloc->last_line;
+    os << ":" << yylloc->first_column;
+    os << "-" << yylloc->last_column;
     os << "] key:" << sql_get_text(yyscanner);
     parser->syntax_err_str = os.str();
     return 1;

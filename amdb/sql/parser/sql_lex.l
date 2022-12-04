@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "sql/parser/parser.h"
-#include "sql/parser/sql_parse.yacc.hh"
+#include "sql_parse.yacc.hh"
 
 using namespace amdb;
 
@@ -20,9 +20,29 @@ using parser::SqlParser;
 
 //redefine the lex
 
+#define yyin yyg->yyin_r
+#define yyout yyg->yyout_r
+#define yyextra yyg->yyextra_r
+#define yyleng yyg->yyleng_r
+#define yytext yyg->yytext_r
+#define yylineno (YY_CURRENT_BUFFER_LVALUE->yy_bs_lineno)
+#define yycolumn (YY_CURRENT_BUFFER_LVALUE->yy_bs_column)
+#define yy_flex_debug yyg->yy_flex_debug_r
+#define YY_DO_BEFORE_ACTION \
+	yyg->yytext_ptr = yy_bp; \
+	yyleng = (int) (yy_cp - yy_bp); \
+	yyg->yy_hold_char = *yy_cp; \
+	*yy_cp = '\0'; \
+	yyg->yy_c_buf_p = yy_cp;
+#define YY_NEW_FILE yyrestart( yyin , yyscanner )
+
+
 #define YY_DECL int sql_lex(YYSTYPE *yylval, YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser)
-#define YY_USER_ACTION yylloc->start = yytext; yylloc->end = yytext + yyleng;
-void un_reserved_keyword(YYSTYPE *yylval, yyscan_t yyscanner, SqlParser* parser);
+#define YY_USER_ACTION yylloc->first_line = yylloc->last_line = yylineno;\
+  yylloc->first_column = yycolumn;\
+  yylloc->last_column = yylloc->first_column + yyleng - 1;\
+  yycolumn += yyleng;
+void un_reserved_keyword(YYSTYPE *yylval, yyscan_t yyscanner, SqlParser *parser);
 %}
 
 %option noyywrap case-insensitive yylineno
