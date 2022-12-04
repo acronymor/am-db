@@ -29,7 +29,7 @@ struct SchedulerTest : public testsuite::SchemaGen {
   StatementContext* ctx;
 };
 
-TEST_F(SchedulerTest, MockPlanTest) {
+TEST_F(SchedulerTest, DISABLED_MockPlanTest) {
   chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
   Status status = table_->Insert(rows);
   AMDB_ASSERT_EQ(Status::C_OK, status);
