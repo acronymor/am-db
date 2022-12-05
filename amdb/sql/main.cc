@@ -3,6 +3,10 @@
 #include "common/log.h"
 #include "common/version.h"
 #include "gflags/gflags.h"
+#include "sql/analyzer/analyzer.h"
+#include "sql/parser/parser.h"
+#include "sql/planner/planner.h"
+#include "sql/scheduler/scheduler.h"
 #include "sql/storage/kv_storage_api.h"
 
 namespace amdb {
@@ -26,28 +30,42 @@ int init(int argc, char* argv[]) {
     return -1;
   }
 
-  std::string&& key = "key-aa";
-  std::string&& value = "value-aa";
-  std::unordered_map<std::string, std::string> map;
-  std::cout << "key=" << key << ",value=" << value << std::endl;
-  map.emplace(key, value);
-  std::cout << "key=" << key << ",value=" << value << std::endl;
   return 0;
 }
 
-int run() {
-  storage::KvStorageAPI* storage =
-      storage::KvStorageAPISingleton::GetInstance();
-  Status status = storage->PutKV("key", "Hello world");
-  if (Status::C_OK != status) {
-    ERROR("{}", GetErrorString(status));
-  }
+chunk::RowDescriptor* GenTestDesc(Arena* arena) {
+  chunk::ColumnDescriptor* col_desc_1 = arena->CreateObject<chunk::ColumnDescriptor>(expr::ExprValueType::UInt64, 0);
+  chunk::ColumnDescriptor* col_desc_2 = arena->CreateObject<chunk::ColumnDescriptor>(expr::ExprValueType::String, 1);
+  chunk::ColumnDescriptor* col_desc_3 = arena->CreateObject<chunk::ColumnDescriptor>(expr::ExprValueType::UInt8, 2);
 
-  std::string value;
-  storage->GetKV("key", &value);
-  INFO("kv: {}", value);
+  chunk::RowDescriptor* row_desc = arena->CreateObject<chunk::RowDescriptor>(0);
+  row_desc->AddColumnDesc(col_desc_1);
+  row_desc->AddColumnDesc(col_desc_2);
+  row_desc->AddColumnDesc(col_desc_3);
+  row_desc->InitAllColDesc();
 
-  return 0;
+  return row_desc;
+}
+
+Status run() {
+  MemTracker* tracker = new MemTracker();
+  StatementContext* stmt_ctx = new StatementContext();
+  stmt_ctx->arena = new Arena(tracker);
+  stmt_ctx->raw_sql = "SELECT * from t";
+  stmt_ctx->row_desc = GenTestDesc(stmt_ctx->arena);
+
+  Status status = Status::C_OK;
+
+  status = parser::GenAst(stmt_ctx);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  status = analyzer::AnalyzeAst(stmt_ctx);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  status = planner::BuildPlan(stmt_ctx);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  status = scheduler::ExecutePlan(stmt_ctx);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  return Status::C_OK;
 }
 }  // namespace amdb
 

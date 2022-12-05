@@ -5211,7 +5211,7 @@ ExplainableStmt:
 %%
 
 int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser *parser, const char *s) {
-    parser->error = parser::SYNTAX_ERROR;
+    parser->error = Status::C_SYNTAX_ERROR;
     std::ostringstream os;
     os << s << ", in [" << yylloc->last_line;
     os << ":" << yylloc->first_column;

@@ -19,19 +19,18 @@
 #include "dml.h"
 #include "ddl.h"
 #include "misc.h"
+#include "sql/common/statuscode.h"
+#include "sql/context/statement_context.h"
 
 namespace amdb {
 namespace parser {
-enum ParseError {
-    SUCC = 0,
-    SYNTAX_ERROR = 1,
-};
+Status GenAst(StatementContext* stmt_ctx);
 
 struct SqlParser {
     std::string charset;
     std::string collation;
     std::vector<StmtNode*> result;
-    ParseError error = SUCC;
+    Status error = Status::C_OK;
     std::string syntax_err_str;
     Arena arena;
     bool is_gbk = false;

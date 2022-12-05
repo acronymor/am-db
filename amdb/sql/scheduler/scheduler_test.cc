@@ -74,7 +74,31 @@ TEST_F(SchedulerTest, ExecutePlanTest) {
 
   schema::TableInfo* table_info = table_->table_info_;
   storage::Metadata meta(instance_);
-  meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+  status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  // -------------------------------
+
+  planner::LogicalResultSet* result_set = ctx->arena->CreateObject<planner::LogicalResultSet>();
+  planner::LogicalFilter* filter = ctx->arena->CreateObject<planner::LogicalFilter>();
+  planner::LogicalTableScan* table_scan = ctx->arena->CreateObject<planner::LogicalTableScan>();
+
+  planner::IndexRange* ir = ctx->arena->CreateObject<planner::IndexRange>();
+  ir->lower.value.push_back(expr::ExprValue::NewString("", ctx->arena));
+  ir->lower.type = planner::IndexRange::RangePointType::LEFT_CLOSE;
+  ir->lower_str = "";
+  ir->upper.value.push_back(expr::ExprValue::NewUInt8(3));
+  ir->upper.value.push_back(expr::ExprValue::NewString("c", ctx->arena));
+  ir->upper.type = planner::IndexRange::RangePointType::RIGHT_OPEN;
+  ir->upper_str = "c";
+  table_scan->primary_ranges.push_back(ir);
+  table_scan->table_info = table_info;
+
+  ctx->logical_plan = result_set;
+  result_set->AddChild(filter);
+  filter->AddChild(table_scan);
+
+  // -------------------------------
 
   status = planner::BuildPlan(ctx);
   AMDB_ASSERT_EQ(Status::C_OK, status);

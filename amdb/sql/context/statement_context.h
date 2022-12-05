@@ -5,6 +5,7 @@
 
 #include "sql/chunk/row_description.h"
 #include "sql/common/arena.h"
+#include "sql/parser/base.h"
 
 namespace amdb {
 namespace expr {
@@ -24,6 +25,7 @@ class StatementContext {
 
   chunk::RowDescriptor* row_desc;
 
+  parser::Node* stmt_ast{nullptr};
   // parser::StmtNode* ast_stmt = nullptr;
   // it is either logical_plan or physical_plan
   planner::PlanNode* resolved_plan{nullptr};

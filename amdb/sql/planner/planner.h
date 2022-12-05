@@ -22,8 +22,6 @@ class Planner {
     }
   }
 
-  // convert ast to logical plan
-  Status AstToLogicalPlan();
   // convert logical plan to physical plan
   Status LogicalToPhysicalPlan();
   // RBO

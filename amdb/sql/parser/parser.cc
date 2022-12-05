@@ -14,10 +14,18 @@
 
 #include "sql/parser/parser.h"
 #include "sql/parser/sql_lex.flex.h"
+#include "common/assert.h"
 
 extern int sql_parse(yyscan_t scanner, amdb::parser::SqlParser* parser);
 namespace amdb {
 namespace parser {
+Status GenAst(StatementContext* stmt_ctx) {
+  SqlParser sql_parser;
+  sql_parser.parse(stmt_ctx->raw_sql);
+  RETURN_ERR_NOT_OK(sql_parser.error);
+  stmt_ctx->stmt_ast = sql_parser.result[0];
+  return Status::C_OK;
+}
 
 #ifdef BAIDU_INTERNAL
 DEFINE_bool(use_is_utf8_strict, true, "is_utf8_strict");

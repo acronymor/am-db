@@ -4,7 +4,7 @@ SET(CMAKE_CXX_STANDARD 20)
 ADD_SUBDIRECTORY(parser)
 
 LIST(APPEND amdb_sql_folder common codec expression chunk schema context
-    optimizer/rules optimizer/costs
+    analyzer optimizer/rules optimizer/costs
     planner scheduler executor storage
     testsuite)
 

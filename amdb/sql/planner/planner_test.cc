@@ -1,5 +1,7 @@
 #include "sql/planner/planner.h"
 
+#include "sql/analyzer/analyzer.h"
+#include "sql/parser/parser.h"
 #include "sql/storage/table.h"
 #include "sql/testsuite/schema_gen_testutil.h"
 
@@ -32,12 +34,23 @@ struct PlannerTest : public testsuite::SchemaGen {
 TEST_F(PlannerTest, BuildPlanTest) {
   schema::TableInfo* table_info = table_->table_info_;
   storage::Metadata meta(instance_);
-  meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
 
-  Status status = planner::BuildPlan(ctx);
+  Status status = Status::C_OK;
+  status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  ctx->raw_sql = "SELECT * FROM t";
+
+  status = parser::GenAst(ctx);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  status = analyzer::AnalyzeAst(ctx);
+  AMDB_ASSERT_TRUE(ctx->logical_plan != nullptr);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  status = planner::BuildPlan(ctx);
   AMDB_ASSERT_EQ(Status::C_OK, status);
   AMDB_ASSERT_TRUE(ctx->resolved_plan != nullptr);
-
 }
 }  // namespace planner
 }  // namespace amdb

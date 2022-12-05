@@ -101,7 +101,6 @@ Status ExecutingGraph::Finish() { return Status::C_OK; }
 
 Status ExecutingGraph::Open() {
   for (int32_t i = nodes_.size() - 1; i >= 0; i--) {
-    std::cout << i << std::endl;
     IExecutor* executor = nodes_.at(i)->exec;
     Status status = executor->Open();
     if (status != Status::C_OK) {
