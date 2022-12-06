@@ -24,6 +24,12 @@ Status ToPhyPlan(StatementContext* stmt_ctx, LogicalNode* logical, PhysicalNode*
 
   return Status::C_OK;
 }
+
+Status ToPhyPlanAgain(StatementContext* stmt_ctx, LogicalNode* logical, PhysicalNode* physical) {
+  physical = ToPhysicalNode(stmt_ctx, logical);
+  stmt_ctx->physical_plan = physical;
+  return Status::C_OK;
+}
 }  // namespace
 
 Status BuildPlan(StatementContext* ctx) {
@@ -38,7 +44,12 @@ Status BuildPlan(StatementContext* ctx) {
 }
 
 Status Planner::LogicalToPhysicalPlan() {
-  ToPhyPlan(stmt_ctx_, stmt_ctx_->logical_plan, stmt_ctx_->physical_plan);
+  Status status = ToPhyPlan(stmt_ctx_, stmt_ctx_->logical_plan, stmt_ctx_->physical_plan);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  if (stmt_ctx_->physical_plan == nullptr) {
+    status = ToPhyPlanAgain(stmt_ctx_, stmt_ctx_->logical_plan, stmt_ctx_->physical_plan);
+    AMDB_ASSERT_EQ(Status::C_OK, status);
+  }
   return Status::C_OK;
 }
 

@@ -15,6 +15,7 @@
 #pragma once
 #include "base.h"
 #include "expr.h"
+#include "dml.h"
 
 namespace amdb {
 namespace parser {

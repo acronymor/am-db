@@ -18,6 +18,18 @@ scheduler::IExecutor* ToExecutor(StatementContext* ctx, planner::PhysicalNode* p
       planner::PhysicalFilter* filter = dynamic_cast<planner::PhysicalFilter*>(physical);
       executor = Filter(ctx, filter);
     }; break;
+    case planner::PhysicalNode::kPhysicalCreateDatabase: {
+      planner::PhysicalCreateDatabase* create_database = dynamic_cast<planner::PhysicalCreateDatabase*>(physical);
+      executor = CreateDatabase(ctx, create_database);
+    }; break;
+    case planner::PhysicalNode::kPhysicalCreateTable: {
+      planner::PhysicalCreateTable* create_table = dynamic_cast<planner::PhysicalCreateTable*>(physical);
+      executor = CreateTable(ctx, create_table);
+    }; break;
+
+    default:
+      ERROR("Not support physical node type {}", physical->type);
+      break;
   }
   return executor;
 }
@@ -38,6 +50,19 @@ ResultSetExecutor* ResultSet(StatementContext* ctx, planner::PhysicalResultSet* 
   executor::ResultSetExecutor* result_set_executor =
       ctx->arena->CreateObject<executor::ResultSetExecutor>(ctx, scheduler::IExecutor::kExecResultSet, physical);
   return result_set_executor;
+}
+
+CreateDatabaseExecutor* CreateDatabase(StatementContext* ctx, planner::PhysicalCreateDatabase* physical) {
+  executor::CreateDatabaseExecutor* create_database_executor =
+      ctx->arena->CreateObject<executor::CreateDatabaseExecutor>(ctx, scheduler::IExecutor::kExecCreateDatabase,
+                                                                 physical);
+  return create_database_executor;
+}
+
+CreateTableExecutor* CreateTable(StatementContext* ctx, planner::PhysicalCreateTable* physical) {
+  executor::CreateTableExecutor* create_table_executor =
+      ctx->arena->CreateObject<executor::CreateTableExecutor>(ctx, scheduler::IExecutor::kExecCreateTable, physical);
+  return create_table_executor;
 }
 }  // namespace executor
 }  // namespace amdb

@@ -24,7 +24,7 @@ list(APPEND amdb_sql_test_src
     ${CMAKE_CURRENT_SOURCE_DIR}/parser/parser_test.cc
     )
 
-LIST(APPEND libraries absl::base absl::strings absl::str_format_internal glog::glog gflags::gflags leveldb)
+LIST(APPEND libraries absl::base absl::strings absl::str_format_internal absl::time glog::glog gflags::gflags leveldb)
 
 ADD_LIBRARY(libamdb_sql OBJECT ${amdb_sql_src})
 TARGET_LINK_LIBRARIES(libamdb_sql libamdb_proto libamdb_common libamdb_parser ${libraries})
@@ -35,7 +35,7 @@ TARGET_LINK_LIBRARIES(amdb libamdb_sql)
 IF (AMDB_BUILD_TEST)
   ADD_DEFINITIONS(-DAMDB_BUILD_TEST)
 
-  LIST(APPEND test_libraries gtest gtest_main absl::random_random absl::time)
+  LIST(APPEND test_libraries gtest gtest_main absl::random_random)
 
   FOREACH (test_item ${amdb_sql_test_src})
     GET_FILENAME_COMPONENT(test_target_name ${test_item} NAME_WE)

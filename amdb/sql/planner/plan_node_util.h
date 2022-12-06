@@ -14,5 +14,11 @@ static LogicalFilter* Filter(StatementContext* stmt_ctx, PhysicalFilter* physica
 
 static PhysicalResultSet* ResultSet(StatementContext* stmt_ctx, LogicalResultSet* logical);
 static LogicalResultSet* ResultSet(StatementContext* stmt_ctx, PhysicalResultSet* physical);
+
+static PhysicalCreateDatabase* CreateDatabase(StatementContext* stmt_ctx, LogicalCreateDatabase* logical);
+static LogicalCreateDatabase* CreateDatabase(StatementContext* stmt_ctx, PhysicalCreateDatabase* physical);
+
+static PhysicalCreateTable* CreateTable(StatementContext* stmt_ctx, LogicalCreateTable* logical);
+static LogicalCreateTable* CreateTable(StatementContext* stmt_ctx, PhysicalCreateTable* physical);
 }  // namespace planner
 }  // namespace amdb

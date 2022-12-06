@@ -12,7 +12,7 @@ class TableScanExecutor : public scheduler::ISource {
       :ISource(ctx, exec_type, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
     AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalTableScan, plan->type);
-    scan_plan_ = static_cast<planner::PhysicalTableScan*>(plan);
+    scan_plan_ = dynamic_cast<planner::PhysicalTableScan*>(plan);
     table_info_ = scan_plan_->table_info;
     table_ = ctx->arena->CreateObject<storage::Table>(ctx->arena, table_info_);
     primary_ranges_ = scan_plan_->primary_ranges;

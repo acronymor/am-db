@@ -29,5 +29,17 @@ std::string LogicalResultSet::ToString() {
   res.append("LogicalResultSet::ToString()");
   return res;
 }
+
+std::string LogicalCreateDatabase::ToString() {
+  std::string res;
+  res.append("LogicalCreateDatabase::ToString()");
+  return res;
+}
+
+std::string LogicalCreateTable::ToString() {
+  std::string res;
+  res.append("LogicalCreateTable::ToString()");
+  return res;
+}
 }  // namespace planner
 }  // namespace amdb

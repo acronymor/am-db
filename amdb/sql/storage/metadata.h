@@ -14,6 +14,8 @@ class Metadata {
 
   [[nodiscard]] Status LoadDatabaseMeta(uint64_t db_id, schema::DatabaseInfo* database_info);
 
+  [[nodiscard]] Status DumpDatabaseMeta(uint64_t db_id, schema::DatabaseInfo* database_info);
+
   [[nodiscard]] Status LoadTableMeta(uint64_t db_id, uint64_t table_id, schema::TableInfo* table_info);
 
   [[nodiscard]] Status DumpTableMeta(uint64_t db_id, uint64_t table_id, schema::TableInfo* table_info);

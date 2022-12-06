@@ -11,7 +11,7 @@ class FilterExecutor : public scheduler::ITransform {
       : ITransform(ctx, exec_type, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
     AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalFilter, plan->type);
-    filter_plan_ = static_cast<planner::PhysicalFilter*>(plan);
+    filter_plan_ = dynamic_cast<planner::PhysicalFilter*>(plan);
   };
 
   std::string Name() const override { return "Filter"; };

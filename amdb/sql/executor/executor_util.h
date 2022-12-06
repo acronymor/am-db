@@ -1,5 +1,6 @@
-#include "sql/executor/resultset_executor.h"
+#include "sql/executor/create_executor.h"
 #include "sql/executor/filter_executor.h"
+#include "sql/executor/resultset_executor.h"
 #include "sql/executor/table_scan_executor.h"
 #include "sql/planner/physical_plan_node.h"
 
@@ -12,5 +13,9 @@ static TableScanExecutor* TableScan(StatementContext* stmt_ctx, planner::Physica
 static FilterExecutor* Filter(StatementContext* stmt_ctx, planner::PhysicalFilter* physical);
 
 static ResultSetExecutor* ResultSet(StatementContext* stmt_ctx, planner::PhysicalResultSet* physical);
-}
-}
+
+static CreateDatabaseExecutor* CreateDatabase(StatementContext* stmt_ctx, planner::PhysicalCreateDatabase* physical);
+
+static CreateTableExecutor* CreateTable(StatementContext* stmt_ctx, planner::PhysicalCreateTable* physical);
+}  // namespace executor
+}  // namespace amdb

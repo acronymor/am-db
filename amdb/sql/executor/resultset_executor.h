@@ -11,7 +11,7 @@ class ResultSetExecutor : public scheduler::ISink {
       : ISink(ctx, exec_type, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
     AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalResultSet, plan->type);
-    result_plan_ = static_cast<planner::PhysicalResultSet*>(plan);
+    result_plan_ = dynamic_cast<planner::PhysicalResultSet*>(plan);
   };
 
   std::string Name() const override { return "ResultSet"; };

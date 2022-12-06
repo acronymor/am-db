@@ -28,5 +28,17 @@ std::string PhysicalResultSet::ToString() {
   res.append("PhysicalResultSet::ToString()");
   return res;
 }
+
+std::string PhysicalCreateDatabase::ToString() {
+  std::string res;
+  res.append("PhysicalCreateDatabase::ToString()");
+  return res;
+}
+
+std::string PhysicalCreateTable::ToString() {
+  std::string res;
+  res.append("PhysicalCreateTable::ToString()");
+  return res;
+}
 }  // namespace planner
 }  // namespace amdb

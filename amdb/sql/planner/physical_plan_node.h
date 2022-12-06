@@ -14,7 +14,9 @@ class PhysicalNode : public PlanNode {
     kPhysicalTypeInvalid = 0,
     kPhysicalTableScan = 1,
     kPhysicalFilter = 2,
-    kPhysicalResultSet = 3
+    kPhysicalResultSet = 3,
+    kPhysicalCreateDatabase = 4,
+    kPhysicalCreateTable = 5
   };
 
  public:
@@ -62,6 +64,26 @@ struct PhysicalResultSet : public PhysicalNode {
 
   std::string Name() override { return "PhysicalResultSet"; }
   std::string ToString() override;
+};
+
+struct PhysicalCreateDatabase : public PhysicalNode {
+  PhysicalCreateDatabase() : PhysicalNode(kPhysicalCreateDatabase) {}
+  ~PhysicalCreateDatabase() override = default;
+
+  std::string Name() override { return "PhysicalCreateDatabase"; }
+  std::string ToString() override;
+
+  schema::DatabaseInfo* database_info{nullptr};
+};
+
+struct PhysicalCreateTable : public PhysicalNode {
+  PhysicalCreateTable() : PhysicalNode(kPhysicalCreateTable) {}
+  ~PhysicalCreateTable() override = default;
+
+  std::string Name() override { return "PhysicalCreateTable"; }
+  std::string ToString() override;
+
+  schema::TableInfo* table_info{nullptr};
 };
 }  // namespace planner
 }  // namespace amdb

@@ -22,6 +22,20 @@ LogicalNode* ToLogicalNode(StatementContext* stmt_ctx, PhysicalNode* physical) {
       PhysicalFilter* physical_filter = dynamic_cast<PhysicalFilter*>(physical);
       node = dynamic_cast<LogicalNode*>(Filter(stmt_ctx, physical_filter));
     }; break;
+
+    case PhysicalNode::kPhysicalCreateDatabase: {
+      PhysicalCreateDatabase* physical_create_database = dynamic_cast<PhysicalCreateDatabase*>(physical);
+      node = dynamic_cast<LogicalNode*>(CreateDatabase(stmt_ctx, physical_create_database));
+    }; break;
+
+    case PhysicalNode::kPhysicalCreateTable: {
+      PhysicalCreateTable* physical_create_table = dynamic_cast<PhysicalCreateTable*>(physical);
+      node = dynamic_cast<LogicalNode*>(CreateTable(stmt_ctx, physical_create_table));
+    }; break;
+
+    default:
+      ERROR("Not Support LogicalNode type {}", physical->type);
+      break;
   }
   return node;
 }
@@ -43,6 +57,20 @@ PhysicalNode* ToPhysicalNode(StatementContext* stmt_ctx, LogicalNode* logical) {
       LogicalFilter* logical_filter = dynamic_cast<LogicalFilter*>(logical);
       node = dynamic_cast<PhysicalNode*>(Filter(stmt_ctx, logical_filter));
     }; break;
+
+    case LogicalNode::kLogicalCreateDatabase: {
+      LogicalCreateDatabase* logical_create_database = dynamic_cast<LogicalCreateDatabase*>(logical);
+      node = dynamic_cast<PhysicalNode*>(CreateDatabase(stmt_ctx, logical_create_database));
+    }; break;
+
+    case LogicalNode::kLogicalCreateTable: {
+      LogicalCreateTable* logical_create_table = dynamic_cast<LogicalCreateTable*>(logical);
+      node = dynamic_cast<PhysicalNode*>(CreateTable(stmt_ctx, logical_create_table));
+    }; break;
+
+    default:
+      ERROR("Not Support LogicalNode type {}", logical->type);
+      break;
   }
   return node;
 }
@@ -77,6 +105,30 @@ PhysicalResultSet* ResultSet(StatementContext* stmt_ctx, LogicalResultSet* logic
 
 LogicalResultSet* ResultSet(StatementContext* stmt_ctx, PhysicalResultSet* physical) {
   LogicalResultSet* node = stmt_ctx->arena->CreateObject<LogicalResultSet>();
+  return node;
+}
+
+PhysicalCreateDatabase* CreateDatabase(StatementContext* stmt_ctx, LogicalCreateDatabase* logical) {
+  PhysicalCreateDatabase* node = stmt_ctx->arena->CreateObject<PhysicalCreateDatabase>();
+  node->database_info = logical->database_info;
+  return node;
+}
+
+LogicalCreateDatabase* CreateDatabase(StatementContext* stmt_ctx, PhysicalCreateDatabase* physical) {
+  LogicalCreateDatabase* node = stmt_ctx->arena->CreateObject<LogicalCreateDatabase>();
+  node->database_info = physical->database_info;
+  return node;
+}
+
+static PhysicalCreateTable* CreateTable(StatementContext* stmt_ctx, LogicalCreateTable* logical) {
+  PhysicalCreateTable* node = stmt_ctx->arena->CreateObject<PhysicalCreateTable>();
+  node->table_info = logical->table_info;
+  return node;
+}
+
+static LogicalCreateTable* CreateTable(StatementContext* stmt_ctx, PhysicalCreateTable* physical) {
+  LogicalCreateTable* node = stmt_ctx->arena->CreateObject<LogicalCreateTable>();
+  node->table_info = physical->table_info;
   return node;
 }
 }  // namespace planner

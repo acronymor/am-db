@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sql/common/statuscode.h"
 #include "sql/context/statement_context.h"
 

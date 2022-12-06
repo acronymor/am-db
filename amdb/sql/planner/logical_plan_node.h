@@ -12,7 +12,9 @@ struct LogicalNode : public PlanNode {
     kLogicalTypeInvalid = 0,
     kLogicalTableScan = 1,
     kLogicalFilter = 2,
-    kLogicalResultSet = 3
+    kLogicalResultSet = 3,
+    kLogicalCreateDatabase = 4,
+    kLogicalCreateTable = 5
   };
 
  public:
@@ -64,6 +66,28 @@ class LogicalResultSet : public LogicalNode {
 
   std::string Name() override { return "LogicalResultSet"; }
   std::string ToString() override;
+};
+
+class LogicalCreateDatabase : public LogicalNode {
+ public:
+  LogicalCreateDatabase() : LogicalNode(kLogicalCreateDatabase) {}
+  ~LogicalCreateDatabase() override = default;
+
+  std::string Name() override { return "LogicalCreateDatabase"; }
+  std::string ToString() override;
+
+  schema::DatabaseInfo* database_info;
+};
+
+class LogicalCreateTable : public LogicalNode {
+ public:
+  LogicalCreateTable() : LogicalNode(kLogicalCreateTable) {}
+  ~LogicalCreateTable() override = default;
+
+  std::string Name() override { return "LogicalCreateTable"; }
+  std::string ToString() override;
+
+  schema::TableInfo* table_info;
 };
 }  // namespace planner
 }  // namespace amdb
