@@ -5,11 +5,12 @@
 
 namespace amdb {
 namespace storage {
-Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
-             schema::IndexInfo* index_info, BptNodeProto* root) {
+Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info, schema::IndexInfo* index_info,
+             BptNodeProto* root) {
   TreeCtx::Schema schema = {.db_id = table_info->db_id,
                             .table_id = table_info->id,
-                            .index_id = index_info->id};
+                            .index_id = index_info->id,
+                            .tree_id = index_info->max_tree_node_id};
   tree_ctx_ = arena->CreateObject<TreeCtx>(api, arena, schema);
   table_info_ = table_info;
   index_info_ = index_info;
@@ -56,12 +57,13 @@ Status Index::Insert(chunk::Chunk* chunk) {
   }
 
   for (int i = 0; i < encoded_keys.size() && encoded_values.size(); i++) {
-    Status status = bptree_->Insert(std::move(encoded_keys.at(i)),
-                                    std::move(encoded_values.at(i)));
+    Status status = bptree_->Insert(std::move(encoded_keys.at(i)), std::move(encoded_values.at(i)));
     if (status != Status::C_OK) {
       return status;
     }
   }
+
+  index_info_->max_tree_node_id = tree_ctx_->MaxNodeID();
   return Status::C_OK;
 }
 
@@ -86,6 +88,7 @@ Status Index::Delete(chunk::Chunk* chunk) {
     }
   }
 
+  index_info_->max_tree_node_id = tree_ctx_->MaxNodeID();
   return Status::C_OK;
 }
 

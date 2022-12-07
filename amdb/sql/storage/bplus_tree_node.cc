@@ -10,11 +10,14 @@ DEFINE_uint32(bptree_max_node_size, 16 * (1 << 10), "the size of bptree node");
 TreeCtx::TreeCtx(KvStorageAPI* kv, Arena* arena, Schema& schema)
     : arena_(arena), storage_api_(kv) {
   schema_ = schema;
+  id_ = schema_.tree_id;
 }
 
 Arena* TreeCtx::AllocMem() const { return arena_; }
 
 KvStorageAPI* TreeCtx::KvApi() const { return storage_api_; }
+
+uint64_t TreeCtx::MaxNodeID() { return id_; }
 
 uint64_t TreeCtx::AllocateNodeID() { return id_++; }
 

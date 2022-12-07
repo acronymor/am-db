@@ -20,8 +20,7 @@ Status LevelDbClient::PutKV(const std::string& key, const std::string& value) {
   return Status::C_OK;
 }
 
-Status LevelDbClient::MPutKV(const std::vector<std::string>& keys,
-                             const std::vector<std::string>& values) {
+Status LevelDbClient::MPutKV(const std::vector<std::string>& keys, const std::vector<std::string>& values) {
   AMDB_ASSERT_EQ(keys.size(), values.size());
   leveldb::WriteBatch batch;
   for (size_t i = 0; i < keys.size() && i < values.size(); i++) {
@@ -35,8 +34,7 @@ Status LevelDbClient::MPutKV(const std::vector<std::string>& keys,
   return C_OK;
 }
 
-Status LevelDbClient::MPutKV(
-    const std::unordered_map<std::string, std::string>& kv_map) {
+Status LevelDbClient::MPutKV(const std::unordered_map<std::string, std::string>& kv_map) {
   leveldb::WriteBatch batch;
   for (auto& entry : kv_map) {
     batch.Put(entry.first, entry.second);
@@ -63,8 +61,7 @@ Status LevelDbClient::GetKV(const std::string& key, std::string* value) {
   return C_OK;
 }
 
-Status LevelDbClient::MGetKV(const std::vector<std::string>& keys,
-                             std::vector<std::string>* values) {
+Status LevelDbClient::MGetKV(const std::vector<std::string>& keys, std::vector<std::string>* values) {
   for (auto& key : keys) {
     std::string value;
     Status status = GetKV(key, &value);
@@ -101,8 +98,7 @@ Status LevelDbClient::MDelKV(const std::vector<std::string>& keys) {
   return C_OK;
 }
 
-Status LevelDbClient::Incrby(const std::string& key, int64_t step,
-                             int64_t* new_val) {
+Status LevelDbClient::Incrby(const std::string& key, uint64_t step, uint64_t* new_val) {
   std::string value = "0";
   leveldb::Status status = db_->Get(leveldb::ReadOptions(), key, &value);
   if (status.IsNotFound()) {
@@ -126,8 +122,7 @@ Status LevelDbClient::Incrby(const std::string& key, int64_t step,
 }
 
 #ifdef AMDB_BUILD_TEST
-Status LevelDbClient::Scan(std::vector<std::string>& keys,
-                           std::vector<std::string>& values) {
+Status LevelDbClient::Scan(std::vector<std::string>& keys, std::vector<std::string>& values) {
   leveldb::Iterator* it = db_->NewIterator(leveldb::ReadOptions());
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     keys.push_back(it->key().ToString());

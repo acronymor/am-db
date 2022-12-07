@@ -71,7 +71,7 @@ TEST_F(LevelDbClientTest, DISABLED_BATCH_CRUD) {
 
 TEST_F(LevelDbClientTest, DISABLED_INC) {
   std::string key = "inc_key";
-  int64_t value;
+  uint64_t value;
 
   Status status = client_->DelKV(key);
   AMDB_ASSERT_EQ(Status::C_OK, status);

@@ -22,6 +22,7 @@ class TreeCtx {
     uint64_t db_id;
     uint64_t table_id;
     uint64_t index_id;
+    uint64_t tree_id;
   };
 
  public:
@@ -31,6 +32,7 @@ class TreeCtx {
 
   KvStorageAPI* KvApi() const;
 
+  uint64_t MaxNodeID();
   uint64_t AllocateNodeID();
 
   void CollectUnsavedTreeNode(BptNode* node);

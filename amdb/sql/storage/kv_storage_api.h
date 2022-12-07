@@ -31,8 +31,8 @@ class KvStorageAPI {
 
   [[nodiscard]] virtual Status MDelKV(const std::vector<std::string>& keys) = 0;
 
-  [[nodiscard]] virtual Status Incrby(const std::string& key, int64_t step,
-                                      int64_t* new_val) = 0;
+  [[nodiscard]] virtual Status Incrby(const std::string& key, uint64_t step,
+                                      uint64_t* new_val) = 0;
 #ifdef AMDB_BUILD_TEST
   [[nodiscard]] virtual Status Scan(std::vector<std::string>& keys,
                                     std::vector<std::string>& values) = 0;
