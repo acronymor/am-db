@@ -26,6 +26,7 @@ Status IndexInfo::Serialize(IndexProto *output) {
   output->set_name(name);
   output->set_table_name(table_name);
   output->set_root_node_id(root_node_id);
+  output->set_max_tree_node_id(max_tree_node_id);
   output->set_type(type);
   output->set_comment(comment);
 
@@ -44,7 +45,8 @@ Status IndexInfo::Deserialize(const IndexProto &input) {
   name = input.name();
   table_name = input.table_name();
   root_node_id = input.root_node_id();
-  type = (ConstraintType)input.type();
+  max_tree_node_id = input.max_tree_node_id();
+  type = (parser::ConstraintType)input.type();
   comment = input.comment();
 
   columns.reserve(input.columns_size());
@@ -106,7 +108,7 @@ Status TableInfo::Deserialize(const TableProto &input) {
     IndexInfo &index_info = index_list.back();
     index_info.Deserialize(index);
 
-    if (index_info.type == ConstraintType::CONSTRAINT_PRIMARY) {
+    if (index_info.type == parser::ConstraintType::CONSTRAINT_PRIMARY) {
       primary_index = &index_info;
     }
 

@@ -40,8 +40,8 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   col_info_01.name = "id";
   col_info_01.table_id = table_id;
   col_info_01.table_name = table_name;
-  col_info_01.type = {.type = schema::MYSQL_TYPE_LONGLONG,
-                      .charset = schema::CharacterSet::CHARSET_UTF8};
+  col_info_01.type = {.type = parser::MYSQL_TYPE_LONGLONG,
+                      .charset = parser::CharacterSet::CHARSET_UTF8};
 
   table_info_->column_list.emplace_back();
   schema::ColumnInfo& col_info_02 = table_info_->column_list.at(1);
@@ -49,8 +49,8 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   col_info_02.name = "name";
   col_info_02.table_id = table_id;
   col_info_02.table_name = table_name;
-  col_info_02.type = {.type = schema::MYSQL_TYPE_STRING,
-                      .charset = schema::CharacterSet::CHARSET_UTF8};
+  col_info_02.type = {.type = parser::MYSQL_TYPE_STRING,
+                      .charset = parser::CharacterSet::CHARSET_UTF8};
 
   table_info_->column_list.emplace_back();
   schema::ColumnInfo& col_info_03 = table_info_->column_list.at(2);
@@ -58,8 +58,8 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   col_info_03.name = "age";
   col_info_03.table_id = table_id;
   col_info_03.table_name = table_name;
-  col_info_03.type = {.type = schema::MYSQL_TYPE_SHORT,
-                      .charset = schema::CharacterSet::CHARSET_UTF8};
+  col_info_03.type = {.type = parser::MYSQL_TYPE_SHORT,
+                      .charset = parser::CharacterSet::CHARSET_UTF8};
 
   // ---------------- index list --------------------
   table_info_->index_list.emplace_back();
@@ -69,7 +69,7 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   index_info_01.name = "index_id";
   index_info_01.columns.emplace_back(col_info_01);
   index_info_01.root_node_id = 1;
-  index_info_01.type = schema::ConstraintType::CONSTRAINT_PRIMARY;
+  index_info_01.type = parser::ConstraintType::CONSTRAINT_PRIMARY;
 
   table_info_->index_list.emplace_back();
   schema::IndexInfo& index_info_02 = table_info_->index_list.at(1);
@@ -78,7 +78,7 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   index_info_02.name = "index_name";
   index_info_02.root_node_id = 1;
   index_info_02.columns.emplace_back(col_info_02);
-  index_info_02.type = schema::ConstraintType::CONSTRAINT_INDEX;
+  index_info_02.type = parser::ConstraintType::CONSTRAINT_INDEX;
 
   table_info_->index_list.emplace_back();
   schema::IndexInfo& index_info_03 = table_info_->index_list.at(2);
@@ -87,7 +87,7 @@ schema::TableInfo* SchemaGen::GenTableInfo(uint64_t db_id, uint64_t table_id) {
   index_info_03.name = "index_age";
   index_info_03.root_node_id = 1;
   index_info_03.columns.emplace_back(col_info_03);
-  index_info_03.type = schema::ConstraintType::CONSTRAINT_INDEX;
+  index_info_03.type = parser::ConstraintType::CONSTRAINT_INDEX;
 
   // ---------------- table_info --------------------
   table_info_->id = table_id;

@@ -8,13 +8,13 @@
 #include "common/const.h"
 #include "proto/schema.pb.h"
 #include "sql/common/statuscode.h"
-#include "sql/schema/schema_type.h"
+#include "sql/parser/ddl.h"
 
 namespace amdb {
 namespace schema {
 struct ColumnType {
-  MysqlType type;
-  CharacterSet charset = CHARSET_NULL;
+  parser::MysqlType type;
+  parser::CharacterSet charset = parser::CHARSET_NULL;
 };
 
 struct ColumnInfo {
@@ -44,8 +44,9 @@ struct IndexInfo {
   std::vector<ColumnInfo> columns;
 
   uint64_t root_node_id;
+  uint64_t max_tree_node_id;
 
-  ConstraintType type;
+  parser::ConstraintType type;
   std::string comment;
 
   // serialize to proto
