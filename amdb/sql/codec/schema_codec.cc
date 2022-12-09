@@ -2,6 +2,33 @@
 
 namespace amdb {
 namespace codec {
+size_t EncodeDatabaseAllocID(uint64_t id, std::string *out) {
+  size_t offset = 0;
+  offset += EncodeUInt64(kGlobalDatabaseID, out);
+  offset += EncodeUInt64(kGlobalTableID, out);
+  offset += EncodeUInt8(static_cast<uint8_t>(DataType::kDatabaseId), out);
+  offset += EncodeUInt64(id, out);
+  return offset;
+}
+
+size_t EncodeTableAllocID(uint64_t id, std::string *out) {
+  size_t offset = 0;
+  offset += EncodeUInt64(kGlobalDatabaseID, out);
+  offset += EncodeUInt64(kGlobalTableID, out);
+  offset += EncodeUInt8(static_cast<uint8_t>(DataType::kTableId), out);
+  offset += EncodeUInt64(id, out);
+  return offset;
+}
+
+size_t EncodeColumnAllocID(uint64_t id, std::string *out) {
+  size_t offset = 0;
+  offset += EncodeUInt64(kGlobalDatabaseID, out);
+  offset += EncodeUInt64(kGlobalTableID, out);
+  offset += EncodeUInt8(static_cast<uint8_t>(DataType::kColumnId), out);
+  offset += EncodeUInt64(id, out);
+  return offset;
+}
+
 size_t EncodeDatabaseID(uint64_t db_id, std::string *out) {
   size_t offset = 0;
   offset += EncodeUInt64(kGlobalDatabaseID, out);

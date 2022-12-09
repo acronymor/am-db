@@ -37,6 +37,7 @@ message IndexProto {
   uint64 update_ts = 9;
   optional string comment = 10;
   uint64 root_node_id = 11;
+  uint64 max_tree_node_id = 12;
 }
 
 message TableProto {

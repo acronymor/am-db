@@ -1,7 +1,7 @@
 #include "sql/executor/create_executor.h"
+
+#include "sql/storage/id_allocator.h"
 #include "sql/storage/metadata.h"
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
 
 namespace amdb {
 namespace executor {
@@ -14,16 +14,18 @@ scheduler::IExecutor::State CreateExecutor::Prepare() { return kNeedData; }
 Status CreateExecutor::Work() { return DoWork(); }
 
 Status CreateDatabaseExecutor::DoWork() {
-  int64_t now = absl::ToUnixMicros(absl::Now());
+  storage::IdAllocator* id_allocator = storage::IdAllocatorSingleton::GetInstance();
 
   schema::DatabaseInfo* database_info = create_database_plan_->database_info;
-  database_info->id = 0;
-  database_info->create_ts = now;
-  database_info->update_ts = now;
 
   storage::Metadata meta;
   Status status = meta.DumpDatabaseMeta(database_info->id, database_info);
-  return status;
+  RETURN_ERR_NOT_OK(status);
+
+  // save relation of both db_name and db_id, <db_name, db_id>
+  status = meta.DumpDatabaseIdByName(database_info->name, &database_info->id);
+  RETURN_ERR_NOT_OK(status);
+  return Status::C_OK;
 }
 
 Status CreateTableExecutor::DoWork() {

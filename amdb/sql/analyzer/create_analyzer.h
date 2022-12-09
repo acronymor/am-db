@@ -1,5 +1,6 @@
 #include "sql/analyzer/analyzer.h"
 #include "sql/parser/ddl.h"
+#include "sql/storage/id_allocator.h"
 
 namespace amdb {
 namespace analyzer {
@@ -12,12 +13,14 @@ class CreateAnalyzer : public AstAnalyzer {
 
   CreateAnalyzer(StatementContext* stmt_ctx) : AstAnalyzer(stmt_ctx) {
     stmt_ = dynamic_cast<parser::DdlNode*>(stmt_ctx->stmt_ast);
+    id_allocator = storage::IdAllocatorSingleton::GetInstance();
   }
 
   virtual Status Analyze() override = 0;
 
  protected:
-  parser::DdlNode* stmt_ = nullptr;
+  storage::IdAllocator* id_allocator{nullptr};
+  parser::DdlNode* stmt_{nullptr};
 };
 
 class CreateDatabaseAnalyzer : public CreateAnalyzer {

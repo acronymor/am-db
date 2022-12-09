@@ -22,6 +22,10 @@ enum struct DataType : uint8_t {
   kColumnId = 4,
 };
 
+size_t EncodeDatabaseAllocID(uint64_t id, std::string* out);
+size_t EncodeTableAllocID(uint64_t id, std::string* out);
+size_t EncodeColumnAllocID(uint64_t id, std::string* out);
+
 size_t EncodeDatabaseID(uint64_t db_id, std::string* out);
 size_t DecodeDatabaseID(const std::string& in, uint64_t* db_id);
 
@@ -36,6 +40,7 @@ size_t DecodeTableName(const uint64_t in, uint64_t* db_id, std::string* table_na
 
 size_t EncodeDataKey(const uint64_t db_id, const uint64_t table_id, const std::string& key, std::string* out);
 
-size_t EncodeIndexTreeNodeID(const uint64_t db_id, const uint64_t table_id, const uint64_t index_id, const uint64_t node_id, std::string* out);
+size_t EncodeIndexTreeNodeID(const uint64_t db_id, const uint64_t table_id, const uint64_t index_id,
+                             const uint64_t node_id, std::string* out);
 }  // namespace codec
 }  // namespace amdb

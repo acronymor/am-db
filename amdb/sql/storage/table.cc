@@ -129,7 +129,7 @@ Status Table::loadMeta() {
   for (auto &index : table_info_->index_list) {
     Index* idx = get_index(&index);
     col_index.emplace(index.id, idx);
-    if (index.type == schema::CONSTRAINT_PRIMARY) {
+    if (index.type == parser::CONSTRAINT_PRIMARY) {
       row_index = idx;
     }
   }

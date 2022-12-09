@@ -16,6 +16,12 @@ class Metadata {
 
   [[nodiscard]] Status DumpDatabaseMeta(uint64_t db_id, schema::DatabaseInfo* database_info);
 
+  [[nodiscard]] Status ModifyDatabaseMeta(uint64_t db_id, std::function<Status(schema::DatabaseInfo*)> callback);
+
+  [[nodiscard]] Status LoadDatabaseIdByName(const std::string& db_name, uint64_t* db_id);
+
+  [[nodiscard]] Status DumpDatabaseIdByName(const std::string& db_name, uint64_t* db_id);
+
   [[nodiscard]] Status LoadTableMeta(uint64_t db_id, uint64_t table_id, schema::TableInfo* table_info);
 
   [[nodiscard]] Status DumpTableMeta(uint64_t db_id, uint64_t table_id, schema::TableInfo* table_info);
