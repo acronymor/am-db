@@ -68,11 +68,24 @@ size_t EncodeTableID(const uint64_t db_id, const uint64_t table_id, std::string 
   offset += EncodeUInt64(kGlobalTableID, out);
   offset += EncodeUInt8(static_cast<uint8_t>(MetaType::kTableId), out);
   offset += EncodeUInt64(db_id, out);
-  offset += EncodeUInt8(table_id, out);
+  offset += EncodeUInt64(table_id, out);
   return offset;
 }
 
-size_t DecodeTableID(const std::string in, uint64_t *db_id, uint64_t *table_id) { return 0; }
+size_t DecodeTableID(const std::string in, uint64_t *db_id, uint64_t *table_id) {
+  std::string tmp;
+
+  size_t offset = sizeof(kGlobalTableID) + sizeof(kGlobalTableID) + sizeof(MetaType::kTableId);
+  tmp.assign(in.data() + offset, sizeof(uint64_t));
+  DecodeUInt64(tmp, db_id);
+
+  offset += sizeof(uint64_t);
+  tmp.assign(in.data() + offset, sizeof(uint64_t));
+  DecodeUInt64(tmp, table_id);
+
+  offset += sizeof(uint64_t);
+  return offset;
+}
 
 size_t EncodeTableName(const uint64_t db_id, const std::string &table_name, std::string *out) {
   size_t offset = 0;

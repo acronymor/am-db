@@ -29,7 +29,7 @@ LIST(APPEND libraries absl::base absl::strings absl::str_format_internal absl::t
 ADD_LIBRARY(libamdb_sql OBJECT ${amdb_sql_src})
 TARGET_LINK_LIBRARIES(libamdb_sql libamdb_proto libamdb_common libamdb_parser ${libraries})
 
-ADD_EXECUTABLE(amdb main.h main.cc)
+ADD_EXECUTABLE(amdb main.cc)
 TARGET_LINK_LIBRARIES(amdb libamdb_sql)
 
 IF (AMDB_BUILD_TEST)

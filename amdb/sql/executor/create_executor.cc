@@ -29,17 +29,27 @@ Status CreateDatabaseExecutor::DoWork() {
 }
 
 Status CreateTableExecutor::DoWork() {
-  int64_t now = absl::ToUnixMicros(absl::Now());
+  storage::Metadata meta;
 
   schema::TableInfo* table_info = create_table_plan_->table_info;
-  table_info->db_id = 0;
-  table_info->id = 0;
-  table_info->create_ts = now;
-  table_info->update_ts = now;
+  Status status = meta.LoadDatabaseIdByName(table_info->db_name, &table_info->db_id);
+  RETURN_ERR_NOT_OK(status);
 
-  storage::Metadata meta;
-  Status status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
-  return status;
+  auto add_table = [&table_info](schema::DatabaseInfo* db_info) -> Status {
+    db_info->table_ids.insert(table_info->id);
+    return Status::C_OK;
+  };
+  status = meta.ModifyDatabaseMeta(table_info->db_id, add_table);
+  RETURN_ERR_NOT_OK(status);
+
+  status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+  RETURN_ERR_NOT_OK(status);
+
+  // save relation of table_name and table_id, <table_name, table_id>
+  status = meta.DumpTableIdByName(table_info->db_id, table_info->name, &table_info->id);
+  RETURN_ERR_NOT_OK(status);
+
+  return Status::C_OK;
 }
 }  // namespace executor
 }  // namespace amdb

@@ -26,6 +26,10 @@ class Metadata {
 
   [[nodiscard]] Status DumpTableMeta(uint64_t db_id, uint64_t table_id, schema::TableInfo* table_info);
 
+  [[nodiscard]] Status LoadTableIdByName(uint64_t db_id, const std::string& table_name, uint64_t* table_id);
+
+  [[nodiscard]] Status DumpTableIdByName(uint64_t db_id, const std::string& table_name, uint64_t* table_id);
+
   [[nodiscard]] Status LoadIndexMeta(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id,
                                      schema::IndexInfo* index_info);
 
