@@ -687,8 +687,8 @@ struct InsertStmt : public DmlNode {
             on_duplicate[i]->set_print_sample(print_sample_);
         }
     }
-    static InsertStmt* New(Arena& arena) {
-        InsertStmt* insert = new(arena.AllocateBytes(sizeof(InsertStmt)))InsertStmt();
+    static InsertStmt* New(Arena* arena) {
+        InsertStmt* insert = new(arena->AllocateBytes(sizeof(InsertStmt)))InsertStmt();
         insert->columns.reserve(10, arena);
         insert->lists.reserve(10, arena);
         insert->on_duplicate.reserve(10, arena);

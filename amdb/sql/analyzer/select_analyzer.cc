@@ -19,12 +19,24 @@ Status SelectAnalyzer::Analyze() {
   ir->upper.type = planner::IndexRange::RangePointType::RIGHT_OPEN;
   ir->upper_str = "c";
 
+  parser::TableSource* table_sources = dynamic_cast<parser::TableSource*>(stmt_->table_refs);
+  storage::Metadata meta;
+
+  std::string db_name = table_sources->table_name->db.to_string();
+  uint64_t db_id;
+  Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
+  RETURN_ERR_NOT_OK(status);
+
+  std::string table_name = table_sources->table_name->table.to_string();
+  uint64_t table_id;
+  status = meta.LoadTableIdByName(db_id, table_name, &table_id);
+  RETURN_ERR_NOT_OK(status);
+
   table_scan->table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
-
-  Status status = storage::Metadata().LoadTableMeta(0, 0, table_scan->table_info);
-  AMDB_ASSERT_EQ(Status::C_OK, status);
-
   table_scan->primary_ranges.push_back(ir);
+
+  status = storage::Metadata().LoadTableMeta(db_id, table_id, table_scan->table_info);
+  RETURN_ERR_NOT_OK(status);
 
   result_set->AddChild(filter);
   filter->AddChild(table_scan);

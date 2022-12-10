@@ -121,15 +121,15 @@ bool FuncExpr::has_subquery() const {
     return false;
 }
 
-FuncExpr* FuncExpr::new_unary_op_node(FuncType t, Node* arg1, Arena& arena) {
-    FuncExpr* fun = new(arena.AllocateBytes(sizeof(FuncExpr)))FuncExpr();
+FuncExpr* FuncExpr::new_unary_op_node(FuncType t, Node* arg1, Arena* arena) {
+    FuncExpr* fun = new(arena->AllocateBytes(sizeof(FuncExpr)))FuncExpr();
     fun->func_type = t;
     fun->fn_name = type_to_name(t);
     fun->children.push_back(arg1, arena);
     return fun;
 }
-FuncExpr* FuncExpr::new_binary_op_node(FuncType t, Node* arg1, Node* arg2, Arena& arena) {
-    FuncExpr* fun = new(arena.AllocateBytes(sizeof(FuncExpr)))FuncExpr();
+FuncExpr* FuncExpr::new_binary_op_node(FuncType t, Node* arg1, Node* arg2, Arena* arena) {
+    FuncExpr* fun = new(arena->AllocateBytes(sizeof(FuncExpr)))FuncExpr();
     fun->func_type = t;
     fun->fn_name = type_to_name(t);
     fun->children.push_back(arg1, arena);
@@ -137,8 +137,8 @@ FuncExpr* FuncExpr::new_binary_op_node(FuncType t, Node* arg1, Node* arg2, Arena
     return fun;
 }
 FuncExpr* FuncExpr::new_ternary_op_node(
-        FuncType t, Node* arg1, Node* arg2, Node* arg3, Arena& arena) {
-    FuncExpr* fun = new(arena.AllocateBytes(sizeof(FuncExpr)))FuncExpr();
+        FuncType t, Node* arg1, Node* arg2, Node* arg3, Arena* arena) {
+    FuncExpr* fun = new(arena->AllocateBytes(sizeof(FuncExpr)))FuncExpr();
     fun->func_type = t;
     fun->fn_name = type_to_name(t);
     fun->children.reserve(3, arena);

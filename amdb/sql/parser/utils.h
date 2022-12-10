@@ -33,20 +33,20 @@ namespace parser {
 struct String {
     char* value;
     size_t length;
-    void strdup(const char* str, int len, Arena& arena) {
-        value = (char*)arena.AllocateBytes(len + 1);
+    void strdup(const char* str, int len, Arena* arena) {
+        value = (char*)arena->AllocateBytes(len + 1);
         length = len;
         memcpy(value, str, len);
         value[len] = '\0';
     }
-    void strdup(const char* str, Arena& arena) {
+    void strdup(const char* str, Arena* arena) {
         strdup(str, strlen(str), arena);
     }
-    void append(const char* str, Arena& arena) {
+    void append(const char* str, Arena* arena) {
         int len = strlen(str);
         int old_len = length;
         length += len;
-        char* value_new = (char*)arena.AllocateBytes(length + 1);
+        char* value_new = (char*)arena->AllocateBytes(length + 1);
         memcpy(value_new, value, old_len);
         memcpy(value_new + old_len, str, len);
         value_new[length] = '\0';
@@ -208,12 +208,12 @@ public:
     int32_t remain() const {
         return _mem_end - _end;
     }
-    void reserve(int32_t size, Arena& arena) {
+    void reserve(int32_t size, Arena* arena) {
         if (size <= capacity()) {
             return;
         }
         int32_t old_size = Vector<T>::size();
-        T* new_mem = (T*)arena.AllocateBytes(size * sizeof(T));
+        T* new_mem = (T*)arena->AllocateBytes(size * sizeof(T));
         if (old_size > 0) {
             memcpy(new_mem, _begin, sizeof(T) * (_end - _begin));
         }
@@ -222,7 +222,7 @@ public:
         _end = _begin + old_size;
         _mem_end = _begin + size;
     }
-    void push_back(const T& value, Arena& arena) {
+    void push_back(const T& value, Arena* arena) {
         if (remain() > 0) {
             *_end = value;
             ++_end;

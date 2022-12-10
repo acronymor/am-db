@@ -20,7 +20,7 @@ extern int sql_parse(yyscan_t scanner, amdb::parser::SqlParser* parser);
 namespace amdb {
 namespace parser {
 Status GenAst(StatementContext* stmt_ctx) {
-  SqlParser sql_parser;
+  SqlParser sql_parser(stmt_ctx->arena);
   sql_parser.parse(stmt_ctx->raw_sql);
   RETURN_ERR_NOT_OK(sql_parser.error);
   stmt_ctx->stmt_ast = sql_parser.result[0];

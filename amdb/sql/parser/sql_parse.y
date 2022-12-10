@@ -49,7 +49,7 @@ using parser::CreateTableStmt;
 #define YYLTYPE SQL_LTYPE
 extern int sql_lex(YYSTYPE* yylval, YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser);
 extern int sql_error(YYLTYPE* yylloc, yyscan_t yyscanner, SqlParser* parser, const char* s);
-#define new_node(T) new(parser->arena.AllocateBytes(sizeof(T)))T()
+#define new_node(T) new(parser->arena->AllocateBytes(sizeof(T)))T()
 }
 
 %defines

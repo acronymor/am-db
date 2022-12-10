@@ -34,7 +34,7 @@ class IndexTest : public testsuite::KvDataTest {
     index_info.table_name = "test";
     index_info.root_node_id = 100;
     index_info.columns.push_back(col_info_1);
-    index_info.type = schema::ConstraintType::CONSTRAINT_PRIMARY;
+    index_info.type = parser::ConstraintType::CONSTRAINT_PRIMARY;
 
     table_info.id = 0;
     table_info.db_id = 0;

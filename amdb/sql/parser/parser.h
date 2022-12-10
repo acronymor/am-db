@@ -27,12 +27,14 @@ namespace parser {
 Status GenAst(StatementContext* stmt_ctx);
 
 struct SqlParser {
+    explicit SqlParser(Arena* arena) : arena(arena) {}
+
     std::string charset;
     std::string collation;
     std::vector<StmtNode*> result;
     Status error = Status::C_OK;
     std::string syntax_err_str;
-    Arena arena;
+    Arena* arena;
     bool is_gbk = false;
     bool has_5c = false;
     int place_holder_id = 0;

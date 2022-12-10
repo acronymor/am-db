@@ -44,7 +44,7 @@ TEST_F(SchemaTest, Schema) {
   index_info0.table_name = "test_table";
   index_info0.columns.emplace_back(col_info0);
   index_info0.root_node_id = 0;
-  index_info0.type = ConstraintType::CONSTRAINT_PRIMARY;
+  index_info0.type = parser::ConstraintType::CONSTRAINT_PRIMARY;
   index_info0.comment = "";
 
   IndexInfo index_info1;
@@ -54,7 +54,7 @@ TEST_F(SchemaTest, Schema) {
   index_info1.table_name = "test_table";
   index_info1.columns.emplace_back(col_info1);
   index_info1.root_node_id = 1;
-  index_info1.type = ConstraintType::CONSTRAINT_INDEX;
+  index_info1.type = parser::ConstraintType::CONSTRAINT_INDEX;
   index_info1.comment = "";
 
   IndexProto index_proto;
