@@ -39,7 +39,7 @@ TEST_F(PlannerTest, BuildPlanTest) {
   status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
-  ctx->raw_sql = "SELECT * FROM t";
+  ctx->raw_sql = "SELECT * FROM test_db.test_table";
 
   status = parser::GenAst(ctx);
   AMDB_ASSERT_EQ(Status::C_OK, status);

@@ -78,7 +78,7 @@ Status Metadata::LoadTableMeta(uint64_t db_id, uint64_t table_id, schema::TableI
 
   std::string value;
   Status status = kv_api_->GetKV(key, &value);
-  if(Status::C_STORAGE_KV_NOT_FOUND == status) {
+  if (Status::C_STORAGE_KV_NOT_FOUND == status) {
     return Status::C_TABLE_NOT_FOUND;
   }
 
@@ -142,7 +142,7 @@ Status Metadata::LoadDatabaseIdByName(const std::string &db_name, uint64_t *db_i
 
   std::string value;
   Status status = kv_api_->GetKV(key, &value);
-  if(Status::C_STORAGE_KV_NOT_FOUND == status) {
+  if (Status::C_STORAGE_KV_NOT_FOUND == status) {
     return Status::C_DATABASE_NOT_FOUND;
   }
 
@@ -166,11 +166,14 @@ Status Metadata::LoadTableIdByName(uint64_t db_id, const std::string &table_name
 
   std::string value;
   Status status = kv_api_->GetKV(key, &value);
+  if (Status::C_STORAGE_KV_NOT_FOUND == status) {
+    return Status::C_TABLE_NOT_FOUND;
+  }
 
   uint64_t db_id_store;
   codec::DecodeTableID(value, &db_id_store, table_id);
   AMDB_ASSERT_EQ(db_id, db_id_store);
-  return status;
+  return Status::C_OK;
 }
 
 Status Metadata::DumpTableIdByName(uint64_t db_id, const std::string &table_name, uint64_t *table_id) {
@@ -180,9 +183,7 @@ Status Metadata::DumpTableIdByName(uint64_t db_id, const std::string &table_name
   std::string value;
   codec::EncodeTableID(db_id, *table_id, &value);
 
-  Status status = kv_api_->PutKV(key, value);
-  RETURN_ERR_NOT_OK(status);
-  return Status::C_OK;
+  return kv_api_->PutKV(key, value);
 }
 
 }  // namespace storage

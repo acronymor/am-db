@@ -12,20 +12,35 @@ namespace analyzer {
 Status CreateDatabaseAnalyzer::Analyze() {
   parser::CreateDatabaseStmt* stmt = dynamic_cast<parser::CreateDatabaseStmt*>(stmt_ctx_->stmt_ast);
 
+  planner::LogicalCreateDatabase* database = stmt_ctx_->arena->CreateObject<planner::LogicalCreateDatabase>();
+  schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
+  database->database_info = database_info;
+
   std::string db_name = std::string(stmt->db_name.to_string());
   uint64_t db_id = amdb::kInvalidIDatabaseID;
+
+  storage::Metadata meta;
+  Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
+  if (Status::C_OK == status) {
+    if (!stmt->if_not_exist) {
+      ERROR("Database {} have existed", db_name);
+      return Status::C_DATABASE_EXISTED;
+    } else {
+      DEBUG("Database {} have existed", db_name);
+      status = meta.LoadDatabaseMeta(db_id, database_info);
+      RETURN_ERR_NOT_OK(status);
+      stmt_ctx_->logical_plan = database;
+      return Status::C_OK;
+    }
+  }
   id_allocator->AllocateID(storage::IDType::Database, db_name, &db_id);
 
-  schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
   database_info->name = db_name;
   database_info->id = db_id;
-
-  planner::LogicalCreateDatabase* database = stmt_ctx_->arena->CreateObject<planner::LogicalCreateDatabase>();
 
   int64_t now = absl::ToUnixMicros(absl::Now());
   database_info->create_ts = now;
   database_info->update_ts = now;
-  database->database_info = database_info;
 
   stmt_ctx_->logical_plan = database;
   return Status::C_OK;
@@ -34,22 +49,40 @@ Status CreateDatabaseAnalyzer::Analyze() {
 Status CreateTableAnalyzer::Analyze() {
   parser::CreateTableStmt* stmt = dynamic_cast<parser::CreateTableStmt*>(stmt_ctx_->stmt_ast);
 
+  planner::LogicalCreateTable* table = stmt_ctx_->arena->CreateObject<planner::LogicalCreateTable>();
+  schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
+  table->table_info = table_info;
+
   uint64_t db_id = amdb::kInvalidIDatabaseID;
   std::string db_name = std::string(stmt->table_name->db.to_string());
 
   storage::Metadata meta;
   Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
   if (status != Status::C_OK) {
-    ERROR("Load database id by name failed");
+    ERROR("Database {} not found", db_name);
+    return Status::C_DATABASE_NOT_FOUND;
   }
 
   std::string table_name = std::string(stmt->table_name->table.to_string());
   uint64_t table_id = amdb::kInvalidTableID;
-  id_allocator->AllocateID(storage::IDType::Table, table_name, &table_id);
 
+  status = meta.LoadTableIdByName(db_id, table_name, &table_id);
+  if (Status::C_OK == status) {
+    if (!stmt->if_not_exist) {
+      ERROR("Table {} have existed", table_name);
+      return Status::C_TABLE_EXISTE;
+    } else {
+      DEBUG("Table {} have existed", table_name);
+      status = meta.LoadTableMeta(db_id, table_id, table->table_info);
+      RETURN_ERR_NOT_OK(status);
+      stmt_ctx_->logical_plan = table;
+      return Status::C_OK;
+    }
+  }
+
+  id_allocator->AllocateID(storage::IDType::Table, table_name, &table_id);
   int64_t now = absl::ToUnixMicros(absl::Now());
 
-  schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
   table_info->db_id = db_id;
   table_info->db_name = db_name;
   table_info->id = table_id;
@@ -101,10 +134,8 @@ Status CreateTableAnalyzer::Analyze() {
     table_info->name_to_index.emplace(index_info->name, index_info);
   }
 
-  planner::LogicalCreateTable* table = stmt_ctx_->arena->CreateObject<planner::LogicalCreateTable>();
-  table->table_info = table_info;
-
   stmt_ctx_->logical_plan = table;
+
   return Status::C_OK;
 }
 }  // namespace analyzer

@@ -7,11 +7,18 @@ namespace amdb {
 namespace parser {
 class ParserTest : public testing::Test {
  protected:
-  void SetUp() override { parser = new SqlParser(); }
+  void SetUp() override {
+    arena = new Arena(nullptr);
+    parser = new SqlParser(arena);
+  }
 
-  void TearDown() override { delete parser; }
+  void TearDown() override {
+    delete arena;
+    delete parser;
+  }
 
  protected:
+  Arena* arena;
   SqlParser* parser;
 };
 
@@ -34,6 +41,7 @@ TEST_F(ParserTest, SQLTest) {
 
 TEST_F(ParserTest, GenAstTest) {
   StatementContext stmt_ctx;
+  stmt_ctx.arena = arena;
   stmt_ctx.raw_sql = "SELECT * FROM t WHERE id = 1";
   parser::GenAst(&stmt_ctx);
   AMDB_ASSERT_EQ(NodeType::NT_SELECT, stmt_ctx.stmt_ast->node_type);
