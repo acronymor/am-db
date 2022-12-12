@@ -10,19 +10,17 @@
 namespace amdb {
 namespace analyzer {
 Status CreateDatabaseAnalyzer::Analyze() {
-  parser::CreateDatabaseStmt* stmt = dynamic_cast<parser::CreateDatabaseStmt*>(stmt_ctx_->stmt_ast);
-
   planner::LogicalCreateDatabase* database = stmt_ctx_->arena->CreateObject<planner::LogicalCreateDatabase>();
   schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
   database->database_info = database_info;
 
-  std::string db_name = std::string(stmt->db_name.to_string());
+  std::string db_name = std::string(stmt_->db_name.to_string());
   uint64_t db_id = amdb::kInvalidIDatabaseID;
 
   storage::Metadata meta;
   Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
   if (Status::C_OK == status) {
-    if (!stmt->if_not_exist) {
+    if (!stmt_->if_not_exist) {
       ERROR("Database {} have existed", db_name);
       return Status::C_DATABASE_EXISTED;
     } else {
@@ -47,14 +45,12 @@ Status CreateDatabaseAnalyzer::Analyze() {
 }
 
 Status CreateTableAnalyzer::Analyze() {
-  parser::CreateTableStmt* stmt = dynamic_cast<parser::CreateTableStmt*>(stmt_ctx_->stmt_ast);
-
   planner::LogicalCreateTable* table = stmt_ctx_->arena->CreateObject<planner::LogicalCreateTable>();
   schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
   table->table_info = table_info;
 
   uint64_t db_id = amdb::kInvalidIDatabaseID;
-  std::string db_name = std::string(stmt->table_name->db.to_string());
+  std::string db_name = std::string(stmt_->table_name->db.to_string());
 
   storage::Metadata meta;
   Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
@@ -63,12 +59,12 @@ Status CreateTableAnalyzer::Analyze() {
     return Status::C_DATABASE_NOT_FOUND;
   }
 
-  std::string table_name = std::string(stmt->table_name->table.to_string());
+  std::string table_name = std::string(stmt_->table_name->table.to_string());
   uint64_t table_id = amdb::kInvalidTableID;
 
   status = meta.LoadTableIdByName(db_id, table_name, &table_id);
   if (Status::C_OK == status) {
-    if (!stmt->if_not_exist) {
+    if (!stmt_->if_not_exist) {
       ERROR("Table {} have existed", table_name);
       return Status::C_TABLE_EXISTE;
     } else {
@@ -91,8 +87,8 @@ Status CreateTableAnalyzer::Analyze() {
   table_info->update_ts = now;
 
   // init table_info->column_list
-  for (size_t i = 0; i < stmt->columns.size(); i++) {
-    parser::ColumnDef* col_def = stmt->columns[i];
+  for (size_t i = 0; i < stmt_->columns.size(); i++) {
+    parser::ColumnDef* col_def = stmt_->columns[i];
 
     schema::ColumnInfo* col_info = stmt_ctx_->arena->CreateObject<schema::ColumnInfo>();
     col_info->id = i;
@@ -108,8 +104,8 @@ Status CreateTableAnalyzer::Analyze() {
     table_info->name_to_column.emplace(col_info->name, col_info);
   }
 
-  for (size_t i = 0; i < stmt->constraints.size(); i++) {
-    parser::Constraint* cons_def = stmt->constraints[i];
+  for (size_t i = 0; i < stmt_->constraints.size(); i++) {
+    parser::Constraint* cons_def = stmt_->constraints[i];
 
     schema::IndexInfo* index_info = stmt_ctx_->arena->CreateObject<schema::IndexInfo>();
     index_info->id = i;
