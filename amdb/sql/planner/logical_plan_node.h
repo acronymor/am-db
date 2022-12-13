@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sql/chunk/row_description.h"
 #include "sql/planner/plan_node.h"
 #include "sql/planner/range.h"
 #include "sql/schema/schema.h"
@@ -14,7 +15,8 @@ struct LogicalNode : public PlanNode {
     kLogicalFilter = 2,
     kLogicalResultSet = 3,
     kLogicalCreateDatabase = 4,
-    kLogicalCreateTable = 5
+    kLogicalCreateTable = 5,
+    kLogicalInsert = 6
   };
 
  public:
@@ -88,6 +90,20 @@ class LogicalCreateTable : public LogicalNode {
   std::string ToString() override;
 
   schema::TableInfo* table_info;
+};
+
+class LogicalInsert : public LogicalNode {
+ public:
+  LogicalInsert() : LogicalNode(kLogicalInsert) {}
+  ~LogicalInsert() override = default;
+
+  std::string Name() override { return "LogicalInsert"; }
+  std::string ToString() override;
+
+  schema::TableInfo* table_info;
+  std::vector<schema::ColumnInfo*> columns;
+  std::vector<std::vector<expr::ExprNode*>> expr_nodes;
+  chunk::RowDescriptor* row_desc{nullptr};
 };
 }  // namespace planner
 }  // namespace amdb

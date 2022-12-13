@@ -1,6 +1,7 @@
 #include "sql/expression/expr_value_type.h"
 
 #include "common/log.h"
+#include "sql/schema/schema.h"
 
 namespace amdb {
 namespace expr {
@@ -31,8 +32,21 @@ uint8_t TypeSize(const ExprValueType& type) {
   return size;
 }
 
-bool IsVariableSize(ExprValueType type) {
-  return type == ExprValueType::String;
+bool IsVariableSize(ExprValueType type) { return type == ExprValueType::String; }
+
+ExprValueType ToExprType(const schema::ColumnType& col_type) {
+  expr::ExprValueType type = expr::ExprValueType::Null;
+  switch (col_type.type) {
+    case parser::MysqlType::MYSQL_TYPE_LONG: {
+      type = expr::ExprValueType::Int64;
+    } break;
+
+    case parser::MysqlType::MYSQL_TYPE_DECIMAL: {
+      // TODO may error
+      type = expr::ExprValueType::UInt64;
+    }; break;
+  }
+  return type;
 }
 }  // namespace expr
 }  // namespace amdb

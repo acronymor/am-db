@@ -20,5 +20,8 @@ static LogicalCreateDatabase* CreateDatabase(StatementContext* stmt_ctx, Physica
 
 static PhysicalCreateTable* CreateTable(StatementContext* stmt_ctx, LogicalCreateTable* logical);
 static LogicalCreateTable* CreateTable(StatementContext* stmt_ctx, PhysicalCreateTable* physical);
+
+static PhysicalInsert* Insert(StatementContext* stmt_ctx, LogicalInsert* logical);
+static LogicalInsert* Insert(StatementContext* stmt_ctx, PhysicalInsert* physical);
 }  // namespace planner
 }  // namespace amdb

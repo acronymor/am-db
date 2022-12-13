@@ -16,8 +16,8 @@ class ITransform : public IExecutor {
   State Prepare() override;
   Status Work() override;
 
-  InputPort& GetInputPort() { return inputs_[0]; }
-  OutputPort& GetOutputPort() { return outputs_[0]; }
+  InputPort& GetInputPort() { return inputs_.at(0); }
+  OutputPort& GetOutputPort() { return outputs_.at(0); }
 
  protected:
   virtual Status Transform(chunk::Chunk* input_chunk,

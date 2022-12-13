@@ -41,5 +41,11 @@ std::string LogicalCreateTable::ToString() {
   res.append("LogicalCreateTable::ToString()");
   return res;
 }
+
+std::string LogicalInsert::ToString() {
+  std::string res;
+  res.append("LogicalInsert::ToString()");
+  return res;
+}
 }  // namespace planner
 }  // namespace amdb

@@ -95,12 +95,23 @@ Status run(std::string sql) {
 int main(int argc, char* argv[]) {
   amdb::init(argc, argv);
 
-  std::string sql1 = "CREATE DATABASE db_test";
-  amdb::run(sql1);
-  std::string sql2 = "CREATE TABLE db_test.db_table(id int not null, age int, PRIMARY KEY (`id`))";
-  amdb::run(sql2);
-  std::string sql3 = "SELECT * FROM db_test.db_table";
-  amdb::run(sql3);
+  amdb::Status status = amdb::Status::C_OK;
+
+  std::string sql1 = "CREATE DATABASE IF NOT EXISTS db_test";
+  status = amdb::run(sql1);
+  AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
+
+  std::string sql2 = "CREATE TABLE IF NOT EXISTS db_test.db_table(id BIGINT not null, age BIGINT, PRIMARY KEY (`id`))";
+  status = amdb::run(sql2);
+  AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
+
+  std::string sql3 = "INSERT INTO db_test.db_table(`id`, `age`) VALUES(1, 18)";
+  status = amdb::run(sql3);
+  AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
+
+  std::string sql4 = "SELECT * FROM db_test.db_table";
+  status = amdb::run(sql4);
+  AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
 
   return 0;
 }

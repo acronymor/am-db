@@ -33,6 +33,11 @@ LogicalNode* ToLogicalNode(StatementContext* stmt_ctx, PhysicalNode* physical) {
       node = dynamic_cast<LogicalNode*>(CreateTable(stmt_ctx, physical_create_table));
     }; break;
 
+    case PhysicalNode::kPhysicalInsert: {
+      PhysicalInsert* physical_insert = dynamic_cast<PhysicalInsert*>(physical);
+      node = dynamic_cast<LogicalNode*>(Insert(stmt_ctx, physical_insert));
+    }; break;
+
     default:
       ERROR("Not Support LogicalNode type {}", physical->type);
       break;
@@ -66,6 +71,11 @@ PhysicalNode* ToPhysicalNode(StatementContext* stmt_ctx, LogicalNode* logical) {
     case LogicalNode::kLogicalCreateTable: {
       LogicalCreateTable* logical_create_table = dynamic_cast<LogicalCreateTable*>(logical);
       node = dynamic_cast<PhysicalNode*>(CreateTable(stmt_ctx, logical_create_table));
+    }; break;
+
+    case LogicalNode::kLogicalInsert: {
+      LogicalInsert* logical_insert = dynamic_cast<LogicalInsert*>(logical);
+      node = dynamic_cast<PhysicalNode*>(Insert(stmt_ctx, logical_insert));
     }; break;
 
     default:
@@ -129,6 +139,24 @@ static PhysicalCreateTable* CreateTable(StatementContext* stmt_ctx, LogicalCreat
 static LogicalCreateTable* CreateTable(StatementContext* stmt_ctx, PhysicalCreateTable* physical) {
   LogicalCreateTable* node = stmt_ctx->arena->CreateObject<LogicalCreateTable>();
   node->table_info = physical->table_info;
+  return node;
+}
+
+static PhysicalInsert* Insert(StatementContext* stmt_ctx, LogicalInsert* logical) {
+  PhysicalInsert* node = stmt_ctx->arena->CreateObject<PhysicalInsert>();
+  node->columns = logical->columns;
+  node->expr_nodes = logical->expr_nodes;
+  node->table_info = logical->table_info;
+  node->row_desc = logical->row_desc;
+  return node;
+}
+
+static LogicalInsert* Insert(StatementContext* stmt_ctx, PhysicalInsert* physical) {
+  LogicalInsert* node = stmt_ctx->arena->CreateObject<LogicalInsert>();
+  node->columns = physical->columns;
+  node->expr_nodes = physical->expr_nodes;
+  node->table_info = physical->table_info;
+  node->row_desc = physical->row_desc;
   return node;
 }
 }  // namespace planner

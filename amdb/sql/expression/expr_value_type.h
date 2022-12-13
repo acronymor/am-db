@@ -3,6 +3,10 @@
 #include <iostream>
 
 namespace amdb {
+namespace schema {
+struct ColumnType;
+}
+
 namespace expr {
 enum ExprValueType : uint8_t {
   Null = 0,
@@ -30,5 +34,7 @@ enum ExprValueType : uint8_t {
 uint8_t TypeSize(const ExprValueType& type);
 
 bool IsVariableSize(ExprValueType type);
+
+ExprValueType ToExprType(const schema::ColumnType& col_type);
 }  // namespace expr
 }  // namespace amdb

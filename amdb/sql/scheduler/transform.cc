@@ -3,8 +3,8 @@
 namespace amdb {
 namespace scheduler {
 IExecutor::State ITransform::Prepare() {
-  input_chunk_ = inputs_[0].PullData();
-  outputs_[0].PushData(output_chunk_);
+  input_chunk_ = inputs_.at(0).PullData();
+  outputs_.at(0).PushData(output_chunk_);
   return IExecutor::kNeedData;
 }
 

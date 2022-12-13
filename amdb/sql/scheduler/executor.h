@@ -11,7 +11,15 @@ namespace amdb {
 namespace scheduler {
 class IExecutor {
  public:
-  enum Type { kExecShow, kExecTableScan, kExecFilter, kExecResultSet, kExecCreateDatabase, kExecCreateTable };
+  enum Type {
+    kExecShow,
+    kExecTableScan,
+    kExecFilter,
+    kExecResultSet,
+    kExecCreateDatabase,
+    kExecCreateTable,
+    kExecInsert
+  };
 
   enum State {
     kNeedData,

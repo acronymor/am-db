@@ -10,21 +10,30 @@ scheduler::IExecutor* ToExecutor(StatementContext* ctx, planner::PhysicalNode* p
       planner::PhysicalResultSet* result_set = dynamic_cast<planner::PhysicalResultSet*>(physical);
       executor = ResultSet(ctx, result_set);
     }; break;
+
     case planner::PhysicalNode::kPhysicalTableScan: {
       planner::PhysicalTableScan* table_scan = dynamic_cast<planner::PhysicalTableScan*>(physical);
       executor = TableScan(ctx, table_scan);
     }; break;
+
     case planner::PhysicalNode::kPhysicalFilter: {
       planner::PhysicalFilter* filter = dynamic_cast<planner::PhysicalFilter*>(physical);
       executor = Filter(ctx, filter);
     }; break;
+
     case planner::PhysicalNode::kPhysicalCreateDatabase: {
       planner::PhysicalCreateDatabase* create_database = dynamic_cast<planner::PhysicalCreateDatabase*>(physical);
       executor = CreateDatabase(ctx, create_database);
     }; break;
+
     case planner::PhysicalNode::kPhysicalCreateTable: {
       planner::PhysicalCreateTable* create_table = dynamic_cast<planner::PhysicalCreateTable*>(physical);
       executor = CreateTable(ctx, create_table);
+    }; break;
+
+    case planner::PhysicalNode::kPhysicalInsert: {
+      planner::PhysicalInsert* insert = dynamic_cast<planner::PhysicalInsert*>(physical);
+      executor = Insert(ctx, insert);
     }; break;
 
     default:
@@ -64,5 +73,12 @@ CreateTableExecutor* CreateTable(StatementContext* ctx, planner::PhysicalCreateT
       ctx->arena->CreateObject<executor::CreateTableExecutor>(ctx, scheduler::IExecutor::kExecCreateTable, physical);
   return create_table_executor;
 }
+
+InsertExecutor* Insert(StatementContext* ctx, planner::PhysicalInsert* physical) {
+  executor::InsertExecutor* insert_executor =
+      ctx->arena->CreateObject<executor::InsertExecutor>(ctx, scheduler::IExecutor::kExecInsert, physical);
+  return insert_executor;
+}
+
 }  // namespace executor
 }  // namespace amdb

@@ -40,5 +40,11 @@ std::string PhysicalCreateTable::ToString() {
   res.append("PhysicalCreateTable::ToString()");
   return res;
 }
+
+std::string PhysicalInsert::ToString() {
+  std::string res;
+  res.append("PhysicalInsert::ToString()");
+  return res;
+}
 }  // namespace planner
 }  // namespace amdb

@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "sql/chunk/row_description.h"
 #include "sql/planner/plan_node.h"
 #include "sql/planner/range.h"
 #include "sql/schema/schema.h"
@@ -16,7 +17,8 @@ class PhysicalNode : public PlanNode {
     kPhysicalFilter = 2,
     kPhysicalResultSet = 3,
     kPhysicalCreateDatabase = 4,
-    kPhysicalCreateTable = 5
+    kPhysicalCreateTable = 5,
+    kPhysicalInsert = 6
   };
 
  public:
@@ -84,6 +86,20 @@ struct PhysicalCreateTable : public PhysicalNode {
   std::string ToString() override;
 
   schema::TableInfo* table_info{nullptr};
+};
+
+class PhysicalInsert : public PhysicalNode {
+ public:
+  PhysicalInsert() : PhysicalNode(kPhysicalInsert) {}
+  ~PhysicalInsert() override = default;
+
+  std::string Name() override { return "PhysicalInsert"; }
+  std::string ToString() override;
+
+  schema::TableInfo* table_info;
+  std::vector<schema::ColumnInfo*> columns;
+  std::vector<std::vector<expr::ExprNode*>> expr_nodes;
+  chunk::RowDescriptor* row_desc{nullptr};
 };
 }  // namespace planner
 }  // namespace amdb
