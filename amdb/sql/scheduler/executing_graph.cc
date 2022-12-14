@@ -137,7 +137,7 @@ Status ExecutingGraph::Work(Node* node) {
   IExecutor* executor = node->exec;
   Status status = executor->Work();
   if (status != Status::C_OK) {
-    ERROR("{}' executor close failed", executor->Name());
+    ERROR("executor of {} close failed, status={}", executor->Name(), status);
     return status;
   }
   return Status::C_OK;

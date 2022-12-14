@@ -2,19 +2,32 @@
 
 #include "sql/chunk/iterator.h"
 #include "sql/codec/rc_codec.h"
+#include "sql/storage/metadata.h"
 
 namespace amdb {
 namespace storage {
-Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info, schema::IndexInfo* index_info,
-             BptNodeProto* root) {
+Index::Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info, schema::IndexInfo* index_info) {
   TreeCtx::Schema schema = {.db_id = table_info->db_id,
                             .table_id = table_info->id,
                             .index_id = index_info->id,
+                            .root_id = index_info->root_node_id,
                             .tree_id = index_info->max_tree_node_id};
   tree_ctx_ = arena->CreateObject<TreeCtx>(api, arena, schema);
   table_info_ = table_info;
   index_info_ = index_info;
   kv_api_ = api;
+
+  BptNodeProto proto;
+  proto.set_id(schema.root_id);
+  BptNode* root = arena->CreateObject<BptNode>(tree_ctx_, &proto);
+
+  Metadata meta;
+  Status status = meta.LoadTreeNode(schema.db_id, schema.table_id, schema.index_id, schema.root_id, root);
+  // maybe insert index data firstly
+  if(status == Status::C_STORAGE_KV_NOT_FOUND) {
+    INFO("Create {} index tree node, index_id={}, node_id={}", index_info->name, schema.index_id, root->ID());
+  }
+
   bptree_ = tree_ctx_->AllocMem()->CreateObject<Bptree>(tree_ctx_, root);
 }
 
@@ -27,11 +40,8 @@ Bptree* Index::Tree() { return bptree_; }
 TreeCtx* Index::TreeCtxx() { return tree_ctx_; }
 
 Status Index::Save() {
-  std::vector<std::string> keys;
-  std::vector<std::string> values;
-  tree_ctx_->PullUnsavedTreeNode(&keys, &values);
-  Status status = kv_api_->MPutKV(keys, values);
-  return status;
+  tree_ctx_->PullUnsavedTreeNode();
+  return Status::C_OK;
 }
 
 Status Index::Insert(chunk::Chunk* chunk) {

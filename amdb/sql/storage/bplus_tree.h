@@ -10,7 +10,7 @@ namespace amdb {
 namespace storage {
 class Bptree {
  public:
-  explicit Bptree(TreeCtx* tree_ctx, BptNodeProto* node);
+  explicit Bptree(TreeCtx* tree_ctx, BptNode* root);
 
   ~Bptree() { root_ = nullptr; };
 

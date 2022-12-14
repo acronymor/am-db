@@ -29,14 +29,14 @@ class Table {
   Index* row_index{nullptr};
   std::unordered_map<uint64_t, Index*> col_index;
 
-  Status loadMeta();
-  Status saveMeta();
  private:
   Status insertCore(chunk::Chunk* chunk);
 
   Status deleteCore(chunk::Chunk* chunk);
 
   Status updateCore(chunk::Chunk* old_chunk, chunk::Chunk* new_chunk);
+
+  Status loadMeta();
 
 #ifdef AMDB_BUILD_TEST
  public:

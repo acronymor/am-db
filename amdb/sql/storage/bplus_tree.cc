@@ -7,9 +7,7 @@
 namespace amdb {
 namespace storage {
 
-Bptree::Bptree(TreeCtx* ctx, BptNodeProto* node) : tree_ctx_(ctx) {
-  root_ = tree_ctx_->AllocMem()->CreateObject<BptNode>(tree_ctx_, node);
-}
+Bptree::Bptree(TreeCtx* ctx, BptNode* node) : tree_ctx_(ctx), root_(node) {}
 
 Status Bptree::Insert(std::string&& key, std::string&& value) {
   auto cursor = root_;

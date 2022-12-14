@@ -24,9 +24,6 @@ Status Table::Submit() {
     RETURN_ERR_NOT_OK(status);
   }
 
-  /*
-  RETURN_ERR_NOT_OK(saveMeta());
-   */
   return Status::C_OK;
 }
 
@@ -108,26 +105,15 @@ Status Table::deleteCore(chunk::Chunk *chunk) {
   return Status::C_OK;
 }
 
-Status Table::updateCore(chunk::Chunk *old_chunk, chunk::Chunk *new_chunk) {
-  return Status::C_OK;
-}
+Status Table::updateCore(chunk::Chunk *old_chunk, chunk::Chunk *new_chunk) { return Status::C_OK; }
 
 Status Table::loadMeta() {
-  auto get_index = [this](schema::IndexInfo *index_info) -> Index * {
-    BptNodeProto index_tree_root;
-    Status status = metadata_api_->LoadTreeNode(
-        table_info_->db_id, table_info_->id, index_info->id,
-        index_info->root_node_id, &index_tree_root);
-
-    if (status == Status::C_STORAGE_KV_NOT_FOUND) {
-      index_tree_root.set_id(index_info->root_node_id);
-    }
-    return arena_->CreateObject<Index>(kv_api_, arena_, table_info_, index_info,
-                                       &index_tree_root);
-  };
+  if (row_index != nullptr) {
+    return Status::C_OK;
+  }
 
   for (auto &index : table_info_->index_list) {
-    Index* idx = get_index(&index);
+    Index *idx = arena_->CreateObject<Index>(kv_api_, arena_, table_info_, &index);
     col_index.emplace(index.id, idx);
     if (index.type == parser::CONSTRAINT_PRIMARY) {
       row_index = idx;
@@ -136,20 +122,5 @@ Status Table::loadMeta() {
 
   return Status::C_OK;
 }
-
-Status Table::saveMeta() {
-  Status status = metadata_api_->DumpTableMeta(table_info_->db_id,
-                                               table_info_->id, table_info_);
-  RETURN_ERR_NOT_OK(status);
-
-  for (const auto &index : table_info_->id_to_index) {
-    status = metadata_api_->DumpIndexMeta(table_info_->db_id, table_info_->id,
-                                          index.second);
-    RETURN_ERR_NOT_OK(status);
-  }
-
-  return Status::C_OK;
-}
-
 }  // namespace storage
 }  // namespace amdb

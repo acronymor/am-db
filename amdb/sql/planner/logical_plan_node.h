@@ -101,7 +101,6 @@ class LogicalInsert : public LogicalNode {
   std::string ToString() override;
 
   schema::TableInfo* table_info;
-  std::vector<schema::ColumnInfo*> columns;
   std::vector<std::vector<expr::ExprNode*>> expr_nodes;
   chunk::RowDescriptor* row_desc{nullptr};
 };

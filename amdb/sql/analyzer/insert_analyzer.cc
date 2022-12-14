@@ -41,13 +41,6 @@ Status InsertAnalyzer::Analyze() {
 
   ExprAnalyzer expr_analyzer(stmt_ctx_);
 
-  // column list
-  insert->columns.reserve(stmt_->columns.size());
-  for (int i = 0; i < stmt_->columns.size(); i++) {
-    auto& column = stmt_->columns[i];
-    insert->columns.push_back(table_info->name_to_column.at(column->name.to_string()));
-  }
-
   // value list
   insert->expr_nodes.reserve(stmt_->lists.size());
   for (int i = 0; i < stmt_->lists.size(); i++) {
@@ -66,8 +59,10 @@ Status InsertAnalyzer::Analyze() {
 
   // row_desc
   chunk::RowDescriptor* row_desc = stmt_ctx_->arena->CreateObject<chunk::RowDescriptor>(0);
-  for (schema::ColumnInfo* col_info : insert->columns) {
-    chunk::ColumnDescriptor* col_desc = stmt_ctx_->arena->CreateObject<chunk::ColumnDescriptor>(expr::ToExprType(col_info->type), col_info->id);
+  for (int i = 0; i < stmt_->columns.size(); i++) {
+    schema::ColumnInfo* col_info = table_info->name_to_column.at(stmt_->columns[i]->name.to_string());
+    chunk::ColumnDescriptor* col_desc =
+        stmt_ctx_->arena->CreateObject<chunk::ColumnDescriptor>(expr::ToExprType(col_info->type), col_info->id);
     row_desc->AddColumnDesc(col_desc);
   }
   row_desc->InitAllColDesc();

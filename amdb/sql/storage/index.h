@@ -10,8 +10,7 @@ class Index {
  public:
   ~Index() = default;
 
-  Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info,
-        schema::IndexInfo* index_info, BptNodeProto* root);
+  Index(KvStorageAPI* api, Arena* arena, schema::TableInfo* table_info, schema::IndexInfo* index_info);
 
   Status GetRecords(std::vector<std::string>& keys, std::vector<std::string>* values);
 
