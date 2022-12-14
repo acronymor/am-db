@@ -91,8 +91,23 @@ Status Metadata::LoadTableMeta(uint64_t db_id, uint64_t table_id, schema::TableI
   return table_info->Deserialize(proto);
 }
 
-Status Metadata::LoadIndexMeta(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id,
-                               schema::IndexInfo *index_info) {
+Status Metadata::DumpTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id, BptNode* node) {
+  std::string key;
+  codec::EncodeIndexTreeNodeID(db_id, table_id, index_id, node_id, &key);
+
+  std::string value;
+  Status status = node->Serialize(&value);
+  RETURN_ERR_NOT_OK(status);
+
+  status = kv_api_->PutKV(key, value);
+  if (status != Status::C_OK) {
+    return Status::C_BPTREE_NODE_DUMP_ERROR;
+  }
+
+  return Status::C_OK;
+}
+
+Status Metadata::LoadTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id, BptNode* node) {
   std::string key;
   codec::EncodeIndexTreeNodeID(db_id, table_id, index_id, node_id, &key);
 
@@ -100,39 +115,11 @@ Status Metadata::LoadIndexMeta(uint64_t db_id, uint64_t table_id, uint64_t index
   Status status = kv_api_->GetKV(key, &value);
   RETURN_ERR_NOT_OK(status);
 
-  schema::IndexProto proto;
-
-  if (!proto.ParseFromString(value)) {
-    return Status::C_BPTREE_ROOT_NODE_ERROR;
+  status = node->Deserialize(value);
+  if(status != Status::C_OK) {
+    return Status::C_BPTREE_NODE_LOAD_ERROR;
   }
 
-  return index_info->Deserialize(proto);
-}
-
-Status Metadata::DumpIndexMeta(uint64_t db_id, uint64_t table_id, schema::IndexInfo *index_info) {
-  std::string key;
-  codec::EncodeIndexTreeNodeID(db_id, table_id, index_info->id, index_info->root_node_id, &key);
-
-  schema::IndexProto proto;
-  Status status = index_info->Serialize(&proto);
-  RETURN_ERR_NOT_OK(status);
-
-  status = kv_api_->PutKV(key, proto.SerializeAsString());
-  return status;
-}
-
-Status Metadata::LoadTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id,
-                              BptNodeProto *root_proto) {
-  std::string key;
-  codec::EncodeIndexTreeNodeID(db_id, table_id, index_id, node_id, &key);
-
-  std::string value;
-  Status status = kv_api_->GetKV(key, &value);
-  RETURN_ERR_NOT_OK(status);
-
-  if (root_proto->ParseFromString(value)) {
-    return Status::C_BPTREE_ROOT_NODE_ERROR;
-  }
   return Status::C_OK;
 }
 

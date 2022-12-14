@@ -19,7 +19,7 @@ KvStorageAPI* TreeCtx::KvApi() const { return storage_api_; }
 
 uint64_t TreeCtx::MaxNodeID() { return id_; }
 
-uint64_t TreeCtx::AllocateNodeID() { return id_++; }
+uint64_t TreeCtx::AllocateNodeID() { return ++id_; }
 
 void TreeCtx::CollectUnsavedTreeNode(BptNode* node) {
   unsaved_nodes_[node->ID()] = node;
@@ -29,27 +29,17 @@ void TreeCtx::RemoveUnsavedTreeNode(BptNode* node) {
   unsaved_nodes_.erase(node->ID());
 }
 
-Status TreeCtx::GetNodeFromKVStorage(uint64_t node_id, std::string* value) {
-  std::string key;
-  codec::EncodeIndexTreeNodeID(schema_.db_id, schema_.table_id, schema_.index_id,
-                           node_id, &key);
-  return storage_api_->GetKV(key, value);
+Status TreeCtx::GetNodeFromKVStorage(uint64_t node_id, BptNode* node) {
+  return meta.LoadTreeNode(schema_.db_id, schema_.table_id, schema_.index_id, node_id, node);
 }
 
-void TreeCtx::PullUnsavedTreeNode(std::vector<std::string>* keys,
-                                  std::vector<std::string>* values) {
-  keys->reserve(unsaved_nodes_.size());
-  values->reserve(unsaved_nodes_.size());
-
+void TreeCtx::PullUnsavedTreeNode() {
   for (auto& entry : unsaved_nodes_) {
-    std::string key;
-    codec::EncodeIndexTreeNodeID(schema_.db_id, schema_.table_id, schema_.index_id,
-                             entry.first, &key);
-
-    std::string value;
-    entry.second->Serialize(&value);
-    keys->emplace_back(std::move(key));
-    values->emplace_back(std::move(value));
+    Status status = meta.DumpTreeNode(schema_.db_id, schema_.table_id, schema_.index_id, entry.first, entry.second);
+    if(status != Status::C_OK) {
+      ERROR("dump tree node failed, {}", status);
+      return;
+    }
   }
 
   unsaved_nodes_.clear();
@@ -265,18 +255,9 @@ bool BptNode::HasChild() const { return !children_.empty(); }
 
 Status BptNode::LoadNodeFromKVStorage() {
   std::string value;
-  Status status = tree_ctx_->GetNodeFromKVStorage(id_, &value);
-  if (status != Status::C_OK) {
-    ERROR("Get node_id {} failed", id_);
-    return status;
-  }
-  status = Deserialize(value);
-  if (status != Status::C_OK) {
-    ERROR("node_id {} deserialize failed", id_);
-    return status;
-  }
+  Status status = tree_ctx_->GetNodeFromKVStorage(id_, this);
   is_loaded_ = true;
-  return Status::C_OK;
+  return status;
 }
 
 BptNode* BptNode::NewMutableLeafChild() {

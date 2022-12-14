@@ -47,10 +47,7 @@ TEST_F(BptIteratorTest, Iterator) {
     AMDB_ASSERT_EQ(Status::C_OK, status);
   }
 
-  std::vector<std::string> node_ids;
-  std::vector<std::string> kvs;
-  tree_ctx_->PullUnsavedTreeNode(&node_ids, &kvs);
-  status = instance_->MPutKV(node_ids, kvs);
+  tree_ctx_->PullUnsavedTreeNode();
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   IteratorOptions itoptions = {

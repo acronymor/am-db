@@ -58,10 +58,8 @@ TEST_F(IndexIteratorTest, CRUD) {
     AMDB_ASSERT_EQ(Status::C_OK, status);
   }
 
-  std::vector<std::string> node_ids;
-  std::vector<std::string> kvs;
-  index_->TreeCtxx()->PullUnsavedTreeNode(&node_ids, &kvs);
-  status = instance_->MPutKV(node_ids, kvs);
+  index_->TreeCtxx()->PullUnsavedTreeNode();
+  status = index_->Save();
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   status = index_it.Open();

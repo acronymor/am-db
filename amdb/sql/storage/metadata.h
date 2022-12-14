@@ -7,6 +7,8 @@
 
 namespace amdb {
 namespace storage {
+class BptNode;
+
 class Metadata {
  public:
   Metadata();
@@ -30,13 +32,9 @@ class Metadata {
 
   [[nodiscard]] Status DumpTableIdByName(uint64_t db_id, const std::string& table_name, uint64_t* table_id);
 
-  [[nodiscard]] Status LoadIndexMeta(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id,
-                                     schema::IndexInfo* index_info);
+  [[nodiscard]] Status LoadTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id, BptNode* node);
 
-  [[nodiscard]] Status DumpIndexMeta(uint64_t db_id, uint64_t table_id, schema::IndexInfo* index_info);
-
-  [[nodiscard]] Status LoadTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id,
-                                    BptNodeProto* root_proto);
+  [[nodiscard]] Status DumpTreeNode(uint64_t db_id, uint64_t table_id, uint64_t index_id, uint64_t node_id, BptNode* node);
 
  private:
   KvStorageAPI* kv_api_;

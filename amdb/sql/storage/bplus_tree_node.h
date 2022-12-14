@@ -10,6 +10,7 @@
 #include "sql/common/statuscode.h"
 #include "sql/storage/bplus_tree_statistics.h"
 #include "sql/storage/data_cmp.h"
+#include "sql/storage/metadata.h"
 #include "sql/storage/kv_storage_api.h"
 
 namespace amdb {
@@ -22,6 +23,7 @@ class TreeCtx {
     uint64_t db_id;
     uint64_t table_id;
     uint64_t index_id;
+    uint64_t root_id;
     uint64_t tree_id;
   };
 
@@ -39,16 +41,16 @@ class TreeCtx {
 
   void RemoveUnsavedTreeNode(BptNode* node);
 
-  void PullUnsavedTreeNode(std::vector<std::string>* keys,
-                           std::vector<std::string>* values);
+  void PullUnsavedTreeNode();
 
-  Status GetNodeFromKVStorage(uint64_t node_id, std::string* value);
+  Status GetNodeFromKVStorage(uint64_t node_id, BptNode* node);
 
  private:
   // <node_id, BptNode>
   std::unordered_map<uint64_t, BptNode*> unsaved_nodes_;
   uint64_t id_ = 0;
   Schema schema_;
+  Metadata meta;
 
   KvStorageAPI* storage_api_{nullptr};
 
