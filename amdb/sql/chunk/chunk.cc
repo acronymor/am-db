@@ -5,8 +5,7 @@
 namespace amdb {
 namespace chunk {
 
-Chunk::Chunk(Arena* arena, RowDescriptor* row_desc)
-    : arena_(arena), row_desc_{row_desc} {}
+Chunk::Chunk(Arena* arena) : arena_(arena) {}
 
 Chunk& Chunk::operator=(Chunk&& chunk) noexcept {
   select_ = std::move(chunk.select_);
@@ -19,8 +18,7 @@ Chunk& Chunk::operator=(Chunk&& chunk) noexcept {
 uint32_t Chunk::Size() const { return select_.size(); }
 
 // convert kv to chunk
-Status Chunk::PullData(schema::TableInfo* table_info,
-                       std::vector<std::string>& values) {
+Status Chunk::PullData(schema::TableInfo* table_info, std::vector<std::string>& values) {
   cursor_ = 0;
   cur_capacity_ = values.size();
 
@@ -34,6 +32,8 @@ Status Chunk::PullData(schema::TableInfo* table_info,
 }
 
 void Chunk::AddRow(Row* row) { select_.push_back(row); }
+
+void Chunk::SetRowDesc(RowDescriptor* row_desc) { row_desc_ = row_desc; }
 
 RowDescriptor* Chunk::GetRowDesc() { return row_desc_; }
 

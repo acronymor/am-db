@@ -23,14 +23,18 @@ chunk::Chunk* InputPort::PullData(bool set_not_needed) {
   return cache_->Pull();
 }
 
+bool InputPort::IsFinished() const {
+  return true;
+}
+
 bool OutputPort::operator==(const OutputPort& p) const {
   return this == &p && exec_ == p.GetExecutor();
 }
 
 void OutputPort::PushData(chunk::Chunk* data) { cache_->Push(data); }
 
-bool OutputPort::IsFinished() const { return false; }
-bool OutputPort::CanPush() const { return false; }
+bool OutputPort::IsFinished() const { return true; }
+bool OutputPort::CanPush() { return false; }
 void OutputPort::Finish() {}
 }  // namespace scheduler
 }  // namespace amdb

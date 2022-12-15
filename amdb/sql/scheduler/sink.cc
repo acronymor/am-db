@@ -8,10 +8,6 @@ IExecutor::State ISink::Prepare() {
     return IExecutor::kFinished;
   }
 
-  if (inputs_[0].IsFinished()) {
-    return IExecutor::kFinished;
-  }
-
   chunk_ = inputs_[0].PullData();
   return IExecutor::kReady;
 }

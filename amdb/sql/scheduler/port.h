@@ -36,9 +36,7 @@ class Port {
   };
 
  public:
-  Port(IExecutor* exec = nullptr) : exec_(exec) {
-    AMDB_ASSERT_TRUE(exec_ != nullptr);
-  }
+  Port(IExecutor* exec = nullptr) : exec_(exec) { AMDB_ASSERT_TRUE(exec_ != nullptr); }
 
   virtual ~Port() = default;
 
@@ -50,7 +48,8 @@ class Port {
  protected:
   IExecutor* exec_ = nullptr;
   size_t idx_ = 0;
-  std::shared_ptr<Cache> cache_;
+  std::shared_ptr<Cache> cache_{nullptr};
+  std::shared_ptr<State> shared_state_{nullptr};
 };
 
 class InputPort : public Port {
@@ -87,7 +86,7 @@ class OutputPort : public Port {
   void PushData(chunk::Chunk* data);
 
   bool IsFinished() const;
-  bool CanPush() const;
+  bool CanPush();
   void Finish();
 
   InputPort* GetPeerPort() const { return input_port_; }

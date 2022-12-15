@@ -5,9 +5,8 @@ namespace amdb {
 namespace scheduler {
 class ISource : public IExecutor {
  public:
-  explicit ISource(StatementContext* ctx, Type type, planner::PhysicalNode* plan)
-      : IExecutor(ctx, type, plan) {
-    chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, ctx_->row_desc);
+  explicit ISource(StatementContext* ctx, Type type, planner::PhysicalNode* plan) : IExecutor(ctx, type, plan) {
+    chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena);
   };
 
   State Prepare() override;

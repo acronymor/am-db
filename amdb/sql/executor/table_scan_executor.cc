@@ -28,8 +28,8 @@ Status TableScanExecutor::Close() {
 
 Status TableScanExecutor::Generate(chunk::Chunk* chunk) {
   if (table_->row_index == nullptr) {
-    Status status = table_->loadMeta();
-    RETURN_ERR_NOT_OK(status);
+    chunk->SetRowDesc(row_desc_);
+    RETURN_ERR_NOT_OK(table_->Prepare());
   }
 
   if (table_iter_ == nullptr) {
@@ -38,11 +38,6 @@ Status TableScanExecutor::Generate(chunk::Chunk* chunk) {
     for (const planner::IndexRange* range : primary_ranges_) {
       table_iter_->AddRange(range);
     }
-  }
-
-  if (table_iter_ == nullptr) {
-    ERROR("Failed to init table_iterator, table_id={}", table_info_->id);
-    return Status::C_EXECUTOR_ERROR;
   }
 
   Status status = table_iter_->Open();

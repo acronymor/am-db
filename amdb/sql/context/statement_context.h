@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#include "sql/chunk/row_description.h"
 #include "sql/common/arena.h"
 #include "sql/parser/base.h"
 
@@ -22,8 +21,6 @@ class StatementContext {
  public:
   std::string raw_sql;
   Arena* arena;
-
-  chunk::RowDescriptor* row_desc;
 
   parser::Node* stmt_ast{nullptr};
   // parser::StmtNode* ast_stmt = nullptr;

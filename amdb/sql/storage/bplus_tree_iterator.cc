@@ -153,6 +153,7 @@ Status BptIterator::nextLeafNode() {
 }
 
 bool BptIterator::reachRangeBound() const {
+  AMDB_ASSERT_TRUE(cur_kv_ != cur_node_->kvs_.end());
   if (it_opts_->lower_open) {
     return IsCmpGt(DataCmp(cur_kv_->first, it_opts_->upper));
   } else {

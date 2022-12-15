@@ -15,7 +15,7 @@ class Chunk {
   Chunk() = default;
 
   Chunk(const Chunk& c) = delete;
-  Chunk(Arena* arena, RowDescriptor* row_desc);
+  Chunk(Arena* arena);
 
   Chunk& operator= (Chunk&& chunk) noexcept;
 
@@ -34,6 +34,7 @@ class Chunk {
   uint32_t cursor_ = 0;
   std::vector<Row*> select_;
 
+  void SetRowDesc(RowDescriptor* row_desc);
   RowDescriptor* GetRowDesc();
 #ifdef AMDB_BUILD_TEST
  public:

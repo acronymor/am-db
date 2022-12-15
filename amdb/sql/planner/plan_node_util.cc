@@ -144,19 +144,13 @@ static LogicalCreateTable* CreateTable(StatementContext* stmt_ctx, PhysicalCreat
 
 static PhysicalInsert* Insert(StatementContext* stmt_ctx, LogicalInsert* logical) {
   PhysicalInsert* node = stmt_ctx->arena->CreateObject<PhysicalInsert>();
-  node->columns = logical->columns;
   node->expr_nodes = logical->expr_nodes;
   node->table_info = logical->table_info;
-  node->row_desc = logical->row_desc;
   return node;
 }
 
 static LogicalInsert* Insert(StatementContext* stmt_ctx, PhysicalInsert* physical) {
   LogicalInsert* node = stmt_ctx->arena->CreateObject<LogicalInsert>();
-  node->columns = physical->columns;
-  node->expr_nodes = physical->expr_nodes;
-  node->table_info = physical->table_info;
-  node->row_desc = physical->row_desc;
   return node;
 }
 }  // namespace planner

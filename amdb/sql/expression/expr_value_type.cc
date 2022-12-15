@@ -43,7 +43,7 @@ ExprValueType ToExprType(const schema::ColumnType& col_type) {
 
     case parser::MysqlType::MYSQL_TYPE_DECIMAL: {
       // TODO may error
-      type = expr::ExprValueType::UInt64;
+      type = expr::ExprValueType::Int64;
     }; break;
   }
   return type;

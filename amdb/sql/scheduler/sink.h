@@ -8,7 +8,7 @@ namespace scheduler {
 class ISink : public IExecutor {
  public:
   explicit ISink(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan) : IExecutor(ctx, exec_type, plan) {
-    chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, ctx_->row_desc);
+    chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena);
   };
 
  public:

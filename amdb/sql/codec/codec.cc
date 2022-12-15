@@ -58,17 +58,38 @@ size_t DecodeUInt64(const std::string& in, uint64_t* out) {
   return sizeof(uint64_t);
 }
 
+size_t EncodeInt64(int64_t in, std::string* out) {
+  uint64_t ret = htobe64(in);
+  out->append((char*)(&ret), sizeof(ret));
+  return sizeof(ret);
+}
+
+size_t DecodeInt64(const std::string& in, int64_t* out) {
+  const int64_t* p = reinterpret_cast<const int64_t*>(in.data());
+  *out = be64toh(*p);
+  return sizeof(int64_t);
+}
+
 size_t EncodeExprValue(const expr::ExprValue& in, std::string* out) {
   size_t size = 0;
   switch (in.Type()) {
     case expr::ExprValueType::UInt8:
       size = EncodeUInt8(in.UInt8Value(), out);
       break;
+    case expr::ExprValueType::Int8:
+      size = EncodeUInt8(in.Int8Value(), out);
+      break;
     case expr::ExprValueType::UInt32:
       size = EncodeUInt32(in.UInt32Value(), out);
       break;
+    case expr::ExprValueType::Int32:
+      size = EncodeUInt32(in.Int32Value(), out);
+      break;
     case expr::ExprValueType::UInt64:
       size = EncodeUInt64(in.UInt64Value(), out);
+      break;
+    case expr::ExprValueType::Int64:
+      size = EncodeUInt64(in.Int64Value(), out);
       break;
     case expr::ExprValueType::String:
       size = EncodeBytes(in.StringValue(), out);
@@ -81,8 +102,7 @@ size_t EncodeExprValue(const expr::ExprValue& in, std::string* out) {
   return size;
 }
 
-size_t DecodeExprValue(const std::string& in, expr::ExprValue* out,
-                       Arena* arena) {
+size_t DecodeExprValue(const std::string& in, expr::ExprValue* out, Arena* arena) {
   size_t size = 0;
   switch (out->Type()) {
     case expr::ExprValueType::UInt8: {
@@ -94,6 +114,11 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out,
       std::string tmp;
       tmp.assign(in.data(), sizeof(uint32_t));
       size = DecodeUInt32(tmp, &out->u.uint32_value);
+    } break;
+    case expr::ExprValueType::Int64: {
+      std::string tmp;
+      tmp.assign(in.data(), sizeof(int64_t));
+      size = DecodeUInt64(tmp, &out->u.uint64_value);
     } break;
     case expr::ExprValueType::UInt64: {
       std::string tmp;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "sql/chunk/row_description.h"
 #include "sql/planner/plan_node.h"
 #include "sql/planner/range.h"
 #include "sql/schema/schema.h"
@@ -44,10 +43,11 @@ class LogicalTableScan : public LogicalNode {
   std::string Name() override { return "LogicalTableScan"; }
   std::string ToString() override;
 
-  schema::TableInfo* table_info{nullptr};
   std::vector<IndexRange*> primary_ranges;
   std::vector<expr::ExprNode*> primary_filters;  // known as index_filters
   std::vector<expr::ExprNode*> table_filters;
+
+  schema::TableInfo* table_info{nullptr};
 };
 
 class LogicalFilter : public LogicalNode {
@@ -102,7 +102,6 @@ class LogicalInsert : public LogicalNode {
 
   schema::TableInfo* table_info;
   std::vector<std::vector<expr::ExprNode*>> expr_nodes;
-  chunk::RowDescriptor* row_desc{nullptr};
 };
 }  // namespace planner
 }  // namespace amdb

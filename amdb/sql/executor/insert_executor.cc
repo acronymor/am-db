@@ -4,21 +4,25 @@
 
 namespace amdb {
 namespace executor {
-Status InsertExecutor::Open() { return Status::C_OK; }
+Status InsertExecutor::Open() {
+  return Status::C_OK;
+}
 
 Status InsertExecutor::Close() { return Status::C_OK; }
 
 Status InsertExecutor::Consume(chunk::Chunk* chunk) {
-  chunk = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, insert_plan_->row_desc);
+  if(chunk->GetRowDesc() == nullptr) {
+    chunk->SetRowDesc(row_desc_);
+  }
 
   for (size_t i = 0; i < insert_plan_->expr_nodes.size(); i++) {
-    chunk::Row* row = ctx_->arena->CreateObject<chunk::Row>(ctx_->arena, insert_plan_->row_desc);
+    chunk::Row* row = ctx_->arena->CreateObject<chunk::Row>(ctx_->arena, row_desc_);
     chunk->AddRow(row);
 
     std::vector<expr::ExprNode*>& record = insert_plan_->expr_nodes.at(i);
     for (size_t j = 0; j < record.size(); j++) {
       expr::LiteralExpr* cell = dynamic_cast<expr::LiteralExpr*>(record.at(j));
-      row->SetColValue(insert_plan_->row_desc->ID(), insert_plan_->row_desc->GetColumnDesc(j)->ID(), cell->GetValue());
+      row->SetColValue(row_desc_->ID(), row_desc_->GetColumnDesc(j)->ID(), cell->GetValue());
     }
   }
 

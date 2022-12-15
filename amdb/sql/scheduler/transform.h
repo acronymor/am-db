@@ -7,10 +7,8 @@ class ITransform : public IExecutor {
  public:
   explicit ITransform(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan)
       : IExecutor(ctx, exec_type, plan) {
-    input_chunk_ =
-        ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, ctx_->row_desc);
-    output_chunk_ =
-        ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena, ctx_->row_desc);
+    input_chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena);
+    output_chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena);
   };
 
   State Prepare() override;
@@ -20,8 +18,7 @@ class ITransform : public IExecutor {
   OutputPort& GetOutputPort() { return outputs_.at(0); }
 
  protected:
-  virtual Status Transform(chunk::Chunk* input_chunk,
-                           chunk::Chunk* output_chunk) = 0;
+  virtual Status Transform(chunk::Chunk* input_chunk, chunk::Chunk* output_chunk) = 0;
 
  private:
   chunk::Chunk* input_chunk_;

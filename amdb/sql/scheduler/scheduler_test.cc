@@ -68,13 +68,13 @@ TEST_F(SchedulerTest, DISABLED_MockPlanTest) {
 }
 
 TEST_F(SchedulerTest, ExecutePlanTest) {
-  chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
-  Status status = table_->Insert(rows);
-  AMDB_ASSERT_EQ(Status::C_OK, status);
-
   schema::TableInfo* table_info = table_->table_info_;
   storage::Metadata meta(instance_);
-  status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+  Status status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+
+  chunk::Chunk* rows = GenRows(GenRowDesc(), 10);
+  status = table_->Insert(rows);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   // -------------------------------

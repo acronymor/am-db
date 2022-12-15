@@ -40,26 +40,11 @@ int init(int argc, char* argv[]) {
   return 0;
 }
 
-chunk::RowDescriptor* GenTestDesc(Arena* arena) {
-  chunk::ColumnDescriptor* col_desc_1 = arena->CreateObject<chunk::ColumnDescriptor>(expr::ExprValueType::UInt64, 0);
-  chunk::ColumnDescriptor* col_desc_2 = arena->CreateObject<chunk::ColumnDescriptor>(expr::ExprValueType::String, 1);
-  chunk::ColumnDescriptor* col_desc_3 = arena->CreateObject<chunk::ColumnDescriptor>(expr::ExprValueType::UInt8, 2);
-
-  chunk::RowDescriptor* row_desc = arena->CreateObject<chunk::RowDescriptor>(0);
-  row_desc->AddColumnDesc(col_desc_1);
-  row_desc->AddColumnDesc(col_desc_2);
-  row_desc->AddColumnDesc(col_desc_3);
-  row_desc->InitAllColDesc();
-
-  return row_desc;
-}
-
 Status run(std::string sql) {
   MemTracker* tracker = new MemTracker();
   StatementContext* stmt_ctx = new StatementContext();
   stmt_ctx->arena = new Arena(tracker);
   stmt_ctx->raw_sql = sql;
-  // stmt_ctx->row_desc = GenTestDesc(stmt_ctx->arena);
 
   Status status = Status::C_OK;
 
@@ -105,9 +90,13 @@ int main(int argc, char* argv[]) {
   status = amdb::run(sql2);
   AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
 
-  std::string sql3 = "INSERT INTO db_test.db_table(`id`, `age`) VALUES(1, 18)";
-  status = amdb::run(sql3);
-  AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
+  for (int i = 0; i < 10; i++) {
+    std::string sql3 =
+        "INSERT INTO db_test.db_table(`id`, `age`) VALUES(" + std::to_string(i) + ", " + std::to_string(100 - i) + ")";
+    INFO("sql={}", sql3);
+    status = amdb::run(sql3);
+    AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
+  }
 
   std::string sql4 = "SELECT * FROM db_test.db_table";
   status = amdb::run(sql4);

@@ -57,17 +57,6 @@ Status InsertAnalyzer::Analyze() {
     insert->expr_nodes.push_back(expr_nodes);
   }
 
-  // row_desc
-  chunk::RowDescriptor* row_desc = stmt_ctx_->arena->CreateObject<chunk::RowDescriptor>(0);
-  for (int i = 0; i < stmt_->columns.size(); i++) {
-    schema::ColumnInfo* col_info = table_info->name_to_column.at(stmt_->columns[i]->name.to_string());
-    chunk::ColumnDescriptor* col_desc =
-        stmt_ctx_->arena->CreateObject<chunk::ColumnDescriptor>(expr::ToExprType(col_info->type), col_info->id);
-    row_desc->AddColumnDesc(col_desc);
-  }
-  row_desc->InitAllColDesc();
-  insert->row_desc = row_desc;
-
   stmt_ctx_->logical_plan = insert;
   return Status::C_OK;
 }
