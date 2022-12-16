@@ -8,22 +8,24 @@
 
 namespace amdb {
 namespace storage {
-class BptIteratorTest : public testsuite::KvDataTest {
+class BptIteratorTest : public testing::Test {
  protected:
   void SetUp() override {
-    KvDataTest::SetUp();
-
     TreeCtx::Schema schema = {.db_id = 0, .table_id = 0, .index_id = 0};
-    tree_ctx_ = arena_->CreateObject<TreeCtx>(instance_, arena_, schema);
+    tree_ctx_ = data_test.GetArena()->CreateObject<TreeCtx>(data_test.GetKvApi(), data_test.GetArena(), schema);
 
-    BptNodeProto root;
-    root.set_id(tree_ctx_->AllocateNodeID());
-    bptree_ = arena_->CreateObject<Bptree>(tree_ctx_, &root);
+    BptNodeProto node;
+    node.set_id(tree_ctx_->AllocateNodeID());
+
+    BptNode* root = data_test.GetArena()->CreateObject<BptNode>(tree_ctx_, &node);
+    bptree_ = data_test.GetArena()->CreateObject<Bptree>(tree_ctx_, root);
   }
 
  protected:
-  Bptree* bptree_;
-  TreeCtx* tree_ctx_;
+  Bptree* bptree_{nullptr};
+  TreeCtx* tree_ctx_{nullptr};
+
+  testsuite::KvDataTest data_test;
 };
 
 TEST_F(BptIteratorTest, Iterator) {
@@ -50,8 +52,7 @@ TEST_F(BptIteratorTest, Iterator) {
   tree_ctx_->PullUnsavedTreeNode();
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
-  IteratorOptions itoptions = {
-      .lower = "b2", .upper = "c4", .lower_open = true, .upper_open = false};
+  IteratorOptions itoptions = {.lower = "b2", .upper = "c4", .lower_open = true, .upper_open = false};
   BptIterator iterator_(bptree_, &itoptions);
   status = iterator_.Open();
   AMDB_ASSERT_EQ(Status::C_OK, status);

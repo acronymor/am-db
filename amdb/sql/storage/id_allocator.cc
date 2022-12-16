@@ -19,7 +19,8 @@ void GenIncKey(IDType type, uint32_t bucket_idx, std::string* key) {
       codec::EncodeColumnAllocID(bucket_idx, key);
       break;
     default:
-      AMDB_ASSERT(type) << "IDType wrong";
+      ERROR("Not Support type, ", type);
+      break;
   }
 }
 }  // namespace

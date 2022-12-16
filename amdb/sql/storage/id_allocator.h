@@ -8,7 +8,7 @@
 
 namespace amdb {
 namespace storage {
-enum IDType {
+enum struct IDType : uint8_t {
   Database = 0,
   Table = 1,
   Column = 2,

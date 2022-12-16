@@ -1,32 +1,16 @@
 #include "sql/analyzer/analyzer.h"
 
+#include "gtest/gtest.h"
 #include "sql/parser/parser.h"
 #include "sql/planner/logical_plan_node.h"
-#include "sql/testsuite/schema_gen_testutil.h"
+#include "sql/testsuite/table_testutil.h"
 
 namespace amdb {
 namespace analyzer {
-class AnalyzerTest : public testsuite::SchemaGen {
- protected:
-  void SetUp() override {
-    testsuite::SchemaGen::SetUp();
-
-    ctx = new StatementContext();
-    ctx->arena = arena_;
-  }
-
-  void TearDown() override {
-    delete ctx;
-
-    testsuite::SchemaGen::TearDown();
-  }
-
- protected:
-  StatementContext* ctx;
-};
+class AnalyzerTest : public testsuite::TableDataGen {};
 
 TEST_F(AnalyzerTest, TestAnalyze) {
-  ctx->raw_sql = "SELECT * FROM t";
+  ctx->raw_sql = "SELECT * FROM test_db_0.test_table_0";
 
   Status status = parser::GenAst(ctx);
   AMDB_ASSERT_EQ(Status::C_OK, status);

@@ -6,23 +6,25 @@
 
 namespace amdb {
 namespace storage {
-class BplusTreeNodeTest : public testsuite::KvDataTest {
+class BplusTreeNodeTest : public testing::Test {
  protected:
-  void SetUp() override {
-    KvDataTest::SetUp();
-    tree_ctx_ = new TreeCtx(instance_, arena_, schema_);
-  }
+  void SetUp() override { tree_ctx_ = new TreeCtx(data_test.GetKvApi(), data_test.GetArena(), schema_); }
 
-  void TearDown() override { KvDataTest::TearDown(); }
+  void TearDown() override {
+    delete tree_ctx_;
+    data_test.ClearAll();
+  }
 
  protected:
   TreeCtx* tree_ctx_;
-  TreeCtx::Schema schema_ = {0, 0, 0};
+  TreeCtx::Schema schema_ = {0, 0, 0, 0, 0};
+
+  testsuite::KvDataTest data_test;
 };
 
 TEST_F(BplusTreeNodeTest, Serialize) {
   BptNodeProto root_proto1;
-  root_proto1.set_id(0);
+  root_proto1.set_id(schema_.root_id);
   BptNode root1(tree_ctx_, &root_proto1);
   BptNode leaf1(tree_ctx_, &root1, true);
 
@@ -35,7 +37,7 @@ TEST_F(BplusTreeNodeTest, Serialize) {
   AMDB_ASSERT_EQ(Status::C_OK, status1);
 
   BptNodeProto root_proto2;
-  root_proto2.set_id(0);
+  root_proto2.set_id(schema_.root_id);
   BptNode root2(tree_ctx_, &root_proto2);
   BptNode leaf2(tree_ctx_, &root2, true);
   Status status2 = leaf2.Deserialize(str);

@@ -37,8 +37,20 @@ bool IsVariableSize(ExprValueType type) { return type == ExprValueType::String; 
 ExprValueType ToExprType(const schema::ColumnType& col_type) {
   expr::ExprValueType type = expr::ExprValueType::Null;
   switch (col_type.type) {
+    case parser::MysqlType::MYSQL_TYPE_SHORT: {
+      type = expr::ExprValueType::Int32;
+    } break;
+
     case parser::MysqlType::MYSQL_TYPE_LONG: {
       type = expr::ExprValueType::Int64;
+    } break;
+
+    case parser::MysqlType::MYSQL_TYPE_LONGLONG: {
+      type = expr::ExprValueType::Int64;
+    } break;
+
+    case parser::MysqlType::MYSQL_TYPE_STRING: {
+      type = expr::ExprValueType::String;
     } break;
 
     case parser::MysqlType::MYSQL_TYPE_DECIMAL: {

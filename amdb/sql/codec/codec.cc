@@ -46,6 +46,18 @@ size_t DecodeUInt32(const std::string& in, uint32_t* out) {
   return sizeof(uint32_t);
 }
 
+size_t EncodeInt32(int32_t in, std::string* out) {
+  int32_t ret = htobe32(in);
+  out->append((char*)(&ret), sizeof(ret));
+  return sizeof(ret);
+}
+
+size_t DecodeInt32(const std::string& in, int32_t* out) {
+  const int32_t* p = reinterpret_cast<const int32_t*>(in.data());
+  *out = be32toh(*p);
+  return sizeof(uint32_t);
+}
+
 size_t EncodeUInt64(uint64_t in, std::string* out) {
   uint64_t ret = htobe64(in);
   out->append((char*)(&ret), sizeof(ret));
@@ -110,6 +122,11 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out, Arena* arena
       tmp.assign(in.data(), sizeof(uint8_t));
       size = DecodeUInt8(tmp, &out->u.uint8_value);
     } break;
+    case expr::ExprValueType::Int32: {
+      std::string tmp;
+      tmp.assign(in.data(), sizeof(int32_t));
+      size = DecodeInt32(tmp, reinterpret_cast<int32_t*>(&out->u.uint32_value));
+    } break;
     case expr::ExprValueType::UInt32: {
       std::string tmp;
       tmp.assign(in.data(), sizeof(uint32_t));
@@ -118,7 +135,7 @@ size_t DecodeExprValue(const std::string& in, expr::ExprValue* out, Arena* arena
     case expr::ExprValueType::Int64: {
       std::string tmp;
       tmp.assign(in.data(), sizeof(int64_t));
-      size = DecodeUInt64(tmp, &out->u.uint64_value);
+      size = DecodeInt64(tmp, reinterpret_cast<int64_t*>(&out->u.uint64_value));
     } break;
     case expr::ExprValueType::UInt64: {
       std::string tmp;

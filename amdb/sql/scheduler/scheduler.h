@@ -14,12 +14,6 @@ class Scheduler {
   explicit Scheduler(StatementContext* stmt_ctx) : ctx_(stmt_ctx), graph_(stmt_ctx) {}
   ~Scheduler() = default;
 
-#ifdef AMDB_BUILD_TEST
-  Status TestRun(std::vector<IExecutor*>* executors) {
-    graph_.InitExecutors(executors);
-    return Run();
-  }
-#endif
   Status Run();
 
  private:

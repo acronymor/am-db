@@ -35,9 +35,11 @@ class BplusTreeTest : public testing::Test {
 };
 
 TEST_F(BplusTreeTest, CRUD) {
-  BptNodeProto root;
-  root.set_id(tree_ctx_->AllocateNodeID());
-  Bptree bptree(tree_ctx_, &root);
+  BptNodeProto proto;
+  proto.set_id(tree_ctx_->AllocateNodeID());
+
+  BptNode* root = arena_->CreateObject<BptNode>(tree_ctx_, &proto);
+  Bptree bptree(tree_ctx_, root);
 
   std::string key1 = "key-a" + std::to_string(absl::ToUnixMicros(absl::Now()));
   std::string key2 =

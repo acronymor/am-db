@@ -1,15 +1,12 @@
 #include "sql/storage/id_allocator.h"
 
-#include "sql/testsuite/schema_gen_testutil.h"
+#include "sql/testsuite/table_testutil.h"
 
 namespace amdb {
 namespace storage {
-class IndexIteratorTest : public testsuite::SchemaGen {
+class IndexIteratorTest : public testsuite::TableDataGen {
  protected:
-  void SetUp() override {
-    testsuite::SchemaGen::SetUp();
-    id_allocator_ = new IdAllocator(4);
-  }
+  void SetUp() override { id_allocator_ = new IdAllocator(4); }
 
   void TearDown() { delete id_allocator_, id_allocator_ = nullptr; }
 

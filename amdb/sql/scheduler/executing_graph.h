@@ -63,15 +63,6 @@ class ExecutingGraph {
  public:
   const std::vector<std::unique_ptr<Node>>& Nodes() const { return nodes_; }
 
-#ifdef AMDB_BUILD_TEST
-  void InitExecutors(std::vector<IExecutor*>* executors) {
-    executors_.reserve(executors->size());
-    for (size_t i = 0; i < executors->size(); i++) {
-      executors_.push_back(executors->at(i));
-    }
-  }
-#endif
-
  private:
   StatementContext* stmt_ctx;
 

@@ -2,46 +2,16 @@
 
 #include "sql/analyzer/analyzer.h"
 #include "sql/parser/parser.h"
-#include "sql/storage/table.h"
-#include "sql/testsuite/schema_gen_testutil.h"
+#include "sql/testsuite/table_testutil.h"
 
 namespace amdb {
 namespace planner {
-struct PlannerTest : public testsuite::SchemaGen {
- protected:
-  void SetUp() override {
-    testsuite::SchemaGen::SetUp();
-    uint64_t db_id = 0;
-    uint64_t table_id = 0;
-    schema::TableInfo* table_info = GenTableInfo(db_id, table_id);
-    table_ = arena_->CreateObject<storage::Table>(arena_, table_info);
-    ctx = new StatementContext();
-    ctx->arena = arena_;
-    ctx->row_desc = GenRowDesc();
-    ctx->row_desc->InitAllColDesc();
-  }
-
-  void TearDown() override {
-    SchemaGen::TearDown();
-    delete ctx;
-  }
-
- protected:
-  storage::Table* table_;
-  StatementContext* ctx;
-};
+struct PlannerTest : public testsuite::TableDataGen {};
 
 TEST_F(PlannerTest, BuildPlanTest) {
-  schema::TableInfo* table_info = table_->table_info_;
-  storage::Metadata meta(instance_);
+  ctx->raw_sql = "SELECT * FROM test_db_0.test_table_0";
 
-  Status status = Status::C_OK;
-  status = meta.DumpTableMeta(table_info->db_id, table_info->id, table_info);
-  AMDB_ASSERT_EQ(Status::C_OK, status);
-
-  ctx->raw_sql = "SELECT * FROM test_db.test_table";
-
-  status = parser::GenAst(ctx);
+  Status status = parser::GenAst(ctx);
   AMDB_ASSERT_EQ(Status::C_OK, status);
 
   status = analyzer::AnalyzeAst(ctx);

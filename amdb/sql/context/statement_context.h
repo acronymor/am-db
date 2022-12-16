@@ -23,8 +23,6 @@ class StatementContext {
   Arena* arena;
 
   parser::Node* stmt_ast{nullptr};
-  // parser::StmtNode* ast_stmt = nullptr;
-  // it is either logical_plan or physical_plan
   planner::PlanNode* resolved_plan{nullptr};
   planner::LogicalNode* logical_plan{nullptr};
   planner::PhysicalNode* physical_plan{nullptr};
