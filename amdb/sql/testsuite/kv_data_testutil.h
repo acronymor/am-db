@@ -1,12 +1,11 @@
 #include "common/assert.h"
-#include "gtest/gtest.h"
 #include "sql/storage/leveldb_client.h"
 
 namespace amdb {
 namespace testsuite {
-class KvDataTest : public ::testing::Test {
- protected:
-  void SetUp() override {
+class KvDataTest {
+ public:
+  KvDataTest() {
     storage::StorageAPIOptions options;
     Status status = storage::KvStorageAPISingleton::Init(options);
     AMDB_ASSERT_EQ(Status::C_OK, status);
@@ -14,7 +13,7 @@ class KvDataTest : public ::testing::Test {
     arena_ = new Arena(nullptr);
   }
 
-  void TearDown() override {
+  ~KvDataTest() {
     delete instance_, instance_ = nullptr;
     delete arena_, arena_ = nullptr;
   }
@@ -31,7 +30,7 @@ class KvDataTest : public ::testing::Test {
 
   Arena* GetArena() { return arena_; }
 
-  storage::KvStorageAPI* GetStorage() { return instance_; }
+  storage::KvStorageAPI* GetKvApi() { return instance_; }
 
  protected:
   storage::KvStorageAPI* instance_;

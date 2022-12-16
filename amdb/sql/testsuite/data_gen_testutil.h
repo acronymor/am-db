@@ -5,36 +5,23 @@ namespace amdb {
 namespace testsuite {
 class DataGen {
  public:
-  DataGen() { arena_ = new Arena(nullptr); }
+  DataGen(Arena* arena = nullptr) { arena_ = arena == nullptr ? new Arena(nullptr) : arena; };
+
   virtual ~DataGen() = default;
 
-  inline expr::ExprValue GenUint64Value() {
-    return expr::ExprValue::NewUInt64(GenUint64());
-  }
+  inline expr::ExprValue GenUint64Value() { return expr::ExprValue::NewUInt64(GenUint64()); }
 
-  inline expr::ExprValue GenInt64Value() {
-    return expr::ExprValue::NewInt64(GenInt64());
-  }
+  inline expr::ExprValue GenInt64Value() { return expr::ExprValue::NewInt64(GenInt64()); }
 
-  inline expr::ExprValue GenUint32Value() {
-    return expr::ExprValue::NewUInt32(GenUint32());
-  }
+  inline expr::ExprValue GenUint32Value() { return expr::ExprValue::NewUInt32(GenUint32()); }
 
-  inline expr::ExprValue GenInt32Value() {
-    return expr::ExprValue::NewInt32(GenInt32());
-  }
+  inline expr::ExprValue GenInt32Value() { return expr::ExprValue::NewInt32(GenInt32()); }
 
-  inline expr::ExprValue GenBoolValue() {
-    return expr::ExprValue::NewBool(GenBool());
-  }
+  inline expr::ExprValue GenBoolValue() { return expr::ExprValue::NewBool(GenBool()); }
 
-  inline expr::ExprValue GenDoubleValue() {
-    return expr::ExprValue::NewDouble(GenDouble());
-  }
+  inline expr::ExprValue GenDoubleValue() { return expr::ExprValue::NewDouble(GenDouble()); }
 
-  inline expr::ExprValue GenStringValue(size_t len = 8) {
-    return expr::ExprValue::NewString(GenString(len), arena_);
-  }
+  inline expr::ExprValue GenStringValue(size_t len = 8) { return expr::ExprValue::NewString(GenString(len), arena_); }
 
  protected:
   virtual uint64_t GenUint64() = 0;
@@ -61,7 +48,7 @@ class DataGen {
 
 class RandomDataGen : public DataGen {
  public:
-  explicit RandomDataGen(uint64_t seed = 0) {
+  explicit RandomDataGen(Arena* arena = nullptr, uint64_t seed = 0) : DataGen(arena) {
     auto my_seed = absl::MakeSeedSeq();
     gen_ = new absl::BitGen(my_seed);
   }
@@ -85,7 +72,7 @@ class RandomDataGen : public DataGen {
 
 class SeqDataGen : public DataGen {
  public:
-  explicit SeqDataGen(uint64_t cur = 0) : cur_(cur){};
+  explicit SeqDataGen(Arena* arena = nullptr, uint64_t cur = 0) : DataGen(arena), cur_(cur){};
   ~SeqDataGen() override = default;
 
   uint64_t NextSeq(uint64_t next_step = 1);
