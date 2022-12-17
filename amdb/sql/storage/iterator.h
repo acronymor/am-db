@@ -43,7 +43,7 @@ class BaseIterator : public Iterator {
 
   inline Status Code() override { return code_; }
 
-  Status AddRange(const planner::IndexRange* range);
+  Status AddRange(planner::IndexRange* range);
 
  protected:
   std::vector<std::pair<std::string, std::string>> data_segment_;

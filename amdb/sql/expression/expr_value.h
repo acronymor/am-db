@@ -16,6 +16,7 @@ class ExprValue {
     uint64_t uint64_value;
     float float32_value;
     double double_value;
+    long double float128_value;
   } u;
 
  public:
@@ -28,9 +29,14 @@ class ExprValue {
   static ExprValue NewUInt32(uint32_t v);
   static ExprValue NewInt64(int64_t v);
   static ExprValue NewUInt64(uint64_t v);
-  static ExprValue NewFloat(float v);
+  static ExprValue NewFloat32(float v);
+  static ExprValue NewFloat64(double v);
+  static ExprValue NewFloat128(long double v);
   static ExprValue NewDouble(double v);
   static ExprValue NewString(std::string&& v, Arena* arena);
+
+  static ExprValue NewMax(ExprValueType type);
+  static ExprValue NewMin(ExprValueType type);
 
   bool BoolValue() const;
   int8_t Int8Value() const;

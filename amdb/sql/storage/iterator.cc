@@ -1,5 +1,7 @@
 #include "sql/storage/iterator.h"
 
+#include "sql/codec/codec.h"
+
 namespace amdb {
 namespace storage {
 
@@ -28,6 +30,7 @@ Status BaseIterator::Open() {
 
 void BaseIterator::Next() {
   if (!Valid()) {
+    INFO("scan table result is invalid, code={}", code_);
     return;
   }
 
@@ -45,13 +48,21 @@ void BaseIterator::Next() {
   }
 }
 
-Status BaseIterator::AddRange(const planner::IndexRange* range) {
+Status BaseIterator::AddRange(planner::IndexRange* range) {
+  auto func = [](const std::vector<expr::ExprValue>& values, std::string& output) -> void {
+    for (const expr::ExprValue& value : values) {
+      codec::EncodeExprValue(value, &output);
+    }
+  };
+
+  func(range->lower.value, range->lower_str);
+  func(range->upper.value, range->upper_str);
+
   it_ops_.emplace_back();
   IteratorOptions& opt = it_ops_.back();
-
   opt.lower_open = range->lower.type == planner::IndexRange::RangePointType::LEFT_OPEN;
-  opt.upper_open = range->upper.type == planner::IndexRange::RangePointType::RIGHT_OPEN;
   opt.lower = range->lower_str;
+  opt.upper_open = range->upper.type == planner::IndexRange::RangePointType::RIGHT_OPEN;
   opt.upper = range->upper_str;
 
   return Status::C_OK;

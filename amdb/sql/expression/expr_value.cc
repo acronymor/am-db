@@ -84,13 +84,9 @@ ExprValue::ExprValue(ExprValueType type, bool null) { type_ = type; }
 
 ExprValueType ExprValue::Type() const { return type_; }
 
-ExprValue ExprValue::NewNull(ExprValueType type) {
-  return ExprValue(type, true);
-}
+ExprValue ExprValue::NewNull(ExprValueType type) { return ExprValue(type, true); }
 
-ExprValue ExprValue::NewEmpty(ExprValueType type) {
-  return ExprValue(type, false);
-}
+ExprValue ExprValue::NewEmpty(ExprValueType type) { return ExprValue(type, false); }
 
 ExprValue ExprValue::NewBool(bool v) {
   ExprValue value(ExprValueType::Bool, false);
@@ -134,9 +130,21 @@ ExprValue ExprValue::NewUInt64(uint64_t v) {
   return value;
 }
 
-ExprValue ExprValue::NewFloat(float v) {
-  ExprValue value(ExprValueType::Float128, false);
+ExprValue ExprValue::NewFloat32(float v) {
+  ExprValue value(ExprValueType::Float32, false);
   value.u.float32_value = v;
+  return value;
+}
+
+ExprValue ExprValue::NewFloat64(double v) {
+  ExprValue value(ExprValueType::Float64, false);
+  value.u.double_value = v;
+  return value;
+}
+
+ExprValue ExprValue::NewFloat128(long double v) {
+  ExprValue value(ExprValueType::Float128, false);
+  value.u.float128_value = v;
   return value;
 }
 
@@ -150,6 +158,85 @@ ExprValue ExprValue::NewString(std::string&& v, Arena* arena) {
   AMDB_ASSERT_FALSE(arena == nullptr);
   ExprValue value(ExprValueType::String, false);
   value.SetVarPtr(ExprValueType::String, new std::string(std::move(v)));
+  return value;
+}
+
+ExprValue ExprValue::NewMax(ExprValueType type) {
+  ExprValue value = ExprValue::NewEmpty(type);
+  switch (type) {
+    case Bool:
+    case UInt8:
+      value = ExprValue::NewUInt8(std::numeric_limits<uint8_t>::max());
+      break;
+    case Int8:
+      value = ExprValue::NewInt8(std::numeric_limits<int8_t>::max());
+      break;
+    case UInt32:
+      value = ExprValue::NewUInt32(std::numeric_limits<uint32_t>::max());
+      break;
+    case Int32:
+      value = ExprValue::NewInt32(std::numeric_limits<int32_t>::max());
+      break;
+    case UInt64:
+      value = ExprValue::NewUInt64(std::numeric_limits<uint64_t>::max());
+      break;
+    case Int64:
+      value = ExprValue::NewInt64(std::numeric_limits<int64_t>::max());
+      break;
+    case Float32:
+      value = ExprValue::NewFloat32(std::numeric_limits<float>::max());
+      break;
+    case Float64:
+      value = ExprValue::NewFloat64(std::numeric_limits<double>::max());
+      break;
+    case Float128:
+      value = ExprValue::NewFloat128(std::numeric_limits<long double>::max());
+      break;
+    case String:
+      value.SetVarPtr(type, new std::string());
+      break;
+  };
+
+  return value;
+}
+
+ExprValue ExprValue::NewMin(ExprValueType type) {
+  ExprValue value = ExprValue::NewEmpty(type);
+  switch (type) {
+    case Bool:
+    case UInt8:
+      value = ExprValue::NewUInt8(std::numeric_limits<uint8_t>::min());
+      break;
+    case Int8:
+      value = ExprValue::NewInt8(std::numeric_limits<int8_t>::min());
+      break;
+    case UInt32:
+      value = ExprValue::NewUInt32(std::numeric_limits<uint32_t>::min());
+      break;
+    case Int32:
+      value = ExprValue::NewInt32(std::numeric_limits<int32_t>::min());
+      break;
+    case UInt64:
+      value = ExprValue::NewUInt64(std::numeric_limits<uint64_t>::min());
+      break;
+    case Int64:
+      // value = ExprValue::NewInt64(std::numeric_limits<int64_t>::min());
+      value.u.uint64_value = 0;
+      break;
+    case Float32:
+      value.u.float32_value = 0.0f;
+      break;
+    case Float64:
+      value.u.double_value = 0.0;
+      break;
+    case Float128:
+      value.u.float128_value = 0.0;
+      break;
+    case String:
+      value.SetVarPtr(type, new std::string());
+      break;
+  };
+
   return value;
 }
 

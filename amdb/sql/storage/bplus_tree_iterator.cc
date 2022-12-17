@@ -20,7 +20,7 @@ Status BptIterator::Open() {
     }
 
     if (child == nullptr) {
-      DEBUG("Failed to find child, node id={}", cur_node_->ID());
+      INFO("Failed to find child, node id={}", cur_node_->ID());
       return Status::C_BPTREE_ITERATOR_END;
     }
 
@@ -45,9 +45,7 @@ bool BptIterator::HashNext() {
   return !reachRangeBound();
 }
 
-Status BptIterator::Next(
-    std::vector<std::pair<std::string, std::string>>* data_segment,
-    size_t row_count) {
+Status BptIterator::Next(std::vector<std::pair<std::string, std::string>>* data_segment, size_t row_count) {
   uint64_t rows_remain = row_count;
 
   while (rows_remain > 0) {
@@ -99,9 +97,8 @@ Status BptIterator::nextLeafNode() {
   bool child_node_runs_out = true;
 
   auto f = [](const BptNode* cur_node, const IteratorOptions* it_opts) -> bool {
-    return !it_opts->upper_open
-               ? IsCmpGt(DataCmp(cur_node->Stat().min_key, it_opts->upper))
-               : IsCmpGe(DataCmp(cur_node->Stat().min_key, it_opts->upper));
+    return !it_opts->upper_open ? IsCmpGt(DataCmp(cur_node->Stat().min_key, it_opts->upper))
+                                : IsCmpGe(DataCmp(cur_node->Stat().min_key, it_opts->upper));
   };
 
   do {

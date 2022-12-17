@@ -35,7 +35,7 @@ Status TableScanExecutor::Generate(chunk::Chunk* chunk) {
   if (table_iter_ == nullptr) {
     // TODO determine the upper limit of data processing
     table_iter_ = ctx_->arena->CreateObject<storage::TableIterator>(table_, 1024);
-    for (const planner::IndexRange* range : primary_ranges_) {
+    for (planner::IndexRange* range : primary_ranges_) {
       table_iter_->AddRange(range);
     }
   }
