@@ -51,6 +51,7 @@ void BaseIterator::Next() {
 Status BaseIterator::AddRange(planner::IndexRange* range) {
   auto func = [](const std::vector<expr::ExprValue>& values, std::string& output) -> void {
     for (const expr::ExprValue& value : values) {
+      codec::EncodeUInt8(value.Type(), &output);
       codec::EncodeExprValue(value, &output);
     }
   };
