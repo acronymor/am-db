@@ -15,14 +15,15 @@ class Chunk {
   Chunk() = default;
 
   Chunk(const Chunk& c) = delete;
+  Chunk& operator=(const Chunk& c) = delete;
+
   Chunk(Arena* arena);
 
-  Chunk& operator= (Chunk&& chunk) noexcept;
+  Chunk& operator=(Chunk&& chunk) noexcept;
 
   uint32_t Size() const;
 
-  Status PullData(schema::TableInfo* table_info,
-                  std::vector<std::string>& values);
+  Status PullData(schema::TableInfo* table_info, std::vector<std::string>& values);
 
   void AddRow(Row* row);
 
@@ -42,7 +43,6 @@ class Chunk {
  private:
 #endif
   RowDescriptor* row_desc_{nullptr};
-  std::vector<Column*> columns_;
 
   uint32_t cur_capacity_ = 0;
   uint32_t max_capacity_ = 1024;
