@@ -2,17 +2,20 @@
 
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
+#include "common/assert.h"
 #include "common/const.h"
-#include "sql/planner/logical_plan_node.h"
+#include "common/log.h"
+#include "sql/plan/create_database.h"
+#include "sql/plan/create_table.h"
 #include "sql/schema/schema.h"
 #include "sql/storage/metadata.h"
 
 namespace amdb {
 namespace analyzer {
 Status CreateDatabaseAnalyzer::Analyze() {
-  planner::LogicalCreateDatabase* database = stmt_ctx_->arena->CreateObject<planner::LogicalCreateDatabase>();
+  plan::LogicalCreateDatabase* database = stmt_ctx_->arena->CreateObject<plan::LogicalCreateDatabase>();
   schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
-  database->database_info = database_info;
+  // database->SetDatabaseInfo(database_info);
 
   std::string db_name = std::string(stmt_->db_name.to_string());
   uint64_t db_id = amdb::kInvalidIDatabaseID;
@@ -45,9 +48,7 @@ Status CreateDatabaseAnalyzer::Analyze() {
 }
 
 Status CreateTableAnalyzer::Analyze() {
-  planner::LogicalCreateTable* table = stmt_ctx_->arena->CreateObject<planner::LogicalCreateTable>();
-  schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
-  table->table_info = table_info;
+  plan::LogicalCreateTable* create_table = stmt_ctx_->arena->CreateObject<plan::LogicalCreateTable>();
 
   uint64_t db_id = amdb::kInvalidIDatabaseID;
   std::string db_name = std::string(stmt_->table_name->db.to_string());
@@ -59,22 +60,30 @@ Status CreateTableAnalyzer::Analyze() {
     return Status::C_DATABASE_NOT_FOUND;
   }
 
+  schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
+  status = meta.LoadDatabaseMeta(db_id, database_info);
+  RETURN_ERR_NOT_OK(status);
+
   std::string table_name = std::string(stmt_->table_name->table.to_string());
   uint64_t table_id = amdb::kInvalidTableID;
 
   status = meta.LoadTableIdByName(db_id, table_name, &table_id);
+  schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
   if (Status::C_OK == status) {
     if (!stmt_->if_not_exist) {
       ERROR("Table {} have existed", table_name);
       return Status::C_TABLE_EXISTE;
     } else {
       DEBUG("Table {} have existed", table_name);
-      status = meta.LoadTableMeta(db_id, table_id, table->table_info);
+      status = meta.LoadTableMeta(db_id, table_id, table_info);
       RETURN_ERR_NOT_OK(status);
-      stmt_ctx_->logical_plan = table;
+      stmt_ctx_->logical_plan = create_table;
       return Status::C_OK;
     }
   }
+  plan::RelOptTable* table = stmt_ctx_->arena->CreateObject<plan::RelOptTable>();
+  table->Init(database_info, table_info);
+  create_table->SetTable(table);
 
   id_allocator->AllocateID(storage::IDType::Table, table_name, &table_id);
   int64_t now = absl::ToUnixMicros(absl::Now());
@@ -130,7 +139,7 @@ Status CreateTableAnalyzer::Analyze() {
     table_info->name_to_index.emplace(index_info->name, index_info);
   }
 
-  stmt_ctx_->logical_plan = table;
+  stmt_ctx_->logical_plan = create_table;
 
   return Status::C_OK;
 }

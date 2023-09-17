@@ -1,17 +1,17 @@
 #pragma once
 
+#include "sql/plan/result_set.h"
 #include "sql/scheduler/sink.h"
 
 namespace amdb {
 namespace executor {
 class ResultSetExecutor : public scheduler::ISink {
  public:
-  ResultSetExecutor(StatementContext* ctx, Type exec_type,
-                    planner::PhysicalNode* plan)
-      : ISink(ctx, exec_type, plan) {
+  ResultSetExecutor(StatementContext* ctx, plan::RelOptNode* plan)
+      : ISink(ctx, scheduler::ExecutorType::kExecResultSet, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
-    AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalResultSet, plan->type);
-    result_plan_ = dynamic_cast<planner::PhysicalResultSet*>(plan);
+    AMDB_ASSERT_EQ(plan::RelOptNodeType::kPhysicalResultSet, plan->GetType());
+    result_plan_ = dynamic_cast<plan::PhysicalResultSet*>(plan);
   };
 
   std::string Name() const override { return "ResultSet"; };
@@ -23,7 +23,7 @@ class ResultSetExecutor : public scheduler::ISink {
   Status Consume(chunk::Chunk* chunk) override;
 
  private:
-  planner::PhysicalResultSet* result_plan_{nullptr};
+  plan::PhysicalResultSet* result_plan_{nullptr};
 };
 }  // namespace executor
 }  // namespace amdb

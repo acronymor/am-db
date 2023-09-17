@@ -164,5 +164,10 @@ Status SchemaGen::DumpMata(uint64_t db_id, uint64_t table_id) {
   return Status::C_OK;
 }
 
+schema::DatabaseInfo* SchemaGen::GetDatabaseInfo(uint64_t db_id) { return dbs_[toDbKey(db_id)]; }
+
+schema::TableInfo* SchemaGen::GetTableInfo(uint64_t db_id, uint64_t table_id) {
+  return tables_[toTableKey(db_id, table_id)];
+}
 }  // namespace testsuite
 }  // namespace amdb

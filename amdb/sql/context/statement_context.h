@@ -5,16 +5,15 @@
 
 #include "sql/common/arena.h"
 #include "sql/parser/base.h"
+#include "sql/plan/rel_opt_node.h"
 
 namespace amdb {
 namespace expr {
 class ExprNode;
 }  // namespace expr
 
-namespace planner {
-struct PlanNode;
-struct LogicalNode;
-struct PhysicalNode;
+namespace plan {
+struct RelOptNode;
 }  // namespace planner
 
 class StatementContext {
@@ -23,8 +22,8 @@ class StatementContext {
   Arena* arena;
 
   parser::Node* stmt_ast{nullptr};
-  planner::PlanNode* resolved_plan{nullptr};
-  planner::LogicalNode* logical_plan{nullptr};
-  planner::PhysicalNode* physical_plan{nullptr};
+  plan::RelOptNode* resolved_plan{nullptr};
+  plan::RelOptNode* logical_plan{nullptr};
+  plan::RelOptNode* physical_plan{nullptr};
 };
 }  // namespace amdb

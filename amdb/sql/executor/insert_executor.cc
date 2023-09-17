@@ -15,11 +15,11 @@ Status InsertExecutor::Consume(chunk::Chunk* chunk) {
     chunk->SetRowDesc(row_desc_);
   }
 
-  for (size_t i = 0; i < insert_plan_->expr_nodes.size(); i++) {
+  for (size_t i = 0; i < insert_plan_->ExprNodes().size(); i++) {
     chunk::Row* row = ctx_->arena->CreateObject<chunk::Row>(ctx_->arena, row_desc_);
     chunk->AddRow(row);
 
-    std::vector<expr::ExprNode*>& record = insert_plan_->expr_nodes.at(i);
+    std::vector<expr::ExprNode*>& record = insert_plan_->ExprNodes().at(i);
     for (size_t j = 0; j < record.size(); j++) {
       expr::LiteralExpr* cell = dynamic_cast<expr::LiteralExpr*>(record.at(j));
       row->SetColValue(row_desc_->ID(), row_desc_->GetColumnDesc(j)->ID(), cell->GetValue());

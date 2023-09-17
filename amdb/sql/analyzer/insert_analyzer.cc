@@ -1,7 +1,7 @@
 #include "sql/analyzer/insert_analyzer.h"
 
 #include "sql/analyzer/expr_analyzer.h"
-#include "sql/planner/logical_plan_node.h"
+#include "sql/plan/insert.h"
 #include "sql/storage/metadata.h"
 
 namespace amdb {
@@ -10,10 +10,6 @@ namespace analyzer {
  * Insert database/table
  */
 Status InsertAnalyzer::Analyze() {
-  planner::LogicalInsert* insert = stmt_ctx_->arena->CreateObject<planner::LogicalInsert>();
-  schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
-  insert->table_info = table_info;
-
   // database id
   uint64_t db_id = amdb::kInvalidIDatabaseID;
   std::string db_name = std::string(stmt_->table_name->db.to_string());
@@ -35,14 +31,26 @@ Status InsertAnalyzer::Analyze() {
     return Status::C_TABLE_NOT_FOUND;
   }
 
+  // database info
+  schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
+  status = meta.LoadDatabaseMeta(db_id, database_info);
+  RETURN_ERR_NOT_OK(status);
+
   // table info
+  schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
   status = meta.LoadTableMeta(db_id, table_id, table_info);
   RETURN_ERR_NOT_OK(status);
+
+  plan::RelOptTable* table = stmt_ctx_->arena->CreateObject<plan::RelOptTable>();
+  table->Init(database_info, table_info);
+
+  plan::LogicalInsert* insert = stmt_ctx_->arena->CreateObject<plan::LogicalInsert>();
+  insert->SetTable(table);
 
   ExprAnalyzer expr_analyzer(stmt_ctx_);
 
   // value list
-  insert->expr_nodes.reserve(stmt_->lists.size());
+  insert->ExprNodes().reserve(stmt_->lists.size());
   for (int i = 0; i < stmt_->lists.size(); i++) {
     auto& children = stmt_->lists[i]->children;
 
@@ -54,7 +62,7 @@ Status InsertAnalyzer::Analyze() {
 
       expr_nodes.push_back(expr_node);
     }
-    insert->expr_nodes.push_back(expr_nodes);
+    insert->ExprNodes().push_back(expr_nodes);
   }
 
   stmt_ctx_->logical_plan = insert;

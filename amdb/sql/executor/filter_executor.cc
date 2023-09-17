@@ -4,15 +4,15 @@ namespace amdb {
 namespace executor {
 
 Status FilterExecutor::Open() {
-  for (auto &condition : filter_plan_->conditions) {
-    RETURN_ERR_NOT_OK(condition->Open(ctx_));
+  for (auto &condition : filter_plan_->GetConditions()) {
+    // RETURN_ERR_NOT_OK(condition->Open(ctx_));
   }
   return Status::C_OK;
 }
 
 Status FilterExecutor::Close() {
-  for (auto &condition : filter_plan_->conditions) {
-    RETURN_ERR_NOT_OK(condition->Close(ctx_));
+  for (auto &condition : filter_plan_->GetConditions()) {
+    // RETURN_ERR_NOT_OK(condition->Close(ctx_));
   }
   return Status::C_OK;
 }

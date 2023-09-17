@@ -48,7 +48,7 @@ void BaseIterator::Next() {
   }
 }
 
-Status BaseIterator::AddRange(planner::IndexRange* range) {
+Status BaseIterator::AddRange(plan::IndexRange* range) {
   auto func = [](const std::vector<expr::ExprValue>& values, std::string& output) -> void {
     for (const expr::ExprValue& value : values) {
       codec::EncodeUInt8(value.Type(), &output);
@@ -61,9 +61,9 @@ Status BaseIterator::AddRange(planner::IndexRange* range) {
 
   it_ops_.emplace_back();
   IteratorOptions& opt = it_ops_.back();
-  opt.lower_open = range->lower.type == planner::IndexRange::RangePointType::LEFT_OPEN;
+  opt.lower_open = range->lower.type == plan::IndexRange::RangePointType::LEFT_OPEN;
   opt.lower = range->lower_str;
-  opt.upper_open = range->upper.type == planner::IndexRange::RangePointType::RIGHT_OPEN;
+  opt.upper_open = range->upper.type == plan::IndexRange::RangePointType::RIGHT_OPEN;
   opt.upper = range->upper_str;
 
   return Status::C_OK;

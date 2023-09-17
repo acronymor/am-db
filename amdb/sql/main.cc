@@ -3,7 +3,6 @@
 #include "gflags/gflags.h"
 #include "sql/analyzer/analyzer.h"
 #include "sql/parser/parser.h"
-#include "sql/planner/planner.h"
 #include "sql/scheduler/scheduler.h"
 #include "sql/storage/id_allocator.h"
 #include "sql/storage/kv_storage_api.h"
@@ -61,17 +60,17 @@ Status run(std::string sql) {
     return status;
   }
 
-  status = planner::BuildPlan(stmt_ctx);
-  if (Status::C_OK != status) {
-    ERROR("{}", GetErrorString(status));
-    return status;
-  }
+  // status = planner::BuildPlan(stmt_ctx);
+  // if (Status::C_OK != status) {
+  //   ERROR("{}", GetErrorString(status));
+  //   return status;
+  // }
 
-  status = scheduler::ExecutePlan(stmt_ctx);
-  if (Status::C_OK != status) {
-    ERROR("{}", GetErrorString(status));
-    return status;
-  }
+  // status = scheduler::ExecutePlan(stmt_ctx);
+  // if (Status::C_OK != status) {
+  //   ERROR("{}", GetErrorString(status));
+  //   return status;
+  // }
 
   return Status::C_OK;
 }

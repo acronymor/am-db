@@ -18,6 +18,10 @@ class SchemaGen : public KvDataTest {
  public:
   schema::DatabaseInfo* GenDatabaseInfo(uint64_t db_id);
   schema::TableInfo* GenTableInfo(uint64_t db_id, uint64_t table_id);
+
+  schema::DatabaseInfo* GetDatabaseInfo(uint64_t db_id);
+  schema::TableInfo* GetTableInfo(uint64_t db_id, uint64_t table_id);
+
   Status DumpMata(uint64_t db_id, uint64_t table_id);
 
  protected:

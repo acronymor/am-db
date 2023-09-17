@@ -1,10 +1,12 @@
+#include "sql/plan/create_database.h"
+#include "sql/plan/create_table.h"
 #include "sql/scheduler/executor.h"
 
 namespace amdb {
 namespace executor {
 class CreateExecutor : public scheduler::IExecutor {
  public:
-  CreateExecutor(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan)
+  CreateExecutor(StatementContext* ctx, scheduler::ExecutorType exec_type, plan::RelOptNode* plan)
       : IExecutor(ctx, exec_type, plan){};
   ~CreateExecutor() override = default;
   std::string Name() const override { return "Create"; };
@@ -21,34 +23,34 @@ class CreateExecutor : public scheduler::IExecutor {
 
 class CreateDatabaseExecutor : public CreateExecutor {
  public:
-  CreateDatabaseExecutor(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan)
-      : CreateExecutor(ctx, exec_type, plan) {
+  CreateDatabaseExecutor(StatementContext* ctx, plan::RelOptNode* plan)
+      : CreateExecutor(ctx, scheduler::ExecutorType::kExecCreateDatabase, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
-    AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalCreateDatabase, plan->type);
-    create_database_plan_ = dynamic_cast<planner::PhysicalCreateDatabase*>(plan);
+    AMDB_ASSERT_EQ(plan::RelOptNodeType::kPhysicalCreateDatabase, plan->GetType());
+    create_database_plan_ = dynamic_cast<plan::PhysicalCreateDatabase*>(plan);
   };
 
  protected:
   Status DoWork() override;
 
  private:
-  planner::PhysicalCreateDatabase* create_database_plan_{nullptr};
+  plan::PhysicalCreateDatabase* create_database_plan_{nullptr};
 };
 
 class CreateTableExecutor : public CreateExecutor {
  public:
-  CreateTableExecutor(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan)
-      : CreateExecutor(ctx, exec_type, plan) {
+  CreateTableExecutor(StatementContext* ctx, plan::RelOptNode* plan)
+      : CreateExecutor(ctx, scheduler::ExecutorType::kExecCreateTable, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
-    AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalCreateTable, plan->type);
-    create_table_plan_ = dynamic_cast<planner::PhysicalCreateTable*>(plan);
+    AMDB_ASSERT_EQ(plan::RelOptNodeType::kPhysicalCreateTable, plan->GetType());
+    create_table_plan_ = dynamic_cast<plan::PhysicalCreateTable*>(plan);
   };
 
  protected:
   Status DoWork() override;
 
  private:
-  planner::PhysicalCreateTable* create_table_plan_{nullptr};
+  plan::PhysicalCreateTable* create_table_plan_{nullptr};
 };
 }  // namespace executor
 }  // namespace amdb

@@ -8,9 +8,9 @@
 namespace amdb {
 namespace scheduler {
 namespace {
-IExecutor* ToExecutor(StatementContext* stmt_ctx, planner::PhysicalNode* cur_node, std::vector<IExecutor*>* executors) {
+IExecutor* ToExecutor(StatementContext* stmt_ctx, plan::RelOptNode* cur_node, std::vector<IExecutor*>* executors) {
   IExecutor* parent_executor = executor::ToExecutor(stmt_ctx, cur_node);
-  for (planner::PhysicalNode* node : cur_node->children) {
+  for (plan::RelOptNode * node : cur_node->GetInputs()) {
     IExecutor* child_exec = ToExecutor(stmt_ctx, node, executors);
     Connect(parent_executor->CreateInputPort(), child_exec->CreateOutputPort());
   }
@@ -37,7 +37,7 @@ ExecutingGraph::State StateConv(IExecutor::State state) {
 }  // namespace
 
 ExecutingGraph* ExecutingGraph::initExecutors() {
-  planner::PhysicalNode* root = dynamic_cast<planner::PhysicalNode*>(stmt_ctx->resolved_plan);
+  plan::RelOptNode* root = dynamic_cast<plan::RelOptNode*>(stmt_ctx->resolved_plan);
   ToExecutor(stmt_ctx, root, &executors_);
   return this;
 }

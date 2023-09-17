@@ -4,23 +4,22 @@
 
 #include "sql/common/statuscode.h"
 #include "sql/context/statement_context.h"
-#include "sql/planner/physical_plan_node.h"
 #include "sql/scheduler/port.h"
 
 namespace amdb {
 namespace scheduler {
+enum ExecutorType {
+  kExecShow,
+  kExecTableScan,
+  kExecFilter,
+  kExecResultSet,
+  kExecCreateDatabase,
+  kExecCreateTable,
+  kExecInsert
+};
+
 class IExecutor {
  public:
-  enum Type {
-    kExecShow,
-    kExecTableScan,
-    kExecFilter,
-    kExecResultSet,
-    kExecCreateDatabase,
-    kExecCreateTable,
-    kExecInsert
-  };
-
   enum State {
     kNeedData,
     kPortFull,
@@ -28,7 +27,7 @@ class IExecutor {
     kFinished,
   };
 
-  explicit IExecutor(StatementContext* ctx, Type exec_type, planner::PhysicalNode* node)
+  explicit IExecutor(StatementContext* ctx, ExecutorType exec_type, plan::RelOptNode* node)
       : ctx_(ctx), type_(exec_type), physical_node_(node){};
 
   virtual ~IExecutor() = default;
@@ -61,9 +60,9 @@ class IExecutor {
   std::vector<OutputPort> outputs_;
 
   StatementContext* ctx_;
-  Type type_;
+  ExecutorType type_;
 
-  planner::PhysicalNode* physical_node_ = nullptr;
+  plan::RelOptNode* physical_node_ = nullptr;
 };
 }  // namespace scheduler
 }  // namespace amdb

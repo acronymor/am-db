@@ -7,7 +7,8 @@ namespace amdb {
 namespace scheduler {
 class ISink : public IExecutor {
  public:
-  explicit ISink(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan) : IExecutor(ctx, exec_type, plan) {
+  explicit ISink(StatementContext* ctx, ExecutorType exec_type, plan::RelOptNode* plan)
+      : IExecutor(ctx, exec_type, reinterpret_cast<plan::RelOptNode*>(plan)) {
     chunk_ = ctx_->arena->CreateObject<chunk::Chunk>(ctx_->arena);
   };
 

@@ -16,7 +16,7 @@ Status CreateExecutor::Work() { return DoWork(); }
 Status CreateDatabaseExecutor::DoWork() {
   storage::IdAllocator* id_allocator = storage::IdAllocatorSingleton::GetInstance();
 
-  schema::DatabaseInfo* database_info = create_database_plan_->database_info;
+  schema::DatabaseInfo* database_info = create_database_plan_->GetTable()->GetDB();
 
   storage::Metadata meta;
   Status status = meta.DumpDatabaseMeta(database_info->id, database_info);
@@ -31,7 +31,7 @@ Status CreateDatabaseExecutor::DoWork() {
 Status CreateTableExecutor::DoWork() {
   storage::Metadata meta;
 
-  schema::TableInfo* table_info = create_table_plan_->table_info;
+  schema::TableInfo* table_info = create_table_plan_->GetTable()->GetTable();
   Status status = meta.LoadDatabaseIdByName(table_info->db_name, &table_info->db_id);
   RETURN_ERR_NOT_OK(status);
 

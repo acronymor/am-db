@@ -1,17 +1,18 @@
 #pragma once
 
 #include "sql/chunk/chunk_util.h"
+#include "sql/plan/filter.h"
 #include "sql/scheduler/transform.h"
 
 namespace amdb {
 namespace executor {
 class FilterExecutor : public scheduler::ITransform {
  public:
-  FilterExecutor(StatementContext* ctx, Type exec_type, planner::PhysicalNode* plan)
-      : ITransform(ctx, exec_type, plan) {
+  FilterExecutor(StatementContext* ctx, plan::RelOptNode* plan)
+      : ITransform(ctx, scheduler::ExecutorType::kExecFilter, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
-    AMDB_ASSERT_EQ(planner::PhysicalNode::Type::kPhysicalFilter, plan->type);
-    filter_plan_ = dynamic_cast<planner::PhysicalFilter*>(plan);
+    AMDB_ASSERT_EQ(plan::RelOptNodeType::kPhysicalFilter, plan->GetType());
+    filter_plan_ = dynamic_cast<plan::PhysicalFilter*>(plan);
   };
 
   std::string Name() const override { return "Filter"; };
@@ -23,7 +24,7 @@ class FilterExecutor : public scheduler::ITransform {
   Status Transform(chunk::Chunk* input_chunk, chunk::Chunk* output_chunk) override;
 
  private:
-  planner::PhysicalFilter* filter_plan_{nullptr};
+  plan::PhysicalFilter* filter_plan_{nullptr};
 };
 }  // namespace executor
 }  // namespace amdb
