@@ -3,7 +3,7 @@
 #include "sql/expression/expr_value.h"
 
 namespace amdb {
-namespace planner {
+namespace plan {
 
 struct IndexRange {
   enum RangePointType : uint8_t {
@@ -25,5 +25,5 @@ struct IndexRange {
 void Union(const IndexRange* r1, const IndexRange* r2, IndexRange* new_range);
 void Intersection(const IndexRange* r1, const IndexRange* r2, IndexRange* new_range);
 
-}  // namespace planner
+}  // namespace plan
 }  // namespace amdb
