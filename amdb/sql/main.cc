@@ -2,6 +2,7 @@
 #include "common/version.h"
 #include "gflags/gflags.h"
 #include "sql/analyzer/analyzer.h"
+#include "sql/optimizer/planner.h"
 #include "sql/parser/parser.h"
 #include "sql/scheduler/scheduler.h"
 #include "sql/storage/id_allocator.h"
@@ -39,9 +40,10 @@ int init(int argc, char* argv[]) {
   return 0;
 }
 
-Status run(std::string sql) {
+Status run(const std::string& sql) {
   MemTracker* tracker = new MemTracker();
   StatementContext* stmt_ctx = new StatementContext();
+
   stmt_ctx->arena = new Arena(tracker);
   stmt_ctx->raw_sql = sql;
 
@@ -60,17 +62,17 @@ Status run(std::string sql) {
     return status;
   }
 
-  // status = planner::BuildPlan(stmt_ctx);
-  // if (Status::C_OK != status) {
-  //   ERROR("{}", GetErrorString(status));
-  //   return status;
-  // }
+  status = opt::BuildPlan(stmt_ctx);
+  if (Status::C_OK != status) {
+    ERROR("{}", GetErrorString(status));
+    return status;
+  }
 
-  // status = scheduler::ExecutePlan(stmt_ctx);
-  // if (Status::C_OK != status) {
-  //   ERROR("{}", GetErrorString(status));
-  //   return status;
-  // }
+  status = scheduler::ExecutePlan(stmt_ctx);
+  if (Status::C_OK != status) {
+    ERROR("{}", GetErrorString(status))
+    return status;
+  }
 
   return Status::C_OK;
 }
@@ -97,7 +99,7 @@ int main(int argc, char* argv[]) {
     AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
   }
 
-  std::string sql4 = "SELECT * FROM db_test.db_table";
+  std::string sql4 = "SELECT id, age FROM db_test.db_table";
   status = amdb::run(sql4);
   AMDB_ASSERT_EQ(amdb::Status::C_OK, status);
 

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <cstdint>
 
 #include "sql/common/statuscode.h"
 

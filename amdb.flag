@@ -1,3 +1,4 @@
 # leveldb
 
+--enable_trace=true
 --leveldb_dir=/tmp/testdb

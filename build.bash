@@ -54,7 +54,7 @@ function init() {
 
 cmake_build_type=Dev
 amdb_build_test=OFF
-amdb_build_parallel=8
+amdb_build_parallel=24
 amdb_build_dir=${bin}/build
 amdb_release_dir=${bin}/release
 
@@ -66,7 +66,8 @@ function build() {
   -DLEVELDB_BUILD_BENCHMARKS=OFF \
   -DLEVELDB_BUILD_TESTS=OFF \
   -DWITH_SYMBOLIZE=OFF \
-  -Dprotobuf_BUILD_TESTS=OFF"
+  -Dprotobuf_BUILD_TESTS=OFF" \
+  -Wno-dev \
 
   run_cmd "${cmd}"
 

@@ -5,7 +5,6 @@
 
 #include "sql/common/arena.h"
 #include "sql/parser/base.h"
-#include "sql/plan/rel_opt_node.h"
 
 namespace amdb {
 namespace expr {
@@ -14,7 +13,7 @@ class ExprNode;
 
 namespace plan {
 struct RelOptNode;
-}  // namespace planner
+}  // namespace plan
 
 class StatementContext {
  public:
@@ -22,7 +21,6 @@ class StatementContext {
   Arena* arena;
 
   parser::Node* stmt_ast{nullptr};
-  plan::RelOptNode* resolved_plan{nullptr};
   plan::RelOptNode* logical_plan{nullptr};
   plan::RelOptNode* physical_plan{nullptr};
 };

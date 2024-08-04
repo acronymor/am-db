@@ -15,12 +15,14 @@ namespace analyzer {
 Status CreateDatabaseAnalyzer::Analyze() {
   plan::LogicalCreateDatabase* database = stmt_ctx_->arena->CreateObject<plan::LogicalCreateDatabase>();
   schema::DatabaseInfo* database_info = stmt_ctx_->arena->CreateObject<schema::DatabaseInfo>();
-  // database->SetDatabaseInfo(database_info);
+  plan::RelOptTable* table = stmt_ctx_->arena->CreateObject<plan::RelOptTable>();
+  table->Init(database_info, nullptr);
+  database->SetTable(table);
 
-  std::string db_name = std::string(stmt_->db_name.to_string());
-  uint64_t db_id = amdb::kInvalidIDatabaseID;
-
+  const std::string& db_name = std::string(stmt_->db_name.to_string());
   storage::Metadata meta;
+
+  uint64_t db_id = amdb::kInvalidIDatabaseID;
   Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
   if (Status::C_OK == status) {
     if (!stmt_->if_not_exist) {
@@ -69,6 +71,10 @@ Status CreateTableAnalyzer::Analyze() {
 
   status = meta.LoadTableIdByName(db_id, table_name, &table_id);
   schema::TableInfo* table_info = stmt_ctx_->arena->CreateObject<schema::TableInfo>();
+  plan::RelOptTable* table = stmt_ctx_->arena->CreateObject<plan::RelOptTable>();
+  table->Init(database_info, table_info);
+  create_table->SetTable(table);
+
   if (Status::C_OK == status) {
     if (!stmt_->if_not_exist) {
       ERROR("Table {} have existed", table_name);
@@ -81,9 +87,6 @@ Status CreateTableAnalyzer::Analyze() {
       return Status::C_OK;
     }
   }
-  plan::RelOptTable* table = stmt_ctx_->arena->CreateObject<plan::RelOptTable>();
-  table->Init(database_info, table_info);
-  create_table->SetTable(table);
 
   id_allocator->AllocateID(storage::IDType::Table, table_name, &table_id);
   int64_t now = absl::ToUnixMicros(absl::Now());

@@ -29,16 +29,18 @@ scheduler::IExecutor* ToExecutor(StatementContext* ctx, plan::RelOptNode* physic
     case plan::RelOptNodeType::kPhysicalCreateTable: {
       plan::PhysicalCreateTable* create_table = dynamic_cast<plan::PhysicalCreateTable*>(physical);
       executor = CreateTable(ctx, create_table);
-    }; break;
+      break;
+    };
 
     case plan::RelOptNodeType::kPhysicalInsert: {
       plan::PhysicalInsert* insert = dynamic_cast<plan::PhysicalInsert*>(physical);
       executor = Insert(ctx, insert);
-    }; break;
-
-    default:
+      break;
+    };
+    default: {
       ERROR("Not support physical node type {}", physical->GetType());
       break;
+    }
   }
   return executor;
 }
@@ -50,8 +52,7 @@ TableScanExecutor* TableScan(StatementContext* ctx, plan::PhysicalTableScan* phy
 }
 
 FilterExecutor* Filter(StatementContext* ctx, plan::PhysicalFilter* physical) {
-  executor::FilterExecutor* filter_executor =
-      ctx->arena->CreateObject<executor::FilterExecutor>(ctx, physical);
+  executor::FilterExecutor* filter_executor = ctx->arena->CreateObject<executor::FilterExecutor>(ctx, physical);
   return filter_executor;
 }
 

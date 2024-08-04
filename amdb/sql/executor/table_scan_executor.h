@@ -11,7 +11,7 @@ namespace executor {
 class TableScanExecutor : public scheduler::ISource {
  public:
   TableScanExecutor(StatementContext* ctx, plan::RelOptNode* plan)
-      : ISource(ctx, scheduler::ExecutorType::kExecCreateTable, plan) {
+      : ISource(ctx, scheduler::ExecutorType::kExecTableScan, plan) {
     AMDB_ASSERT_TRUE(plan != nullptr);
 
     scan_plan_ = dynamic_cast<plan::PhysicalTableScan*>(plan);

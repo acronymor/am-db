@@ -12,7 +12,7 @@ namespace analyzer {
 Status InsertAnalyzer::Analyze() {
   // database id
   uint64_t db_id = amdb::kInvalidIDatabaseID;
-  std::string db_name = std::string(stmt_->table_name->db.to_string());
+  const std::string& db_name = std::string(stmt_->table_name->db.to_string());
 
   storage::Metadata meta;
   Status status = meta.LoadDatabaseIdByName(db_name, &db_id);
@@ -22,7 +22,7 @@ Status InsertAnalyzer::Analyze() {
   }
 
   // table id
-  std::string table_name = std::string(stmt_->table_name->table.to_string());
+  const std::string& table_name = std::string(stmt_->table_name->table.to_string());
   uint64_t table_id = amdb::kInvalidTableID;
 
   status = meta.LoadTableIdByName(db_id, table_name, &table_id);
@@ -51,12 +51,12 @@ Status InsertAnalyzer::Analyze() {
 
   // value list
   insert->ExprNodes().reserve(stmt_->lists.size());
-  for (int i = 0; i < stmt_->lists.size(); i++) {
+  for (std::size_t i = 0; i < stmt_->lists.size(); i++) {
     auto& children = stmt_->lists[i]->children;
 
     std::vector<expr::ExprNode*> expr_nodes;
     expr_nodes.reserve(children.size());
-    for (int j = 0; j < children.size(); j++) {
+    for (std::size_t j = 0; j < children.size(); j++) {
       parser::ExprNode* parser_node = dynamic_cast<parser::ExprNode*>(children[j]);
       expr::ExprNode* expr_node = expr_analyzer.AnalyzeNode(parser_node);
 

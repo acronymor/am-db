@@ -25,6 +25,8 @@ expr::ExprNode* ExprAnalyzer::toExprNode(parser::ExprNode* parse_expr) {
     case parser::ExprType::ET_FUNC: {
       //
     }; break;
+    default:
+      ERROR("ERROR expr type");
   }
 
   return expr_node;
