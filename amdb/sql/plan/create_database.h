@@ -1,19 +1,18 @@
 #pragma once
 
-#include "sql/plan/rel_opt_table.h"
 #include "sql/plan/rel_opt_node.h"
+#include "sql/plan/rel_opt_table.h"
 #include "sql/schema/schema.h"
 
 namespace amdb {
 namespace plan {
 class CreateDatabase : public RelOptNode {
  public:
-  CreateDatabase() : RelOptNode() {}
-  RelOptCost ComputeCost(RelOptCostFactory* factory) override;
+  CreateDatabase() = default;
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor* desc, const std::vector<plan::Cost>& input_cost) override;
 
-
-  RelOptTable *GetTable() const;
-  void SetTable(RelOptTable *table);
+  RelOptTable* GetTable() const;
+  void SetTable(RelOptTable* table);
 
  private:
   RelOptTable* table_;
@@ -21,6 +20,7 @@ class CreateDatabase : public RelOptNode {
 
 class LogicalCreateDatabase : public CreateDatabase {
  public:
+  LogicalCreateDatabase() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
@@ -30,6 +30,7 @@ class LogicalCreateDatabase : public CreateDatabase {
 
 class PhysicalCreateDatabase : public CreateDatabase {
  public:
+  PhysicalCreateDatabase() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;

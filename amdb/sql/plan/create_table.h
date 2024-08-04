@@ -8,10 +8,9 @@ namespace amdb {
 namespace plan {
 class CreateTable : public RelOptNode {
  public:
-  CreateTable() : RelOptNode() {}
-
   RelOptTable *GetTable() const;
   void SetTable(RelOptTable *table);
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor *desc, const std::vector<plan::Cost> &input_cost) override;
 
  private:
   RelOptTable *table_;
@@ -19,27 +18,22 @@ class CreateTable : public RelOptNode {
 
 class LogicalCreateTable : public CreateTable {
  public:
+  LogicalCreateTable() = default;
   const std::string GetName() override;
-  uint64_t GetId() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
-
-  RelOptCost ComputeCost(RelOptCostFactory *factory) override;
 
   RelOptNodeType GetType() override;
 };
 
 class PhysicalCreateTable : public CreateTable {
  public:
-  uint64_t GetId() override;
+  PhysicalCreateTable() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
 
   RelOptNodeType GetType() override;
-  RelOptCost ComputeCost(RelOptCostFactory *factory) override;
-
-
 };
 }  // namespace plan
 }  // namespace amdb

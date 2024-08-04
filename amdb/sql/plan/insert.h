@@ -9,11 +9,10 @@ namespace amdb {
 namespace plan {
 class Insert : public RelOptNode {
  public:
-  Insert() : RelOptNode() {}
-  RelOptCost ComputeCost(RelOptCostFactory *factory) override;
-
   RelOptTable *GetTable() const;
   void SetTable(RelOptTable *table);
+
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor *desc, const std::vector<plan::Cost> &input_cost) override;
 
   std::vector<std::vector<expr::ExprNode *>> &ExprNodes();
 
@@ -24,6 +23,7 @@ class Insert : public RelOptNode {
 
 class LogicalInsert : public Insert {
  public:
+  LogicalInsert() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
@@ -33,6 +33,7 @@ class LogicalInsert : public Insert {
 
 class PhysicalInsert : public Insert {
  public:
+  PhysicalInsert() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;

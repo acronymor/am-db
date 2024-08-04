@@ -1,4 +1,5 @@
-#include "sql/plan/physical_props.h"
+#pragma once
+
 #include "sql/plan/range.h"
 #include "sql/plan/rel_opt_node.h"
 #include "sql/plan/rel_opt_table.h"
@@ -7,12 +8,9 @@ namespace amdb {
 namespace plan {
 class TableScan : public RelOptNode {
  public:
-  TableScan() : RelOptNode() {}
-
   RelOptTable* GetTable() const;
   void SetTable(RelOptTable* table);
   uint64_t GetId() override;
-  RelOptCost ComputeCost(RelOptCostFactory* factory) override;
   std::vector<IndexRange*>* PrimaryRanges();
   std::vector<expr::ExprNode*>* PrimaryFilters();
   std::vector<expr::ExprNode*>* TableFilters();
@@ -26,26 +24,27 @@ class TableScan : public RelOptNode {
 
 class LogicalTableScan : public TableScan {
  public:
-  LogicalTableScan() : TableScan(){};
+  LogicalTableScan() = default;
 
   uint64_t GetId() override;
-  RelOptCost ComputeCost(RelOptCostFactory* factory) override;
-
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
   RelOptNodeType GetType() override;
+
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor* desc, const std::vector<plan::Cost>& input_cost) override;
 };
 
 class PhysicalTableScan : public TableScan {
  public:
-  PhysicalTableScan() : TableScan(){};
+  PhysicalTableScan() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
   uint64_t GetId() override;
-  RelOptCost ComputeCost(RelOptCostFactory* factory) override;
   RelOptNodeType GetType() override;
+
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor* desc, const std::vector<plan::Cost>& input_cost) override;
 };
 }  // namespace plan
 }  // namespace amdb

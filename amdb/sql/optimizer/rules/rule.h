@@ -1,22 +1,34 @@
-#include "sql/common/statuscode.h"
+#pragma once
+
+#include <unordered_map>
+
 #include "sql/context/statement_context.h"
-#include "sql/planner/logical_plan_node.h"
-#include "sql/planner/physical_plan_node.h"
+#include "sql/optimizer/rules/rule_matcher.h"
 
 namespace amdb {
 namespace opt {
-class RewriteRule {
+enum struct OptimizerType : std::uint32_t;
+class Optimizer;
+using RuleId = std::uint32_t;
+
+class Rule {
  public:
-  RewriteRule(StatementContext* ctx, const std::string&& name)
-      : name(std::move(name)) {}
-  virtual ~RewriteRule() = default;
+  explicit Rule(const std::string& name) : name_(name) {}
+  virtual ~Rule() = default;
 
-  virtual Status Rewrite(planner::LogicalNode* root, bool* applied) = 0;
+  virtual std::shared_ptr<RuleMatcher> Matcher() = 0;
+  virtual std::vector<plan::RelOptNode*> Apply(const Optimizer* optimizer,
+                                               const std::unordered_map<std::size_t, plan::RelOptNode*>& input) = 0;
+  std::string Name() const;
 
-  virtual Status Rewrite(planner::PhysicalNode* root, bool* applied) = 0;
-
-  std::string name;
-  StatementContext* stmt_ctx;
+ private:
+  std::string name_;
 };
+
+struct RuleWrapper {
+  const std::shared_ptr<Rule> rule;
+  const OptimizerType optimizer_type;
+};
+
 }  // namespace opt
 }  // namespace amdb

@@ -6,20 +6,18 @@
 
 namespace amdb {
 namespace plan {
-class Filter : public RelOptNode {
- public:
-  Filter() : RelOptNode() {}
-  RelOptCost ComputeCost(RelOptCostFactory *factory) override;
-};
+class Filter : public RelOptNode {};
 
 class LogicalFilter : public Filter {
  public:
+  LogicalFilter() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
   RelOptNodeType GetType() override;
 
   const std::vector<expr::ExprNode *> &GetConditions() const;
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor *desc, const std::vector<plan::Cost> &input_cost) override;
 
  private:
   std::vector<expr::ExprNode *> conditions;
@@ -27,10 +25,12 @@ class LogicalFilter : public Filter {
 
 class PhysicalFilter : public Filter {
  public:
+  PhysicalFilter() = default;
   const std::string GetName() override;
   uint64_t GetArity() override;
   uint64_t Hash() override;
   RelOptNodeType GetType() override;
+  plan::Cost FindLocalCost(chunk::ColumnDescriptor *desc, const std::vector<plan::Cost> &input_cost) override;
 
  private:
   std::vector<expr::ExprNode *> conditions;
