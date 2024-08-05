@@ -49,9 +49,7 @@ OptimizeInputsTask::OptimizeInputsTask(const ExprId& expr_id, const std::optiona
     : expr_id_(expr_id), continue_from_(cont), pruning_(pruning) {}
 
 std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimizer) {
-  // TRACE("event=task_begin, task=optimize_inputs, expr_id={}, continue_from={}", this->expr_id_,
-  // this->continue_from_);
-  TRACE("event=task_begin, task=optimize_inputs, expr_id={}, continue_from=", this->expr_id_);
+  TRACE("event=task_begin, task=optimize_inputs, expr_id={}, continue_from={}", this->expr_id_, this->continue_from_->next_group_idx);
   const RelMemoNodeRef& expr = optimizer->GetExprMemoNode(this->expr_id_);
   const std::vector<GroupId>& children_group_ids = expr->children;
   const std::shared_ptr<CostModel>& cost = optimizer->Cost();

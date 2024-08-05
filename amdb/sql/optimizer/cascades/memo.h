@@ -76,7 +76,7 @@ class Memo {
 
   RelMemoNodeRef GetExprMemoNode(const ExprId& expr_id);
   std::pair<GroupId, ExprId> InitMemo(plan::RelOptNode* node);
-  std::pair<GroupId, ExprId> AddNewGroupExpr(plan::RelOptNode* node, const GroupId& group_id);
+  std::pair<GroupId, ExprId> AddNewGroupExpr(plan::RelOptNode* node, const std::optional<GroupId>& group_id);
 
  private:
   RelMemoNodeRef getBestGroupBind(std::vector<std::vector<plan::RelOptNode*>>* root, const GroupId& group_id);

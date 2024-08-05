@@ -26,7 +26,7 @@ class Cascades final : public Optimizer {
   Status fireOptimizeTask(const GroupId& group_id);
 
  public:
-  std::pair<GroupId, ExprId> AddGroupExpr(plan::RelOptNode* expr, const GroupId& group_id);
+  std::pair<GroupId, ExprId> AddGroupExpr(plan::RelOptNode* expr, const std::optional<GroupId>& group_id);
   std::optional<GroupId> GetGroupId(const ExprId& expr_id);
   std::optional<GroupInfo> GetGroupInfo(const GroupId& group_id);
   void UpdateGroupInfo(const GroupId& group_id, const GroupInfo& group_info);

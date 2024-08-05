@@ -17,7 +17,7 @@ std::vector<GroupId> Memo::GetAllGroupIds() {
 }
 
 std::vector<ExprId> Memo::GetAllExprsInGroup(const GroupId& group_id) {
-  const std::optional<ReducedGroupId> reduced_group_id = this->GetReduceGroupId(group_id);
+  const std::optional<ReducedGroupId>& reduced_group_id = this->GetReduceGroupId(group_id);
   if (!reduced_group_id.has_value() || !this->groups_.contains(reduced_group_id.value())) {
     return {};
   }
@@ -125,9 +125,17 @@ std::pair<GroupId, ExprId> Memo::InitMemo(plan::RelOptNode* node) {
   return std::make_pair(group_id, expr_id);
 }
 
-std::pair<GroupId, ExprId> Memo::AddNewGroupExpr(plan::RelOptNode* node, const GroupId& group_id) {
-  // TODO 为什么这里保留引用之后，后续使用的时候值会丢失？
-  const ReducedGroupId reduced_group_id = this->GetReduceGroupId(group_id).value();
+std::pair<GroupId, ExprId> Memo::AddNewGroupExpr(plan::RelOptNode* node, const std::optional<GroupId>& group_id) {
+  if (!group_id.has_value()) {
+    return std::pair<GroupId, ExprId>(0, 0);
+  }
+
+  const GroupId real_group_id = group_id.value();
+  const std::optional<ReducedGroupId> reduced_group_id = this->GetReduceGroupId(real_group_id);
+  if (!reduced_group_id.has_value()) {
+    return std::pair<GroupId, ExprId>(0, 0);
+  }
+  const ReducedGroupId real_reduced_group_id = reduced_group_id.value();
 
   // this->mergeGroup(group_a, group_id);
   std::vector<GroupId> children_group_ids;
@@ -143,10 +151,10 @@ std::pair<GroupId, ExprId> Memo::AddNewGroupExpr(plan::RelOptNode* node, const G
   const RelMemoNodeRef& memo_node_ref = std::make_shared<RelMemoNode>(node, children_group_ids);
 
   this->expr_id_to_expr_node_.insert(std::make_pair(expr_id, memo_node_ref));
-  this->expr_id_to_group_id_.insert(std::make_pair(expr_id, reduced_group_id));
+  this->expr_id_to_group_id_.insert(std::make_pair(expr_id, real_reduced_group_id));
   this->expr_node_to_expr_id_.insert(std::make_pair(memo_node_ref, expr_id));
-  this->addExprToGroup(expr_id, reduced_group_id, memo_node_ref);
-  return std::make_pair(reduced_group_id, expr_id);
+  this->addExprToGroup(expr_id, real_reduced_group_id, memo_node_ref);
+  return std::make_pair(real_reduced_group_id, expr_id);
 }
 
 void Memo::addExprToGroup(const ExprId& expr_id, const ReducedGroupId& group_id, const RelMemoNodeRef& memo_node) {

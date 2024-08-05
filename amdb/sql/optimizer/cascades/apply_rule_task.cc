@@ -126,17 +126,15 @@ std::vector<std::unique_ptr<Task>> ApplyRuleTask::execute(Cascades* optimizer) {
   TRACE("event=task_begin, task=apply_rule, expr_id={}, rule_id={}, rule_name={}", this->expr_id_, this->rule_id_,
         rule->Name());
 
-  // 为啥在后续嵌套 for 循环中会错？ const GroupId& group_id = optimizer->GetGroupId(this->expr_id_).value();
   const GroupId group_id = optimizer->GetGroupId(this->expr_id_).value();
   std::vector<std::unique_ptr<Task>> tasks;
 
   const auto& binding_exprs = MatchAndPickExpr(optimizer, this->expr_id_, rule->Matcher());
   for (const auto& expr : binding_exprs) {
     const auto& applied = rule->Apply(optimizer, expr);
-    for (const auto& expr_applied : applied) {
+    for (plan::RelOptNode* expr_applied : applied) {
       // TODO merge group
       const std::pair<GroupId, ExprId>& entry = optimizer->AddGroupExpr(expr_applied, group_id);
-      // TRACE("apply_rule expr_id={}, rule_id={}, new_expr_id={}", this->expr_id_, this->rule_id_, expr_applied);
       TRACE("apply_rule expr_id={}, rule_id={}, new_expr_id={}", this->expr_id_, this->rule_id_, entry.second);
       if (expr_applied->IsLogical()) {
         tasks.emplace_back(std::make_unique<OptimizeExprTask>(entry.second, this->exploring_));
