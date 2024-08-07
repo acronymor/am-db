@@ -67,7 +67,7 @@ class Memo {
   std::optional<GroupInfo> GetGroupInfo(const GroupId& group_id);
   void UpdateGroupInfo(const GroupId& group_id, const GroupInfo& group_info);
 
-  Status GetBestPlan(std::vector<std::vector<plan::RelOptNode*>>* root, const GroupId& group_id);
+  plan::RelOptNode* GetBestPlan(const GroupId& group_id);
 
   ExprId NextExprId() {
     this->group_expr_counter_ += 1;
@@ -79,7 +79,7 @@ class Memo {
   std::pair<GroupId, ExprId> AddNewGroupExpr(plan::RelOptNode* node, const std::optional<GroupId>& group_id);
 
  private:
-  RelMemoNodeRef getBestGroupBind(std::vector<std::vector<plan::RelOptNode*>>* root, const GroupId& group_id);
+  Status getBestGroupBind(plan::RelOptNode* root, const GroupId& group_id);
 
  private:
   void addExprToGroup(const ExprId& expr_id, const ReducedGroupId& group_id, const RelMemoNodeRef& memo_node);

@@ -1,5 +1,7 @@
 #include "sql/optimizer/cascades/memo.h"
 
+#include <common/assert.h>
+
 #include "common/log.h"
 #include "placeholder.h"
 
@@ -80,29 +82,27 @@ void Memo::UpdateGroupInfo(const GroupId& group_id, const GroupInfo& group_info)
   this->groups_[reduced_group_id.value()].info = group_info;
 }
 
-Status Memo::GetBestPlan(std::vector<std::vector<plan::RelOptNode*>>* root, const GroupId& group_id) {
-  const RelMemoNodeRef& node = this->getBestGroupBind(root, group_id);
-  root->back().emplace_back(node->node);
-  return Status::C_OK;
+plan::RelOptNode* Memo::GetBestPlan(const GroupId& group_id) {
+  PlaceHolder* empty = new PlaceHolder(nullptr, 0);
+  Status status = this->getBestGroupBind(empty, group_id);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  plan::RelOptNode* root = empty->GetInput(0);
+  return root;
 }
 
-RelMemoNodeRef Memo::getBestGroupBind(std::vector<std::vector<plan::RelOptNode*>>* root, const GroupId& group_id) {
+Status Memo::getBestGroupBind(plan::RelOptNode* root, const GroupId& group_id) {
   const std::optional<GroupInfo>& group_info = this->GetGroupInfo(group_id);
-  if (!group_info.has_value()) {
-    return nullptr;
-  }
-
   const ExprId& expr_id = group_info.value().winner->expr_id;
   const RelMemoNodeRef& node_ref = this->GetExprMemoNode(expr_id);
 
+  node_ref->node->RemoveInputs();
+  root->AddInput(node_ref->node);
+
   for (const auto& item : node_ref->children) {
-    const RelMemoNodeRef& bind = this->getBestGroupBind(root, item);
-    root->back().emplace_back(bind->node);
+    this->getBestGroupBind(node_ref->node, item);
   }
 
-  root->emplace_back();
-
-  return node_ref;
+  return Status::C_OK;
 }
 
 RelMemoNodeRef Memo::GetExprMemoNode(const ExprId& expr_id) { return this->expr_id_to_expr_node_[expr_id]; }

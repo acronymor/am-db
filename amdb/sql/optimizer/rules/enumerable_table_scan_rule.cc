@@ -14,15 +14,11 @@ std::shared_ptr<RuleMatcher> EnumerableTableScanRule::Matcher() {
   return std::make_shared<MatchAndPickNode>(&pick_to, child, plan::RelOptNodeType::kLogicalTableScan);
 };
 
-std::vector<plan::RelOptNode*> EnumerableTableScanRule::Apply(
-    const Optimizer* optimizer, const std::unordered_map<std::size_t, plan::RelOptNode*>& input) {
-  plan::LogicalTableScan* tmp = dynamic_cast<plan::LogicalTableScan*>(input.at(0));
+std::vector<plan::RelOptNode*> EnumerableTableScanRule::Apply(const Optimizer* optimizer, plan::RelOptNode* input) {
   plan::PhysicalTableScan* scan = new plan::PhysicalTableScan();
-  /*
-  for (const auto& item : tmp->GetInputs()) {
+  for (const auto& item : input->GetInputs()) {
     scan->AddInput(item);
   }
-  */
   return {scan};
 }
 };  // namespace opt

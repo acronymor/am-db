@@ -9,16 +9,15 @@
 
 namespace amdb {
 namespace opt {
-std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> MatchAndPickGroup(
-    Cascades* optimizer, const GroupId& group_id, const std::shared_ptr<RuleMatcher>& matcher);
-std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> MatchAndPickExpr(
-    Cascades* optimizer, const ExprId& expr_id, const std::shared_ptr<RuleMatcher>& matcher);
+std::vector<plan::RelOptNode*> MatchAndPickGroup(Cascades* optimizer, const GroupId& group_id,
+                                                 const std::shared_ptr<RuleMatcher>& matcher);
+std::vector<plan::RelOptNode*> MatchAndPickExpr(Cascades* optimizer, const ExprId& expr_id,
+                                                const std::shared_ptr<RuleMatcher>& matcher);
 
 auto MatchNodeInner(Cascades* optimizer, const RelMemoNodeRef& node, std::optional<std::size_t> pick_to,
-                    const std::vector<std::shared_ptr<RuleMatcher>>& children)
-    -> std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> {
+                    const std::vector<std::shared_ptr<RuleMatcher>>& children) -> std::vector<plan::RelOptNode*> {
   bool should_end = false;
-  std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> picks;
+  std::vector<plan::RelOptNode*> picks;
 
   for (std::size_t idx = 0; idx < children.size(); idx++) {
     const std::shared_ptr<RuleMatcher>& child = children[idx];
@@ -50,21 +49,19 @@ auto MatchNodeInner(Cascades* optimizer, const RelMemoNodeRef& node, std::option
 
   if (pick_to) {
     // TODO delete placeholder
-    plan::RelOptNode* root = new PlaceHolder(node->node->GetType(), 0);
+    plan::RelOptNode* root = new PlaceHolder(node->node, 0);
     for (const auto& input : node->children) {
-      root->AddInput(new PlaceHolder(plan::RelOptNodeType::kPlaceHolder, input));
+      root->AddInput(new PlaceHolder(nullptr, input));
     }
-    std::unordered_map<std::size_t, plan::RelOptNode*> pick;
-    pick.insert(std::make_pair<std::size_t, plan::RelOptNode*>(std::move(*pick_to), std::move(root)));
-    picks.emplace_back(pick);
+    picks.emplace_back(std::move(root));
   }
 
   return picks;
 }
 
 auto MatchAndPick(Cascades* optimizer, const RelMemoNodeRef& node, const std::shared_ptr<RuleMatcher>& matcher)
-    -> std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> {
-  std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> picks;
+    -> std::vector<plan::RelOptNode*> {
+  std::vector<plan::RelOptNode*> picks;
   switch (matcher->GetMatcherType()) {
     case RuleMatcherType::MatchAndPickNode: {
       MatchAndPickNode* pick_node = dynamic_cast<MatchAndPickNode*>(matcher.get());
@@ -91,14 +88,14 @@ auto MatchAndPick(Cascades* optimizer, const RelMemoNodeRef& node, const std::sh
 };
 
 auto MatchAndPickExpr(Cascades* optimizer, const ExprId& expr_id, const std::shared_ptr<RuleMatcher>& matcher)
-    -> std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> {
+    -> std::vector<plan::RelOptNode*> {
   const RelMemoNodeRef& node_ref = optimizer->GetExprMemoNode(expr_id);
   return MatchAndPick(optimizer, node_ref, matcher);
 }
 
 auto MatchAndPickGroup(Cascades* optimizer, const GroupId& group_id, const std::shared_ptr<RuleMatcher>& matcher)
-    -> std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> {
-  std::vector<std::unordered_map<std::size_t, plan::RelOptNode*>> picks;
+    -> std::vector<plan::RelOptNode*> {
+  std::vector<plan::RelOptNode*> picks;
   for (const auto& expr_id : optimizer->GetAllExprsInGroup(group_id)) {
     const RelMemoNodeRef& node_ref = optimizer->GetExprMemoNode(expr_id);
     const auto& pick = MatchAndPick(optimizer, node_ref, matcher);

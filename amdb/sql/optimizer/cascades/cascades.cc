@@ -17,16 +17,17 @@ Cascades::Cascades(StatementContext* stmt_ctx) : stmt_ctx_(stmt_ctx) {
   InitCascadesRules(&this->rules_);
 };
 
+plan::RelOptNode* Cascades::FindBestExp() {
+  const GroupId& group_id = this->initMemo(this->stmt_ctx_->logical_plan);
+  const Status& status = this->fireOptimizeTask(group_id);
+  AMDB_ASSERT_EQ(Status::C_OK, status);
+  plan::RelOptNode* root = this->stepOptmizeRel(group_id);
+  return root;
+};
+
 GroupId Cascades::initMemo(plan::RelOptNode* node) const {
   const auto& [group_id, expr_id] = this->memo_->InitMemo(node);
   return group_id;
-}
-
-plan::RelOptNode* Cascades::stepOptmizeRel(const GroupId& group_id) const {
-  std::vector<std::vector<plan::RelOptNode*>> v;
-  const Status status = this->memo_->GetBestPlan(&v, group_id);
-  AMDB_ASSERT_EQ(Status::C_OK, status);
-  return v.back().back();
 }
 
 Status Cascades::fireOptimizeTask(const GroupId& group_id) {
@@ -44,22 +45,9 @@ Status Cascades::fireOptimizeTask(const GroupId& group_id) {
   return Status::C_OK;
 }
 
-plan::RelOptNode* Cascades::FindBestExp() {
-  const GroupId& group_id = this->initMemo(this->stmt_ctx_->logical_plan);
-  std::cout << "1----------->>" << std::endl;
-  this->memo_->Show();
-  std::cout << "2<<-----------" << std::endl;
-  const Status& status = this->fireOptimizeTask(group_id);
-  this->memo_->Show();
-  std::cout << "3<<-----------" << std::endl;
-  AMDB_ASSERT_EQ(Status::C_OK, status);
-  plan::RelOptNode* root = this->stepOptmizeRel(group_id);
-  std::cout << "4<<-----------" << std::endl;
-  std::cout << root->GetName() << std::endl;
-  return root;
-};
+plan::RelOptNode* Cascades::stepOptmizeRel(const GroupId& group_id) const { return this->memo_->GetBestPlan(group_id); }
 
-std::pair<GroupId, ExprId> Cascades::AddGroupExpr(plan::RelOptNode* expr, const GroupId& group_id) {
+std::pair<GroupId, ExprId> Cascades::AddGroupExpr(plan::RelOptNode* expr, const std::optional<GroupId>& group_id) {
   return this->memo_->AddNewGroupExpr(expr, group_id);
 };
 

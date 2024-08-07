@@ -1,10 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <atomic>
 #include <cstdint>
-#include <iostream>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 #include "sql/chunk/column_description.h"
 #include "sql/context/statement_context.h"
@@ -34,7 +34,7 @@ enum struct RelOptNodeType : std::uint32_t {
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const RelOptNodeType& opt_node_type) {
-  stream<< static_cast<std::underlying_type<RelOptNodeType>::type>(opt_node_type);
+  stream << static_cast<std::underlying_type<RelOptNodeType>::type>(opt_node_type);
   return stream;
 }
 
@@ -45,12 +45,16 @@ struct RelOptNode {
 
   void AddInput(RelOptNode* node);
 
-  RelOptNode* GetInput(const uint64_t& i) {
-    const std::vector<RelOptNode*>& inputs = GetInputs();
-    return inputs.at(i);
+  RelOptNode* GetInput(const uint64_t& i) { return this->inputs_[i]; }
+
+  void RemoveInputs() {
+    for (const RelOptNode* node : this->inputs_) {
+      delete node;
+    }
+    this->inputs_.clear();
   }
 
-  std::vector<RelOptNode*> GetInputs() { return inputs_; }
+  std::vector<RelOptNode*> GetInputs() { return this->inputs_; }
 
   bool IsEnforcer() { return false; };
 

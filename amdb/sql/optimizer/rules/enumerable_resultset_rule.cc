@@ -18,9 +18,9 @@ std::shared_ptr<RuleMatcher> EnumerableResultSetRule::Matcher() {
 };
 
 std::vector<plan::RelOptNode*> EnumerableResultSetRule::Apply(
-    const Optimizer* optimizer, const std::unordered_map<std::size_t, plan::RelOptNode*>& input) {
+    const Optimizer* optimizer, plan::RelOptNode* input) {
   plan::PhysicalResultSet* result_set = new plan::PhysicalResultSet();
-  for (const auto& child : input.begin()->second->GetInputs()) {
+  for (const auto& child : input->GetInputs()) {
     result_set->AddInput(child);
   }
   return {result_set};

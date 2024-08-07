@@ -16,9 +16,9 @@ std::shared_ptr<RuleMatcher> EnumerableFilterRule::Matcher() {
 };
 
 std::vector<plan::RelOptNode*> EnumerableFilterRule::Apply(
-    const Optimizer* optimizer, const std::unordered_map<std::size_t, plan::RelOptNode*>& input) {
+    const Optimizer* optimizer, plan::RelOptNode* input) {
   plan::PhysicalFilter* filter = new plan::PhysicalFilter();
-  for (const auto& child : input.begin()->second->GetInputs()) {
+  for (const auto& child : input->GetInputs()) {
     filter->AddInput(child);
   }
   return {filter};

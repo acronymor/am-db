@@ -15,7 +15,7 @@ std::vector<plan::Cost> FirstInvoke(Cascades* optimizer, const std::vector<Group
   input_cost.reserve(children.size());
 
   for (const GroupId& child : children) {
-    const GroupInfo& group = optimizer->GetGroupInfo(child).value();
+    const GroupInfo group = optimizer->GetGroupInfo(child).value();
     if (group.winner) {
       if (!group.winner->impossible) {
         input_cost.push_back(group.winner->cost);
@@ -29,7 +29,7 @@ std::vector<plan::Cost> FirstInvoke(Cascades* optimizer, const std::vector<Group
 }
 
 bool IsUpdateWinner(Cascades* optimizer, const plan::Cost& cost_so_far, const GroupId& group_id) {
-  const GroupInfo& group_info = optimizer->GetGroupInfo(group_id).value();
+  const GroupInfo group_info = optimizer->GetGroupInfo(group_id).value();
   bool update_cost = false;
 
   const auto& winner = group_info.winner;
@@ -49,7 +49,10 @@ OptimizeInputsTask::OptimizeInputsTask(const ExprId& expr_id, const std::optiona
     : expr_id_(expr_id), continue_from_(cont), pruning_(pruning) {}
 
 std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimizer) {
-  TRACE("event=task_begin, task=optimize_inputs, expr_id={}, continue_from={}", this->expr_id_, this->continue_from_->next_group_idx);
+  std::string continue_from_group_idx =
+      std::format("{}", this->continue_from_.has_value() ? std::to_string(this->continue_from_->next_group_idx) : "");
+  TRACE("event=task_begin, task=optimize_inputs, expr_id={}, continue_from={}", this->expr_id_,
+        continue_from_group_idx);
   const RelMemoNodeRef& expr = optimizer->GetExprMemoNode(this->expr_id_);
   const std::vector<GroupId>& children_group_ids = expr->children;
   const std::shared_ptr<CostModel>& cost = optimizer->Cost();
@@ -57,7 +60,7 @@ std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimiz
   if (this->continue_from_) {
     if (this->continue_from_->next_group_idx < children_group_ids.size()) {
       const GroupId& children_group_id = children_group_ids[this->continue_from_->next_group_idx];
-      const GroupInfo& group_info = optimizer->GetGroupInfo(children_group_id).value();
+      const GroupInfo group_info = optimizer->GetGroupInfo(children_group_id).value();
       bool has_full_winner = false;
 
       if (group_info.winner) {
@@ -84,7 +87,6 @@ std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimiz
       tasks.emplace_back(std::make_unique<OptimizeInputsTask>(this->expr_id_, task, this->pruning_));
       return tasks;
     } else {
-      // TODO 为啥后续使用 group_id 会失效
       const GroupId group_id = optimizer->GetGroupId(this->expr_id_).value();
       // const plan::Cost cost_so_far = cost->Sum(expr->node->FindLocalCost(), this->continue_from_->input_cost);
       const plan::Cost& cost_so_far = cost->Sum(cost->Zero(), this->continue_from_->input_cost);
