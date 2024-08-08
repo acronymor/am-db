@@ -48,7 +48,6 @@ auto MatchNodeInner(Cascades* optimizer, const RelMemoNodeRef& node, std::option
   }
 
   if (pick_to) {
-    // TODO delete placeholder
     plan::RelOptNode* root = new PlaceHolder(node->node, 0);
     for (const auto& input : node->children) {
       root->AddInput(new PlaceHolder(nullptr, input));
@@ -128,16 +127,18 @@ std::vector<std::unique_ptr<Task>> ApplyRuleTask::execute(Cascades* optimizer) {
 
   const auto binding_exprs = MatchAndPickExpr(optimizer, this->expr_id_, rule->Matcher());
   for (const auto& expr : binding_exprs) {
-    const auto applied = rule->Apply(optimizer, expr);
-    for (plan::RelOptNode* expr_applied : applied) {
-      // TODO merge group
-      const std::pair<GroupId, ExprId> entry = optimizer->AddGroupExpr(expr_applied, group_id);
-      TRACE("apply_rule expr_id={}, rule_id={}, new_expr_id={}", this->expr_id_, this->rule_id_, entry.second);
-      if (expr_applied->IsLogical()) {
-        tasks.emplace_back(std::make_unique<OptimizeExprTask>(entry.second, this->exploring_));
-      } else {
-        tasks.emplace_back(std::make_unique<OptimizeInputsTask>(entry.second, std::nullopt, true));
-      }
+    PlaceHolder* holder = dynamic_cast<PlaceHolder*>(expr);
+    const auto applied = rule->Apply(optimizer, holder->GetNode());
+    for (const auto& child : expr->GetInputs()) {
+      applied->AddInput(child);
+    }
+    // TODO merge group
+    const std::pair<GroupId, ExprId> entry = optimizer->AddGroupExpr(applied, group_id);
+    TRACE("apply_rule expr_id={}, rule_id={}, new_expr_id={}", this->expr_id_, this->rule_id_, entry.second);
+    if (applied->IsLogical()) {
+      tasks.emplace_back(std::make_unique<OptimizeExprTask>(entry.second, this->exploring_));
+    } else {
+      tasks.emplace_back(std::make_unique<OptimizeInputsTask>(entry.second, std::nullopt, true));
     }
   }
 

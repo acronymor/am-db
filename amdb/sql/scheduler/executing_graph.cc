@@ -37,7 +37,7 @@ ExecutingGraph::State StateConv(IExecutor::State state) {
 }  // namespace
 
 ExecutingGraph* ExecutingGraph::initExecutors() {
-  plan::RelOptNode* root = dynamic_cast<plan::RelOptNode*>(stmt_ctx->physical_plan);
+  plan::RelOptNode* root = stmt_ctx->physical_plan;
   ToExecutor(stmt_ctx, root, &executors_);
   return this;
 }

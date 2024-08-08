@@ -50,8 +50,6 @@ class Cascades final : public Optimizer {
   std::shared_ptr<CostModel> cost_;
 
   std::unordered_set<GroupId> explored_group_;
-
-  StatementContext* stmt_ctx_;
 };
 
 };  // namespace opt

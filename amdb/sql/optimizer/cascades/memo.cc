@@ -87,6 +87,7 @@ plan::RelOptNode* Memo::GetBestPlan(const GroupId& group_id) {
   Status status = this->getBestGroupBind(empty, group_id);
   AMDB_ASSERT_EQ(Status::C_OK, status);
   plan::RelOptNode* root = empty->GetInput(0);
+  delete empty;
   return root;
 }
 

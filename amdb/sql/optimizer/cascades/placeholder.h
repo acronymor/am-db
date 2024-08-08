@@ -9,6 +9,7 @@ class PlaceHolder : public plan::RelOptNode {
  public:
   PlaceHolder(plan::RelOptNode* node, const GroupId& group_id) : node_(node), group_id_(group_id){};
   const std::string GetName() override { return "PlaceHolder"; };
+  plan::RelOptNode* GetNode() const {return this->node_;};
 
   GroupId GetGroupID() const { return this->group_id_; }
 

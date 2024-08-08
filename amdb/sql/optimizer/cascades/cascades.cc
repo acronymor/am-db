@@ -11,14 +11,14 @@
 
 namespace amdb {
 namespace opt {
-Cascades::Cascades(StatementContext* stmt_ctx) : stmt_ctx_(stmt_ctx) {
+Cascades::Cascades(StatementContext* stmt_ctx) : Optimizer(stmt_ctx) {
   this->memo_ = std::make_unique<Memo>();
   this->cost_ = std::make_shared<AdaptiveCost>();
   InitCascadesRules(&this->rules_);
 };
 
 plan::RelOptNode* Cascades::FindBestExp() {
-  const GroupId group_id = this->initMemo(this->stmt_ctx_->logical_plan);
+  const GroupId group_id = this->initMemo(this->stmt_ctx->logical_plan);
   const Status status = this->fireOptimizeTask(group_id);
   AMDB_ASSERT_EQ(Status::C_OK, status);
   plan::RelOptNode* root = this->stepOptmizeRel(group_id);

@@ -1,5 +1,6 @@
 #include "sql/optimizer/rules/enumerable_resultset_rule.h"
 
+#include <sql/optimizer/optimizer.h>
 #include <sql/plan/result_set.h>
 
 namespace amdb::plan {
@@ -17,13 +18,10 @@ std::shared_ptr<RuleMatcher> EnumerableResultSetRule::Matcher() {
   return std::make_shared<MatchAndPickNode>(&pick_to, child, plan::RelOptNodeType::kLogicalResultSet);
 };
 
-std::vector<plan::RelOptNode*> EnumerableResultSetRule::Apply(
-    const Optimizer* optimizer, plan::RelOptNode* input) {
-  plan::PhysicalResultSet* result_set = new plan::PhysicalResultSet();
-  for (const auto& child : input->GetInputs()) {
-    result_set->AddInput(child);
-  }
-  return {result_set};
+plan::RelOptNode* EnumerableResultSetRule::Apply(const Optimizer* optimizer, plan::RelOptNode* node) {
+  plan::LogicalResultSet* logical_table_scan = dynamic_cast<plan::LogicalResultSet*>(node);
+  plan::PhysicalResultSet* physical_result_set = optimizer->stmt_ctx->arena->CreateObject<plan::PhysicalResultSet>();
+  return physical_result_set;
 }
 
 }  // namespace opt

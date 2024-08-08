@@ -1,5 +1,7 @@
 #include "sql/optimizer/rules/enumerable_filter_rule.h"
 
+#include <sql/optimizer/optimizer.h>
+
 #include "absl/time/clock.h"
 #include "sql/plan/filter.h"
 
@@ -15,12 +17,11 @@ std::shared_ptr<RuleMatcher> EnumerableFilterRule::Matcher() {
   return std::make_shared<MatchAndPickNode>(&pick_to, child, plan::RelOptNodeType::kLogicalFilter);
 };
 
-std::vector<plan::RelOptNode*> EnumerableFilterRule::Apply(const Optimizer* optimizer, plan::RelOptNode* node) {
-  plan::PhysicalFilter* filter = new plan::PhysicalFilter();
-  for (const auto& child : node->GetInputs()) {
-    filter->AddInput(child);
-  }
-  return {filter};
+plan::RelOptNode* EnumerableFilterRule::Apply(const Optimizer* optimizer, plan::RelOptNode* node) {
+  plan::LogicalFilter* logical_filter = dynamic_cast<plan::LogicalFilter*>(node);
+  plan::PhysicalFilter* physical_filter = optimizer->stmt_ctx->arena->CreateObject<plan::PhysicalFilter>();
+  physical_filter->SetConditions(logical_filter->GetConditions());
+  return physical_filter;
 }
 
 }  // namespace opt
