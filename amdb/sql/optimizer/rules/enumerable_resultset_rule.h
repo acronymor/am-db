@@ -8,7 +8,7 @@ class EnumerableResultSetRule final: public Rule {
 
   std::shared_ptr<RuleMatcher> Matcher() override;
 
-  std::vector<plan::RelOptNode*> Apply(const Optimizer* optimizer, plan::RelOptNode* input) override;
+  std::vector<plan::RelOptNode*> Apply(const Optimizer* optimizer, plan::RelOptNode* node) override;
 };
 
 };  // namespace opt

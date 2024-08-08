@@ -54,7 +54,7 @@ struct RelOptNode {
     this->inputs_.clear();
   }
 
-  std::vector<RelOptNode*> GetInputs() { return this->inputs_; }
+  const std::vector<RelOptNode*>& GetInputs() const { return this->inputs_; }
 
   bool IsEnforcer() { return false; };
 

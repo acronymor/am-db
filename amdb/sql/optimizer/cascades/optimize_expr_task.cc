@@ -34,7 +34,7 @@ bool TopMatches(const std::shared_ptr<RuleMatcher>& matcher, plan::RelOptNode* n
 OptimizeExprTask::OptimizeExprTask(const ExprId& expr_id, bool exploring) : expr_id_(expr_id), exploring_(exploring) {}
 
 std::vector<std::unique_ptr<Task>> OptimizeExprTask::execute(Cascades* optimizer) {
-  const RelMemoNodeRef& node_ref = optimizer->GetExprMemoNode(this->expr_id_);
+  const RelMemoNodeRef node_ref = optimizer->GetExprMemoNode(this->expr_id_);
   TRACE("event=task_begin, task=optimize_expr, expr_id={}", this->expr_id_);
   std::vector<std::unique_ptr<Task>> tasks;
 

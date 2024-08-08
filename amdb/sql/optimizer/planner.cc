@@ -1,7 +1,7 @@
 #include "sql/optimizer/planner.h"
-#include "sql/optimizer/cascades/cascades.h"
 
 #include "common/log.h"
+#include "sql/optimizer/cascades/cascades.h"
 
 namespace amdb {
 namespace opt {

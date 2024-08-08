@@ -38,7 +38,7 @@ scheduler::IExecutor* ToExecutor(StatementContext* ctx, plan::RelOptNode* physic
       break;
     };
     default: {
-      ERROR("Not support physical node type {}", physical->GetType());
+      ERROR("Not support physical node type {}", physical->GetName());
       break;
     }
   }

@@ -15,7 +15,7 @@ std::vector<std::unique_ptr<Task>> ExploreGroupTask::execute(Cascades* optimizer
     return {};
   }
 
-  const std::vector<ExprId>& exprs = optimizer->GetAllExprsInGroup(this->group_id_);
+  const std::vector<ExprId> exprs = optimizer->GetAllExprsInGroup(this->group_id_);
   std::vector<std::unique_ptr<Task>> tasks;
   tasks.reserve(exprs.size());
 

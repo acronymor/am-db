@@ -18,15 +18,15 @@ Cascades::Cascades(StatementContext* stmt_ctx) : stmt_ctx_(stmt_ctx) {
 };
 
 plan::RelOptNode* Cascades::FindBestExp() {
-  const GroupId& group_id = this->initMemo(this->stmt_ctx_->logical_plan);
-  const Status& status = this->fireOptimizeTask(group_id);
+  const GroupId group_id = this->initMemo(this->stmt_ctx_->logical_plan);
+  const Status status = this->fireOptimizeTask(group_id);
   AMDB_ASSERT_EQ(Status::C_OK, status);
   plan::RelOptNode* root = this->stepOptmizeRel(group_id);
   return root;
 };
 
 GroupId Cascades::initMemo(plan::RelOptNode* node) const {
-  const auto& [group_id, expr_id] = this->memo_->InitMemo(node);
+  const auto [group_id, expr_id] = this->memo_->InitMemo(node);
   return group_id;
 }
 
@@ -65,7 +65,7 @@ std::vector<ExprId> Cascades::GetAllExprsInGroup(const GroupId& group_id) const 
 
 RelMemoNodeRef Cascades::GetExprMemoNode(const ExprId& expr_id) const { return this->memo_->GetExprMemoNode(expr_id); }
 
-std::vector<RuleWrapper> Cascades::Rules() const { return this->rules_; }
+const std::vector<RuleWrapper>& Cascades::Rules() const { return this->rules_; }
 
 bool Cascades::IsRuleFired(const ExprId& group_expr_id, const RuleId& rule_id) const {
   if (!this->fired_rules_.contains(group_expr_id)) {

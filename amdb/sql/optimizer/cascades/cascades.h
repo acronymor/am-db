@@ -32,7 +32,7 @@ class Cascades final : public Optimizer {
   void UpdateGroupInfo(const GroupId& group_id, const GroupInfo& group_info);
   std::vector<ExprId> GetAllExprsInGroup(const GroupId& group_id) const;
   RelMemoNodeRef GetExprMemoNode(const ExprId& expr_id) const;
-  std::vector<RuleWrapper> Rules() const;
+  const std::vector<RuleWrapper>& Rules() const;
   bool IsRuleFired(const ExprId& group_expr_id, const RuleId& rule_id) const;
   void MarkRuleFired(const ExprId& group_expr_id, const RuleId& rule_id);
   bool IsGroupExplored(const GroupId& group_id) const;

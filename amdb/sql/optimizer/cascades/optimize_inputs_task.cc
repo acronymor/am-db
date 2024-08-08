@@ -53,9 +53,9 @@ std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimiz
       std::format("{}", this->continue_from_.has_value() ? std::to_string(this->continue_from_->next_group_idx) : "");
   TRACE("event=task_begin, task=optimize_inputs, expr_id={}, continue_from={}", this->expr_id_,
         continue_from_group_idx);
-  const RelMemoNodeRef& expr = optimizer->GetExprMemoNode(this->expr_id_);
+  const RelMemoNodeRef expr = optimizer->GetExprMemoNode(this->expr_id_);
   const std::vector<GroupId>& children_group_ids = expr->children;
-  const std::shared_ptr<CostModel>& cost = optimizer->Cost();
+  const std::shared_ptr<CostModel> cost = optimizer->Cost();
 
   if (this->continue_from_) {
     if (this->continue_from_->next_group_idx < children_group_ids.size()) {
@@ -89,7 +89,7 @@ std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimiz
     } else {
       const GroupId group_id = optimizer->GetGroupId(this->expr_id_).value();
       // const plan::Cost cost_so_far = cost->Sum(expr->node->FindLocalCost(), this->continue_from_->input_cost);
-      const plan::Cost& cost_so_far = cost->Sum(cost->Zero(), this->continue_from_->input_cost);
+      const plan::Cost cost_so_far = cost->Sum(cost->Zero(), this->continue_from_->input_cost);
       if (IsUpdateWinner(optimizer, cost_so_far, group_id)) {
         Winner winner = {.impossible = false, .expr_id = this->expr_id_, .cost = cost_so_far};
         GroupInfo group_info{winner};
@@ -99,7 +99,7 @@ std::vector<std::unique_ptr<Task>> OptimizeInputsTask::execute(Cascades* optimiz
       return {};
     }
   } else {
-    const std::vector<plan::Cost>& input_cost = FirstInvoke(optimizer, children_group_ids);
+    const std::vector<plan::Cost> input_cost = FirstInvoke(optimizer, children_group_ids);
     TRACE("event=task_yield, task=optimize_inputs, expr_id={}", this->expr_id_);
     std::vector<std::unique_ptr<Task>> tasks;
     ContinueTask task(0, input_cost, false);

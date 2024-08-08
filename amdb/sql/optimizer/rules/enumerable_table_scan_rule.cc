@@ -14,9 +14,9 @@ std::shared_ptr<RuleMatcher> EnumerableTableScanRule::Matcher() {
   return std::make_shared<MatchAndPickNode>(&pick_to, child, plan::RelOptNodeType::kLogicalTableScan);
 };
 
-std::vector<plan::RelOptNode*> EnumerableTableScanRule::Apply(const Optimizer* optimizer, plan::RelOptNode* input) {
+std::vector<plan::RelOptNode*> EnumerableTableScanRule::Apply(const Optimizer* optimizer, plan::RelOptNode* node) {
   plan::PhysicalTableScan* scan = new plan::PhysicalTableScan();
-  for (const auto& item : input->GetInputs()) {
+  for (const auto& item : node->GetInputs()) {
     scan->AddInput(item);
   }
   return {scan};

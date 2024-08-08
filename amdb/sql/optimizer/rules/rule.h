@@ -17,7 +17,7 @@ class Rule {
   virtual ~Rule() = default;
 
   virtual std::shared_ptr<RuleMatcher> Matcher() = 0;
-  virtual std::vector<plan::RelOptNode*> Apply(const Optimizer* optimizer, plan::RelOptNode* input) = 0;
+  virtual std::vector<plan::RelOptNode*> Apply(const Optimizer* optimizer, plan::RelOptNode* node) = 0;
   std::string Name() const;
 
  private:

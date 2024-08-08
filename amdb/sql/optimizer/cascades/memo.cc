@@ -19,7 +19,7 @@ std::vector<GroupId> Memo::GetAllGroupIds() {
 }
 
 std::vector<ExprId> Memo::GetAllExprsInGroup(const GroupId& group_id) {
-  const std::optional<ReducedGroupId>& reduced_group_id = this->GetReduceGroupId(group_id);
+  const std::optional<ReducedGroupId> reduced_group_id = this->GetReduceGroupId(group_id);
   if (!reduced_group_id.has_value() || !this->groups_.contains(reduced_group_id.value())) {
     return {};
   }
@@ -50,7 +50,7 @@ std::optional<GroupId> Memo::GetGroupId(const ExprId& expr_id) {
 }
 
 std::optional<Group> Memo::GetGroup(const GroupId& group_id) {
-  const std::optional<ReducedGroupId>& reduced_group_id = this->GetReduceGroupId(group_id);
+  const std::optional<ReducedGroupId> reduced_group_id = this->GetReduceGroupId(group_id);
   if (!reduced_group_id.has_value()) {
     return std::nullopt;
   }
@@ -59,7 +59,7 @@ std::optional<Group> Memo::GetGroup(const GroupId& group_id) {
 }
 
 std::optional<GroupInfo> Memo::GetGroupInfo(const GroupId& group_id) {
-  const std::optional<ReducedGroupId>& reduced_group_id = this->GetReduceGroupId(group_id);
+  const std::optional<ReducedGroupId> reduced_group_id = this->GetReduceGroupId(group_id);
   if (!reduced_group_id.has_value()) {
     return std::nullopt;
   }
@@ -74,7 +74,7 @@ void Memo::UpdateGroupInfo(const GroupId& group_id, const GroupInfo& group_info)
     }
   }
 
-  const std::optional<ReducedGroupId>& reduced_group_id = this->GetReduceGroupId(group_id);
+  const std::optional<ReducedGroupId> reduced_group_id = this->GetReduceGroupId(group_id);
   if (!reduced_group_id.has_value()) {
     return;
   }
@@ -91,9 +91,9 @@ plan::RelOptNode* Memo::GetBestPlan(const GroupId& group_id) {
 }
 
 Status Memo::getBestGroupBind(plan::RelOptNode* root, const GroupId& group_id) {
-  const std::optional<GroupInfo>& group_info = this->GetGroupInfo(group_id);
-  const ExprId& expr_id = group_info.value().winner->expr_id;
-  const RelMemoNodeRef& node_ref = this->GetExprMemoNode(expr_id);
+  const std::optional<GroupInfo> group_info = this->GetGroupInfo(group_id);
+  const ExprId expr_id = group_info.value().winner->expr_id;
+  const RelMemoNodeRef node_ref = this->GetExprMemoNode(expr_id);
 
   node_ref->node->RemoveInputs();
   root->AddInput(node_ref->node);
@@ -110,14 +110,14 @@ RelMemoNodeRef Memo::GetExprMemoNode(const ExprId& expr_id) { return this->expr_
 std::pair<GroupId, ExprId> Memo::InitMemo(plan::RelOptNode* node) {
   std::vector<GroupId> children_group_ids;
   for (plan::RelOptNode* input : node->GetInputs()) {
-    const auto& [tmp_group_id, _] = this->InitMemo(input);
+    const auto [tmp_group_id, _] = this->InitMemo(input);
     children_group_ids.emplace_back(tmp_group_id);
   }
 
-  const ExprId& expr_id = this->NextExprId();
-  const GroupId& group_id = this->NextGroupId();
+  const ExprId expr_id = this->NextExprId();
+  const GroupId group_id = this->NextGroupId();
 
-  const RelMemoNodeRef& memo_node_ref = std::make_shared<RelMemoNode>(node, children_group_ids);
+  const RelMemoNodeRef memo_node_ref = std::make_shared<RelMemoNode>(node, children_group_ids);
   this->expr_id_to_expr_node_.insert(std::make_pair(expr_id, memo_node_ref));
   this->expr_id_to_group_id_.insert(std::make_pair(expr_id, group_id));
   this->expr_node_to_expr_id_.insert(std::make_pair(memo_node_ref, expr_id));
@@ -142,13 +142,13 @@ std::pair<GroupId, ExprId> Memo::AddNewGroupExpr(plan::RelOptNode* node, const s
   for (plan::RelOptNode* input : node->GetInputs()) {
     if (input->GetType() == plan::RelOptNodeType::kPlaceHolder) {
       const PlaceHolder* tmp = dynamic_cast<PlaceHolder*>(input);
-      const GroupId& tmp_group_id = tmp->GetGroupID();
+      const GroupId tmp_group_id = tmp->GetGroupID();
       children_group_ids.emplace_back(tmp_group_id);
     }
   }
 
-  const ExprId& expr_id = this->NextExprId();
-  const RelMemoNodeRef& memo_node_ref = std::make_shared<RelMemoNode>(node, children_group_ids);
+  const ExprId expr_id = this->NextExprId();
+  const RelMemoNodeRef memo_node_ref = std::make_shared<RelMemoNode>(node, children_group_ids);
 
   this->expr_id_to_expr_node_.insert(std::make_pair(expr_id, memo_node_ref));
   this->expr_id_to_group_id_.insert(std::make_pair(expr_id, real_reduced_group_id));

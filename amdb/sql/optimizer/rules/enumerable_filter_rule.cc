@@ -15,10 +15,9 @@ std::shared_ptr<RuleMatcher> EnumerableFilterRule::Matcher() {
   return std::make_shared<MatchAndPickNode>(&pick_to, child, plan::RelOptNodeType::kLogicalFilter);
 };
 
-std::vector<plan::RelOptNode*> EnumerableFilterRule::Apply(
-    const Optimizer* optimizer, plan::RelOptNode* input) {
+std::vector<plan::RelOptNode*> EnumerableFilterRule::Apply(const Optimizer* optimizer, plan::RelOptNode* node) {
   plan::PhysicalFilter* filter = new plan::PhysicalFilter();
-  for (const auto& child : input->GetInputs()) {
+  for (const auto& child : node->GetInputs()) {
     filter->AddInput(child);
   }
   return {filter};
