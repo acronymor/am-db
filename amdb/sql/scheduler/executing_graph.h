@@ -61,14 +61,14 @@ class ExecutingGraph {
   ExecutingGraph* initEdges();
 
  public:
-  const std::vector<std::unique_ptr<Node>>& Nodes() const { return nodes_; }
+  const std::vector<Node*>& Nodes() const { return nodes_; }
 
  private:
   StatementContext* stmt_ctx;
 
   std::unordered_map<IExecutor*, uint64_t> exec_to_id;
   std::vector<IExecutor*> executors_;
-  std::vector<std::unique_ptr<Node>> nodes_;
+  std::vector<Node*> nodes_;
   IExecutor* root_executor_ = nullptr;
 };
 }  // namespace scheduler

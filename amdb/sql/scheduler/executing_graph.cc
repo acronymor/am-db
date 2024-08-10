@@ -10,7 +10,7 @@ namespace scheduler {
 namespace {
 IExecutor* ToExecutor(StatementContext* stmt_ctx, plan::RelOptNode* cur_node, std::vector<IExecutor*>* executors) {
   IExecutor* parent_executor = executor::ToExecutor(stmt_ctx, cur_node);
-  for (plan::RelOptNode * node : cur_node->GetInputs()) {
+  for (plan::RelOptNode* node : cur_node->GetInputs()) {
     IExecutor* child_exec = ToExecutor(stmt_ctx, node, executors);
     Connect(parent_executor->CreateInputPort(), child_exec->CreateOutputPort());
   }
@@ -48,7 +48,7 @@ ExecutingGraph* ExecutingGraph::initNodes() {
   for (size_t id = 0; id < executors_.size(); id++) {
     IExecutor* executor = executors_.at(id);
     exec_to_id[executor] = id;
-    nodes_.emplace_back(std::make_unique<Node>(executor, id));
+    nodes_.emplace_back(stmt_ctx->arena->CreateObject<Node>(executor, id));
   }
 
   return this;

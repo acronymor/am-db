@@ -27,8 +27,8 @@ class Scheduler {
     explicit Task(ExecutingGraph::Node* node) : node(node){};
   };
 
-  std::queue<std::shared_ptr<Task>> pending_tasks_;
-  std::queue<std::shared_ptr<Task>> executing_tasks_;
+  std::queue<Task*> pending_tasks_;
+  std::queue<Task*> executing_tasks_;
 };
 }  // namespace scheduler
 }  // namespace amdb
