@@ -19,17 +19,17 @@ plan::RelOptNode* ToPhysicalNode(StatementContext* stmt_ctx, plan::RelOptNode* l
   switch (logical->GetType()) {
     case plan::RelOptNodeType::kLogicalCreateDatabase: {
       plan::LogicalCreateDatabase* logical_create_database = dynamic_cast<plan::LogicalCreateDatabase*>(logical);
-      node = dynamic_cast<plan::PhysicalCreateDatabase*>(CreateDatabase(stmt_ctx, logical_create_database));
+      node = CreateDatabase(stmt_ctx, logical_create_database);
     }; break;
 
     case plan::RelOptNodeType::kLogicalCreateTable: {
       plan::LogicalCreateTable* logical_create_table = dynamic_cast<plan::LogicalCreateTable*>(logical);
-      node = dynamic_cast<plan::PhysicalCreateTable*>(CreateTable(stmt_ctx, logical_create_table));
+      node = CreateTable(stmt_ctx, logical_create_table);
     }; break;
 
     case plan::RelOptNodeType::kLogicalInsert: {
       plan::LogicalInsert* logical_insert = dynamic_cast<plan::LogicalInsert*>(logical);
-      node = dynamic_cast<plan::PhysicalInsert*>(Insert(stmt_ctx, logical_insert));
+      node = Insert(stmt_ctx, logical_insert);
     }; break;
 
     default:
@@ -39,21 +39,22 @@ plan::RelOptNode* ToPhysicalNode(StatementContext* stmt_ctx, plan::RelOptNode* l
   return node;
 }
 
-plan::PhysicalCreateDatabase* CreateDatabase(StatementContext* stmt_ctx, plan::LogicalCreateDatabase* logical) {
+plan::PhysicalCreateDatabase* CreateDatabase(const StatementContext* stmt_ctx, plan::LogicalCreateDatabase* logical) {
   plan::PhysicalCreateDatabase* node = stmt_ctx->arena->CreateObject<plan::PhysicalCreateDatabase>();
   node->SetTable(logical->GetTable());
   return node;
 }
 
-static plan::PhysicalCreateTable* CreateTable(StatementContext* stmt_ctx, plan::LogicalCreateTable* logical) {
+static plan::PhysicalCreateTable* CreateTable(const StatementContext* stmt_ctx, plan::LogicalCreateTable* logical) {
   plan::PhysicalCreateTable* node = stmt_ctx->arena->CreateObject<plan::PhysicalCreateTable>();
   node->SetTable(logical->GetTable());
   return node;
 }
 
-static plan::PhysicalInsert* Insert(StatementContext* stmt_ctx, plan::LogicalInsert* logical) {
+static plan::PhysicalInsert* Insert(const StatementContext* stmt_ctx, plan::LogicalInsert* logical) {
   plan::PhysicalInsert* node = stmt_ctx->arena->CreateObject<plan::PhysicalInsert>();
   node->SetTable(logical->GetTable());
+  node->ExprNodes().assign(logical->ExprNodes().begin(), logical->ExprNodes().end());
   return node;
 }
 }  // namespace opt

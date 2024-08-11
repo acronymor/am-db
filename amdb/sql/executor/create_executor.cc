@@ -14,8 +14,6 @@ scheduler::IExecutor::State CreateExecutor::Prepare() { return kNeedData; }
 Status CreateExecutor::Work() { return DoWork(); }
 
 Status CreateDatabaseExecutor::DoWork() {
-  storage::IdAllocator* id_allocator = storage::IdAllocatorSingleton::GetInstance();
-
   schema::DatabaseInfo* database_info = create_database_plan_->GetTable()->GetDB();
 
   storage::Metadata meta;
