@@ -6,7 +6,7 @@ namespace opt {
 
 class OptimizeExprTask final : public Task {
  public:
-  OptimizeExprTask(const ExprId& expr_id, bool exploring);
+  OptimizeExprTask(const ExprId expr_id, const bool exploring);
 
   std::vector<std::unique_ptr<Task>> execute(Cascades* optimizer) override;
 

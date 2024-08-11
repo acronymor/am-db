@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unordered_map>
-
 #include "sql/context/statement_context.h"
 #include "sql/optimizer/rules/rule_matcher.h"
 
@@ -13,20 +11,23 @@ using RuleId = std::uint32_t;
 
 class Rule {
  public:
-  explicit Rule(const std::string& name) : name_(name) {}
+  explicit Rule(Arena* arena, const std::string& name) : name_(name), arena_(arena) {}
   virtual ~Rule() = default;
 
-  virtual std::shared_ptr<RuleMatcher> Matcher() = 0;
-  virtual plan::RelOptNode* Apply(const Optimizer* optimizer, plan::RelOptNode* node) = 0;
+  virtual RuleMatcher* Matcher() = 0;
+  virtual plan::RelOptNode* Apply(plan::RelOptNode* node) = 0;
   std::string Name() const;
+
+ protected:
+  Arena* arena_;
 
  private:
   std::string name_;
 };
 
 struct RuleWrapper {
-  const std::shared_ptr<Rule> rule;
-  const OptimizerType optimizer_type;
+  Rule* rule;
+  OptimizerType optimizer_type;
 };
 
 }  // namespace opt

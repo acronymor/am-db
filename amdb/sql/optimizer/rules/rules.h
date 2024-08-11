@@ -7,12 +7,12 @@
 
 namespace amdb {
 namespace opt {
-Status static InitCascadesRules(std::vector<RuleWrapper>* rules) {
-  rules->emplace_back(std::make_shared<EnumerableResultSetRule>(), OptimizerType::Cascades);
-  rules->emplace_back(std::make_shared<EnumerableFilterRule>(), OptimizerType::Cascades);
-  rules->emplace_back(std::make_shared<EnumerableTableScanRule>(), OptimizerType::Cascades);
-
-  return Status::C_OK;
+static std::vector<RuleWrapper> InitCascadesRules(Arena* arena) {
+  std::vector<RuleWrapper> rules;
+  rules.emplace_back(arena->CreateObject<EnumerableResultSetRule>(arena), OptimizerType::Cascades);
+  rules.emplace_back(arena->CreateObject<EnumerableFilterRule>(arena), OptimizerType::Cascades);
+  rules.emplace_back(arena->CreateObject<EnumerableTableScanRule>(arena), OptimizerType::Cascades);
+  return rules;
 }
 };  // namespace opt
 };  // namespace amdb

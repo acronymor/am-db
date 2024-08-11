@@ -14,7 +14,7 @@ namespace opt {
 Cascades::Cascades(StatementContext* stmt_ctx) : Optimizer(stmt_ctx) {
   this->memo_ = std::make_unique<Memo>();
   this->cost_ = std::make_shared<AdaptiveCost>();
-  InitCascadesRules(&this->rules_);
+  this->rules_ = std::move(InitCascadesRules(stmt_ctx->arena));
 };
 
 plan::RelOptNode* Cascades::FindBestExp() {

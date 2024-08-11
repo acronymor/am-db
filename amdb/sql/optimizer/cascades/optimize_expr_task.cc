@@ -9,17 +9,17 @@
 
 namespace amdb {
 namespace opt {
-bool TopMatches(const std::shared_ptr<RuleMatcher>& matcher, plan::RelOptNode* node) {
+bool TopMatches(RuleMatcher* matcher, plan::RelOptNode* node) {
   bool res = false;
 
   switch (matcher->GetMatcherType()) {
     case RuleMatcherType::MatchAndPickNode: {
-      const MatchAndPickNode* match = dynamic_cast<MatchAndPickNode*>(matcher.get());
+      MatchAndPickNode* match = dynamic_cast<MatchAndPickNode*>(matcher);
       res = match->GetType() == node->GetType();
       break;
     };
     case RuleMatcherType::MatchNode: {
-      const MatchNode* match = dynamic_cast<MatchNode*>(matcher.get());
+      MatchNode* match = dynamic_cast<MatchNode*>(matcher);
       res = match->GetType() == node->GetType();
       break;
     };
@@ -31,7 +31,8 @@ bool TopMatches(const std::shared_ptr<RuleMatcher>& matcher, plan::RelOptNode* n
   return res;
 }
 
-OptimizeExprTask::OptimizeExprTask(const ExprId& expr_id, bool exploring) : expr_id_(expr_id), exploring_(exploring) {}
+OptimizeExprTask::OptimizeExprTask(const ExprId expr_id, const bool exploring)
+    : expr_id_(expr_id), exploring_(exploring) {}
 
 std::vector<std::unique_ptr<Task>> OptimizeExprTask::execute(Cascades* optimizer) {
   const RelMemoNodeRef node_ref = optimizer->GetExprMemoNode(this->expr_id_);
@@ -46,14 +47,6 @@ std::vector<std::unique_ptr<Task>> OptimizeExprTask::execute(Cascades* optimizer
     if (this->exploring_) {
       continue;
     }
-
-    /**
-    std::cout << optimizer->Rules()[rule_id].rule->Name() <<std::endl;
-    ---
-    下面这种写法会报错，个人猜测是 optimizer->Rules() 的问题，但是原因不清楚
-    const RuleWrapper& rule_wrapper = optimizer->Rules()[rule_id];
-    std::cout << rule_wrapper.rule->Name() << std::endl;;
-    */
 
     if (TopMatches(optimizer->Rules()[rule_id].rule->Matcher(), node_ref->node)) {
       tasks.emplace_back(std::make_unique<ApplyRuleTask>(rule_id, this->expr_id_, this->exploring_));

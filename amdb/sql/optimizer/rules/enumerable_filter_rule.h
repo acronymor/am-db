@@ -4,11 +4,11 @@ namespace amdb {
 namespace opt {
 class EnumerableFilterRule final : public Rule {
  public:
-  explicit EnumerableFilterRule();
+  explicit EnumerableFilterRule(Arena* arena);
 
-  std::shared_ptr<RuleMatcher> Matcher() override;
+  RuleMatcher* Matcher() override;
 
-  plan::RelOptNode* Apply(const Optimizer* optimizer, plan::RelOptNode* node) override;
+  plan::RelOptNode* Apply(plan::RelOptNode* node) override;
 };
 
 };  // namespace opt

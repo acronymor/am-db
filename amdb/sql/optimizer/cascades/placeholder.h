@@ -22,7 +22,7 @@ class PlaceHolder : public plan::RelOptNode {
     if (this->node_ == nullptr) {
       return plan::RelOptNodeType::kPlaceHolder;
     }
-    this->node_->GetType();
+    return this->node_->GetType();
   };
 
  private:

@@ -31,9 +31,10 @@ class RuleMatcher {
 
 class MatchAndPickNode final : public RuleMatcher {
  public:
-  explicit MatchAndPickNode(std::size_t* pick_to, const std::vector<std::shared_ptr<RuleMatcher>>& children, const plan::RelOptNodeType& type);
+  explicit MatchAndPickNode(std::size_t* pick_to, const std::vector<RuleMatcher*>& children,
+                            const plan::RelOptNodeType& type);
 
-  std::vector<std::shared_ptr<RuleMatcher>> GetChildren();
+  const std::vector<RuleMatcher*>& GetChildren();
 
   plan::RelOptNodeType GetType() const;
 
@@ -42,25 +43,25 @@ class MatchAndPickNode final : public RuleMatcher {
  private:
   std::size_t pick_to_{0};
   plan::RelOptNodeType type_;
-  std::vector<std::shared_ptr<RuleMatcher>> children_;
+  const std::vector<RuleMatcher*> children_;
 };
 
 class MatchNode final : public RuleMatcher {
  public:
-  explicit MatchNode(const std::vector<std::shared_ptr<RuleMatcher>>& children, const plan::RelOptNodeType& type);
+  explicit MatchNode(const std::vector<RuleMatcher*>& children, const plan::RelOptNodeType& type);
 
- std::vector<std::shared_ptr<RuleMatcher>> GetChildren();
+  const std::vector<RuleMatcher*>& GetChildren();
 
   plan::RelOptNodeType GetType() const;
 
  private:
   plan::RelOptNodeType type_;
-  std::vector<std::shared_ptr<RuleMatcher>> children_;
+  std::vector<RuleMatcher*> children_;
 };
 
 class PickOne final : public RuleMatcher {
  public:
-  explicit PickOne(std::size_t* pick_to, const bool& expand);
+  explicit PickOne(std::size_t* pick_to, const bool expand);
 
   bool GetExpand() const;
 
