@@ -2,8 +2,6 @@
 
 #include "sql/chunk/column.h"
 #include "sql/chunk/row.h"
-#include "sql/codec/codec.h"
-#include "sql/codec/schema_codec.h"
 #include "sql/schema/schema.h"
 
 /**

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option cc_generic_services = false;
+option cc_enable_arenas = false;
+
+package amdb.stat;
+
+message StatisticsMetaProto {
+    uint64 db_id = 1;
+    uint64 table_id = 2;
+    bool is_analyzing = 3;
+    uint64 create_ts = 4;
+    uint64 update_ts = 5;
+}

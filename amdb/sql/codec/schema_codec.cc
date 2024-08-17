@@ -1,4 +1,5 @@
 #include "sql/codec/schema_codec.h"
+#include "sql/codec/common.h"
 
 namespace amdb {
 namespace codec {

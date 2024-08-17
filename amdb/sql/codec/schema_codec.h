@@ -7,20 +7,13 @@ namespace codec {
 const uint64_t kGlobalDatabaseID = 0;
 const uint64_t kGlobalTableID = 0;
 
-enum MetaType : uint8_t {
+enum struct MetaType : uint8_t {
   kDatabaseId = 0,
   kDatabaseInfo = 1,
   kTableId = 2,
-  kTableInfo = 3
+  kTableInfo = 3,
 };
 
-enum struct DataType : uint8_t {
-  kTreeNode = 0,
-  kRow = 1,
-  kDatabaseId = 2,
-  kTableId = 3,
-  kColumnId = 4,
-};
 
 size_t EncodeDatabaseAllocID(uint64_t id, std::string* out);
 size_t EncodeTableAllocID(uint64_t id, std::string* out);

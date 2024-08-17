@@ -1,6 +1,7 @@
 #include "sql/storage/table_iterator.h"
 
 #include "sql/codec/rc_codec.h"
+#include "sql/codec/schema_codec.h"
 
 namespace amdb {
 namespace storage {
