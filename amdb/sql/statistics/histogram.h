@@ -1,20 +1,25 @@
+#pragma once
+
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
 #include "proto/statistics.pb.h"
 #include "sql/common/statuscode.h"
+#include "sql/expression/expr_cmp.h"
+#include "sql/expression/expr_value.h"
 
 namespace amdb {
 namespace stat {
 class Histogram {
  public:
   struct Bucket {
-    std::string start;
-    std::string end;
+    expr::ExprValue start;
+    expr::ExprValue end;
     std::uint64_t count;
     std::uint64_t ndv;
-    std::uint64_t cf;  // cumulative frequency
+    std::double_t cf;  // cumulative frequency
 
     // serialize to proto
     Status Serialize(BucketProto* output);
@@ -22,8 +27,8 @@ class Histogram {
     Status Deserialize(const BucketProto& input);
   };
 
-  Histogram() { this->buckets_.reserve(256); };
-  Histogram(double sample_rate, std::size_t bucket_num);
+  Histogram() = default;
+  explicit Histogram(std::size_t bucket_num);
 
   Status AddBucket(const Bucket& bucket);
 

@@ -1,12 +1,14 @@
 #include "sql/expression/expr_value.h"
 
+#include <ranges>
+
 #include "common/assert.h"
 #include "common/log.h"
 
 namespace amdb {
 namespace expr {
 
-void ToData(const expr::ExprValue& value, char* col_ptr, Arena* arena) {
+void ToData(const expr::ExprValue& value, char* col_ptr) {
   switch (value.Type()) {
     case expr::Int8:
       *reinterpret_cast<int8_t*>(col_ptr) = value.Int8Value();
@@ -27,12 +29,9 @@ void ToData(const expr::ExprValue& value, char* col_ptr, Arena* arena) {
       *reinterpret_cast<uint64_t*>(col_ptr) = value.UInt64Value();
       break;
     case expr::String: {
-      AMDB_ASSERT_FALSE(arena == nullptr);
-      std::string str = value.StringValue();
-      char* str_copy = reinterpret_cast<char*>(arena->AllocateBytes(str.size()));
-      memcpy(str_copy, str.data(), str.length());
-      *reinterpret_cast<uint64_t*>(col_ptr) = reinterpret_cast<uint64_t>(str_copy);
-      *reinterpret_cast<uint32_t*>(col_ptr + sizeof(uint64_t)) = str.length();
+      std::string* str = new std::string(value.StringValue());
+      *reinterpret_cast<uint64_t*>(col_ptr) = reinterpret_cast<uint64_t>(str);
+      *reinterpret_cast<uint32_t*>(col_ptr + sizeof(uint64_t)) = str->length();
     } break;
     default:
       ERROR("Not support type {}", value.Type());
@@ -76,8 +75,57 @@ void ToExprValue(const char* col_ptr, expr::ExprValue& value) {
   }
 }
 
+ExprValue::ExprValue(const ExprValue& other) : u(other.u), type_(other.type_) {
+  switch (other.alloc_type) {
+    case ExprValueType::String: {
+      SetVarPtr(ExprValueType::String, new std::string(other.StringValue()));
+    } break;
+    default:
+      break;
+  }
+}
+
+ExprValue::ExprValue(ExprValue&& other) noexcept : u(other.u), type_(other.type_) {
+  switch (other.alloc_type) {
+    case ExprValueType::String: {
+      this->var_ptr = other.var_ptr, other.var_ptr = nullptr;
+      this->alloc_type = other.alloc_type, other.alloc_type = ExprValueType::Invalid;
+    } break;
+    default:
+      break;
+  }
+}
+
+ExprValue& ExprValue::operator=(const ExprValue& other) {
+  if (this == &other) {
+    return *this;
+  }
+
+  this->type_ = other.type_;
+  this->u = other.u;
+
+  switch (other.alloc_type) {
+    case ExprValueType::String: {
+      SetVarPtr(ExprValueType::String, new std::string(other.StringValue()));
+    } break;
+    default:
+      break;
+  }
+
+  return *this;
+}
+
 ExprValue::~ExprValue() {
-  // delete var_ptr, var_ptr = nullptr;
+  if (var_ptr != nullptr) {
+    switch (alloc_type) {
+      case ExprValueType::String: {
+        delete static_cast<std::string*>(var_ptr);
+        var_ptr = nullptr;
+        alloc_type = ExprValueType::Invalid;
+        break;
+      };
+    }
+  }
 }
 
 ExprValue::ExprValue(ExprValueType type, bool null) { type_ = type; }
@@ -154,8 +202,7 @@ ExprValue ExprValue::NewDouble(double v) {
   return value;
 }
 
-ExprValue ExprValue::NewString(std::string&& v, Arena* arena) {
-  AMDB_ASSERT_FALSE(arena == nullptr);
+ExprValue ExprValue::NewString(std::string&& v) {
   ExprValue value(ExprValueType::String, false);
   value.SetVarPtr(ExprValueType::String, new std::string(std::move(v)));
   return value;
@@ -288,7 +335,7 @@ double ExprValue::DoubleValue() const {
 std::string ExprValue::StringValue() const {
   AMDB_ASSERT_EQ(ExprValueType::String, type_);
   // return std::string(static_cast<char*>(var_ptr));
-  return *(static_cast<std::string*>(var_ptr));
+  return std::string(*(static_cast<std::string*>(var_ptr)));
 }
 
 size_t ExprValue::Length() {

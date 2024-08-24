@@ -107,7 +107,7 @@ size_t DecodeRow(Arena* arena, const schema::TableInfo* table_info,
     tmp.clear();
     tmp.assign(value->data() + offset, value->length() - offset);
 
-    offset += codec::DecodeExprValue(tmp, &expr_value, arena);
+    offset += codec::DecodeExprValue(tmp, &expr_value);
     row->SetColValue(row->desc->ID(), col_info.id, expr_value);
   }
 

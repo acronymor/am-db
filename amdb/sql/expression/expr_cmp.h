@@ -78,5 +78,16 @@ inline common::CmpOpt ExprValuesCmp(const std::vector<expr::ExprValue>& v1,
 
   return v1.size() > v2.size() ? common::CmpOpt::lt : common::CmpOpt::gt;
 }
+
+using ExprValueSortCmpFunc = int(*)(const ExprValue&, const ExprValue&);
+
+struct ExprValueLess {
+  ExprValueSortCmpFunc sorter_cmp = nullptr;
+
+  ExprValueLess(ExprValueSortCmpFunc cmp) : sorter_cmp(cmp) {}
+  bool operator()(const ExprValue& lval, const ExprValue& rval) const {
+    return sorter_cmp(lval, rval) == common::CmpOpt::gt;
+  }
+};
 }  // namespace expr
 }  // namespace amdb

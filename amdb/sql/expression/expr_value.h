@@ -7,7 +7,12 @@ namespace amdb {
 namespace expr {
 class ExprValue {
  public:
+  ExprValue() = default;
   ~ExprValue();
+
+  ExprValue(const ExprValue& other);
+  ExprValue(ExprValue&& other) noexcept;
+  ExprValue& operator=(const ExprValue& other);
 
  public:
   union {
@@ -33,7 +38,7 @@ class ExprValue {
   static ExprValue NewFloat64(double v);
   static ExprValue NewFloat128(long double v);
   static ExprValue NewDouble(double v);
-  static ExprValue NewString(std::string&& v, Arena* arena);
+  static ExprValue NewString(std::string&& v);
 
   static ExprValue NewMax(ExprValueType type);
   static ExprValue NewMin(ExprValueType type);
@@ -65,7 +70,7 @@ class ExprValue {
 };
 
 // save ExprValue into char*
-void ToData(const expr::ExprValue& value, char* col_ptr, Arena* arena);
+void ToData(const expr::ExprValue& value, char* col_ptr);
 
 // convert char* to ExprValue
 void ToExprValue(const char* col_ptr, expr::ExprValue& value);

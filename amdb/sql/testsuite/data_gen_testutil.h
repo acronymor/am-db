@@ -21,7 +21,7 @@ class DataGen {
 
   inline expr::ExprValue GenDoubleValue() { return expr::ExprValue::NewDouble(GenDouble()); }
 
-  inline expr::ExprValue GenStringValue(size_t len = 8) { return expr::ExprValue::NewString(GenString(len), arena_); }
+  inline expr::ExprValue GenStringValue(size_t len = 8) { return expr::ExprValue::NewString(GenString(len)); }
 
  protected:
   virtual uint64_t GenUint64() = 0;

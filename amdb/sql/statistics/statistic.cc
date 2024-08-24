@@ -2,6 +2,8 @@
 
 #include <common/assert.h>
 
+#include "sql/codec/codec.h"
+
 namespace amdb {
 namespace stat {
 Status ColumnStatistics::Serialize(ColumnStatisticsProto* output) {
@@ -16,10 +18,16 @@ Status ColumnStatistics::Serialize(ColumnStatisticsProto* output) {
   output->set_create_ts(this->create_ts);
   output->set_update_ts(this->update_ts);
 
+  auto to_string = [](const expr::ExprValue& value) -> std::string {
+    std::string s;
+    codec::EncodeExprValue(value, &s);
+    return s;
+  };
+
   for (const auto& bucket : this->histogram.GetBuckets()) {
     const auto tmp = output->add_histogram();
-    tmp->set_start(bucket.start);
-    tmp->set_end(bucket.end);
+    tmp->set_start(std::move(to_string(bucket.start)));
+    tmp->set_end(std::move(to_string(bucket.end)));
     tmp->set_count(bucket.count);
     tmp->set_ndv(bucket.ndv);
     tmp->set_cf(bucket.cf);
@@ -39,6 +47,7 @@ Status ColumnStatistics::Deserialize(const ColumnStatisticsProto& input) {
   this->ndv = input.ndv();
   this->create_ts = input.create_ts();
   this->update_ts = input.update_ts();
+  this->histogram = Histogram(static_cast<std::size_t>(input.histogram().size()));
 
   for (const auto& bucket : input.histogram()) {
     Histogram::Bucket tmp;
