@@ -36,18 +36,19 @@ TEST_F(HistogramTest, Basic) {
 TEST_F(HistogramTest, Build) {
   expr::ExprValueLess less(expr::ExprValueCmp);
   std::map<expr::ExprValue, std::size_t, expr::ExprValueLess> map(less);
-  map.insert(std::make_pair(expr::ExprValue::NewString("a"), 2));
-  map.insert(std::make_pair(expr::ExprValue::NewString("b"), 11));
-  map.insert(std::make_pair(expr::ExprValue::NewString("c"), 2));
-  map.insert(std::make_pair(expr::ExprValue::NewString("d"), 7));
-  map.insert(std::make_pair(expr::ExprValue::NewString("e"), 20));
   map.insert(std::make_pair(expr::ExprValue::NewString("f"), 15));
+  map.insert(std::make_pair(expr::ExprValue::NewString("d"), 7));
+  map.insert(std::make_pair(expr::ExprValue::NewString("c"), 2));
+  map.insert(std::make_pair(expr::ExprValue::NewString("b"), 11));
+  map.insert(std::make_pair(expr::ExprValue::NewString("e"), 20));
+  map.insert(std::make_pair(expr::ExprValue::NewString("a"), 2));
 
   Histogram histogram = BuildHistogram(map, 5);
-  for (const auto& bucket : histogram.GetBuckets()) {
-    std::cout << "start=" << bucket.start.StringValue() << ",end=" << bucket.end.StringValue()
-              << ",count=" << bucket.count << std::endl;
-  }
+  const std::vector<Histogram::Bucket>& buckets = histogram.GetBuckets();
+  AMDB_ASSERT_EQ("a", buckets[0].start.StringValue());
+  AMDB_ASSERT_EQ("b", buckets[0].end.StringValue());
+  AMDB_ASSERT_EQ(13, buckets[0].count);
+  AMDB_ASSERT_EQ(4, buckets.size());
 }
 }  // namespace stat
 }  // namespace amdb

@@ -7,14 +7,6 @@ namespace codec {
 const uint64_t kGlobalDatabaseID = 0;
 const uint64_t kGlobalTableID = 0;
 
-enum struct MetaType : uint8_t {
-  kDatabaseId = 0,
-  kDatabaseInfo = 1,
-  kTableId = 2,
-  kTableInfo = 3,
-};
-
-
 size_t EncodeDatabaseAllocID(uint64_t id, std::string* out);
 size_t EncodeTableAllocID(uint64_t id, std::string* out);
 size_t EncodeColumnAllocID(uint64_t id, std::string* out);

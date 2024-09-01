@@ -40,7 +40,6 @@ Histogram BuildHistogram(const std::map<expr::ExprValue, std::size_t, expr::Expr
     double cumulative_frequency = cumulative_sum / static_cast<double>(total_count);
     const Histogram::Bucket bucket = {
         .start = *lowest_value, .end = freq_it->first, .count = sum, .ndv = ndv, .cf = cumulative_frequency};
-    std::cout << "start=" << bucket.start.StringValue() << ", end=" << bucket.end.StringValue() << std::endl;
     histogram.AddBucket(bucket);
 
     sum = 0;

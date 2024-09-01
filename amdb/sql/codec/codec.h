@@ -10,6 +10,16 @@
  */
 namespace amdb {
 namespace codec {
+
+enum struct MetaType : uint8_t {
+  kDatabaseId = 1,
+  kDatabaseInfo = 2,
+  kTableId = 3,
+  kTableInfo = 4,
+  kMetaStatistic = 5,
+  kColumnStatistic = 6
+};
+
 size_t EncodeBytes(const std::string& in, std::string* out);
 size_t DecodeBytes(const std::string& in, std::string* out);
 

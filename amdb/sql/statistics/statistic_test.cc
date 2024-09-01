@@ -6,7 +6,7 @@
 
 namespace amdb {
 namespace stat {
-class ColumnStatisticsTest : public testing::Test {
+class ColumnStatisticTest : public testing::Test {
  protected:
   void SetUp() override {
     const Histogram::Bucket bucket1 = {.start = expr::ExprValue::NewString("a"),
@@ -46,8 +46,8 @@ class ColumnStatisticsTest : public testing::Test {
   Histogram histogram_;
 };
 
-TEST_F(ColumnStatisticsTest, Basic) {
-  ColumnStatistics cs1 = {.db_id = 1,
+TEST_F(ColumnStatisticTest, SerializeAndDeserialize) {
+  ColumnStatistic cs1 = {.db_id = 1,
                           .table_id = 2,
                           .column_id = 1,
                           .min = "0",
@@ -62,7 +62,7 @@ TEST_F(ColumnStatisticsTest, Basic) {
   Status status1 = cs1.Serialize(&proto);
   AMDB_ASSERT_EQ(Status::C_OK, status1);
 
-  ColumnStatistics cs2;
+  ColumnStatistic cs2;
   Status status2 = cs2.Deserialize(proto);
   AMDB_ASSERT_EQ(Status::C_OK, status2);
 

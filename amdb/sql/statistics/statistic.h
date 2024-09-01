@@ -12,7 +12,7 @@
 
 namespace amdb {
 namespace stat {
-struct ColumnStatistics {
+struct ColumnStatistic {
   std::uint64_t db_id = amdb::kInvalidIDatabaseID;
   std::uint64_t table_id = amdb::kInvalidTableID;
   std::uint64_t column_id = amdb::kInvalidColumnID;
@@ -31,7 +31,7 @@ struct ColumnStatistics {
   Status Deserialize(const ColumnStatisticsProto& input);
 };
 
-struct MetaStatistics {
+struct MetaStatistic {
   uint64_t db_id = amdb::kInvalidIDatabaseID;
   uint64_t table_id = amdb::kInvalidTableID;
   bool is_analyzing = false;
