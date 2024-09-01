@@ -37,5 +37,7 @@ class Histogram {
  private:
   std::vector<Bucket> buckets_;
 };
+
+Histogram BuildHistogram(const std::map<expr::ExprValue, std::size_t, expr::ExprValueLess>& value_map, const std::size_t bucket_size);
 }  // namespace stat
 }  // namespace amdb

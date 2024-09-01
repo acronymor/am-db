@@ -5,6 +5,9 @@ PROJECT(amdb)
 SET(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_CXX_FLAGS -fPIC)
 
+# ADD_COMPILE_OPTIONS(-fsanitize=address)
+# ADD_LINK_OPTIONS(-fsanitize=address)
+
 ## ccache
 FIND_PROGRAM(CCACHE_PROGRAM ccache)
 IF (CCACHE_PROGRAM)
